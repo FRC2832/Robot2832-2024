@@ -1,0 +1,1 @@
+This was a old hardware module called the LightDrive.  It is no longer in production, and might not even work on CAN anymore.  It is here for legacy purposes, and is incomplete.  We only had PWM mode working, there was a SerialPort version too.
