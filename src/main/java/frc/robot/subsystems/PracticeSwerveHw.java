@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.RobotController;
@@ -31,13 +32,12 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
     private final double VELO_PER_METER = COUNTS_PER_METER*10;        //distance units
 
     //Swerve corner locations for kinematics
-    //22.25 -1.5" width 10.375"
-    //26.75" for the distance , 13.375"
+    //24.75" square
     private Translation2d[] swervePositions = {
-        new Translation2d(0.264, 0.340),  //convert inches to meters. y is front to back. left front is 1st wheel
-        new Translation2d(0.264, -0.340),  //front right wheel
-        new Translation2d(-0.264, 0.340),  // rear left
-        new Translation2d(-0.264, -0.340)  // rear right
+        new Translation2d(0.314, 0.314),  //convert inches to meters. y is front to back. left front is 1st wheel
+        new Translation2d(0.314, -0.314),  //front right wheel
+        new Translation2d(-0.314, 0.314),  // rear left
+        new Translation2d(-0.314, -0.314)  // rear right
     };
 
     private String[] moduleNames = {
@@ -51,6 +51,7 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
     private CANSparkMax turnMotors[];
     private RelativeEncoder turnEncoder[];
     private CANCoder turnSensors[];
+    private PIDController turnPid[];
 
     private double correctedAngle[];
     
@@ -63,6 +64,7 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
         turnSensors = new CANCoder[NUM_MOTORS];
         correctedAngle = new double[NUM_MOTORS];
         turnEncoder = new RelativeEncoder[NUM_MOTORS];
+        turnPid = new PIDController[NUM_MOTORS];
 
         //FL
         driveMotors[0] = new TalonFX(11);  // TODO: update with correct info when receive it
@@ -99,7 +101,9 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             Logger.RegisterSensor(moduleNames[wheel] + " Turn Pos", () -> getCornerAngle(wheelFinal));
             Logger.RegisterSensor(moduleNames[wheel] + " Drive Dist", () -> getCornerDistance(wheelFinal));
 
+            //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
+            turnPid[wheel] = new PIDController(.5/Math.PI, .2, 0);
         }
     }
 
@@ -144,16 +148,15 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
         double turnRequest = MathUtil.inputModulus(swerveModuleState.angle.getDegrees(), correctedAngle[wheel]-180, correctedAngle[wheel]+180);
         if (Math.abs(correctedAngle[wheel] - turnRequest) < 1) {
             //reset the PID to remove all the I term error so we don't overshoot and rebound
-            //turnPid[wheel].reset();
+            turnPid[wheel].reset();
         }
-        //double turnVolts = -turnPid[wheel].calculate(Math.toRadians(correctedAngle[wheel]), Math.toRadians(turnRequest));
-        //turnMotor[wheel].set(ControlMode.PercentOutput, turnVolts / RobotController.getBatteryVoltage());
+        double turnOutput = -turnPid[wheel].calculate(Math.toRadians(correctedAngle[wheel]), Math.toRadians(turnRequest));
+        turnMotors[wheel].set(turnOutput);
     }
 
     @Override
     public void setCorrectedAngle(int wheel, double angle) {
         correctedAngle[wheel] = angle; 
-        
     }
 
     @Override
