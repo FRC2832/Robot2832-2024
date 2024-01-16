@@ -15,7 +15,6 @@ import org.livoniawarriors.swerve.DriveXbox;
 import org.livoniawarriors.swerve.MoveWheels;
 import org.livoniawarriors.swerve.SwerveDriveSim;
 import org.livoniawarriors.swerve.SwerveDriveTrain;
-import org.livoniawarriors.swerve.SwerveHw23;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -33,6 +32,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.PracticeSwerveHw;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -71,7 +71,7 @@ public class RobotContainer {
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
         } else {
             //competition robot
-            swerveDrive = new SwerveDriveTrain(new SwerveHw23(), odometry);
+            swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0));
         }
         
