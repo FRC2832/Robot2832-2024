@@ -1,9 +1,15 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.interfaces.IShooterHw;
 
-public class Shooter {
-    public Shooter() {
+public class Shooter extends SubsystemBase {
+    private IShooterHw hw;
+
+    public Shooter(IShooterHw hardware) {
+        super();
+        hw = hardware;
         InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap();
 
         //input: Inches from target, output: RPM of shot  
@@ -16,16 +22,22 @@ public class Shooter {
         var rpm = table.get(175.0);
     }
     
-    public void setRPM(double RPM) {
-        
+    @Override
+    public void periodic() {
+        hw.updateInputs();
     }
+    
+    public void setRPM(double RPM) {
+        hw.setRpm(RPM);
+    }
+
     public boolean isAtSpeed() {
         return false;
     }
     
     /**@param power percent -1 to 1 */
     public void setPower (double power) {
-        
+        hw.setPower(power);
     }
 
     public void shoot() {

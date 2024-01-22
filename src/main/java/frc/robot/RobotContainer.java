@@ -32,7 +32,10 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.TestShooter;
+import frc.robot.hardware.ShooterHw;
 import frc.robot.subsystems.PracticeSwerveHw;
+import frc.robot.subsystems.Shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,7 +48,7 @@ public class RobotContainer {
     private SwerveDriveTrain swerveDrive;
     private Odometry odometry;
     private LedSubsystem leds;
-
+    private Shooter shooter;
     private XboxController driverController;
 
     private SendableChooser<Command> autoChooser;
@@ -71,8 +74,11 @@ public class RobotContainer {
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
         } else {
             //competition robot
-            swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
-            odometry.setGyroHardware(new Pigeon2Gyro(0));
+            shooter = new Shooter(new ShooterHw());            swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
+            swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
+
+            //swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
+            //odometry.setGyroHardware(new Pigeon2Gyro(0));
         }
         
         odometry.setSwerveDrive(swerveDrive);
@@ -125,6 +131,7 @@ public class RobotContainer {
         //setup default commands that are used for driving
         swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
         leds.setDefaultCommand(new RainbowLeds(leds));
+        shooter.setDefaultCommand(new TestShooter(shooter));
     }
 
     /**
