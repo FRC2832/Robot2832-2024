@@ -32,6 +32,12 @@ public class ShooterHw implements IShooterHw {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setRpm'");
     }
+    
+    /** @param shooterID should be less than length of shooters array */
+    public void setIndividualPower(int shooterID, double newPower) {
+        CANSparkFlex shooter = shooters[shooterID - 1];
+        shooter.set(newPower);
+    }
 
     @Override
     public void updateInputs() {
