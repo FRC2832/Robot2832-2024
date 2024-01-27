@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import org.livoniawarriors.T16000M;
 import org.livoniawarriors.leds.LedSubsystem;
 import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
@@ -33,6 +34,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Controls.FlightDriveControls;
+import frc.robot.commands.DriveStick;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.ShooterHw;
 import frc.robot.subsystems.PracticeSwerveHw;
@@ -50,12 +53,12 @@ public class RobotContainer {
     private Odometry odometry;
     private LedSubsystem leds;
     private Shooter shooter;
-    private XboxController driverController;
+
 
     private SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        driverController = new XboxController(0);
+        
 
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
@@ -106,6 +109,9 @@ public class RobotContainer {
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
 
+        // Controller chooser
+        SmartDashboard.putBoolean("FlightSticks", false);
+
         // Configure the AutoBuilder
         AutoBuilder.configureHolonomic(
             odometry::getPose, // Robot pose supplier
@@ -139,7 +145,16 @@ public class RobotContainer {
      */
     public void configureBindings() {
         //setup default commands that are used for driving
-        swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
+        if(SmartDashboard.getBoolean("FlightStick", false)){
+            T16000M driveContLeft = new T16000M(0);
+            T16000M driveContRight = new T16000M(1);
+            FlightDriveControls controls = new FlightDriveControls(driveContLeft, driveContRight);
+            swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, controls));
+        }
+        else{
+            XboxController driverController = new XboxController(2);
+            swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
+        }
         leds.setDefaultCommand(new RainbowLeds(leds));
         if(shooter != null) {
             shooter.setDefaultCommand(new TestShooter(shooter));
