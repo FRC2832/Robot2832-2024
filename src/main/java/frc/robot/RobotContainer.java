@@ -10,6 +10,7 @@ import org.livoniawarriors.leds.RainbowLeds;
 import org.livoniawarriors.leds.TestLeds;
 import org.livoniawarriors.odometry.Odometry;
 import org.livoniawarriors.odometry.Pigeon2Gyro;
+import org.livoniawarriors.odometry.PigeonGyro;
 import org.livoniawarriors.odometry.SimSwerveGyro;
 import org.livoniawarriors.swerve.DriveXbox;
 import org.livoniawarriors.swerve.MoveWheels;
@@ -61,6 +62,8 @@ public class RobotContainer {
         //known Rio serial numbers:
         //031b525b = buzz
         //03064db7 = big buzz
+        //031e3219 = practice chassis
+        //03134cef = woody
 
         //subsystems used in all robots
         odometry = new Odometry();
@@ -72,13 +75,20 @@ public class RobotContainer {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+        } else if (serNum.equals("031e3219")) {
+            //practice robot
+            swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
+            odometry.setGyroHardware(new PigeonGyro(0));
+        } else if (serNum.equals("03134cef")) {
+            //woody demo shooter
+            shooter = new Shooter(new ShooterHw());
+            swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
+            odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
         } else {
             //competition robot
-            shooter = new Shooter(new ShooterHw());            swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
-            swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
-
-            //swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
-            //odometry.setGyroHardware(new Pigeon2Gyro(0));
+            shooter = new Shooter(new ShooterHw());
+            swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
+            odometry.setGyroHardware(new PigeonGyro(0));
         }
         
         odometry.setSwerveDrive(swerveDrive);
@@ -131,7 +141,9 @@ public class RobotContainer {
         //setup default commands that are used for driving
         swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
         leds.setDefaultCommand(new RainbowLeds(leds));
-        shooter.setDefaultCommand(new TestShooter(shooter));
+        if(shooter != null) {
+            shooter.setDefaultCommand(new TestShooter(shooter));
+        }
     }
 
     /**

@@ -1,13 +1,16 @@
 package frc.robot.subsystems;
 
 import org.livoniawarriors.Logger;
+import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.swerve.ISwerveDriveIo;
 import org.livoniawarriors.swerve.SwerveDriveTrain;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
@@ -28,8 +31,8 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
 
     //measuring the robot, we got 13899 counts/rev, theoretical is 13824 counts/rev (L2 gear set at 6.75:1 ratio)
     //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms)
-    private final double COUNTS_PER_METER = 4331.1 / 0.94362;     //velocity units
-    private final double VELO_PER_METER = COUNTS_PER_METER*10;        //distance units
+    private final double COUNTS_PER_METER = 43311;     //velocity units
+    private final double VELO_PER_METER = COUNTS_PER_METER/10;        //distance units
 
     //Swerve corner locations for kinematics
     //24.75" square
@@ -91,6 +94,36 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 250);
         }
 
+        double maxSpeed = UtilFunctions.getSetting("Swerve Drive/Max Speed", 5.0);
+        TalonFXConfiguration allConfigs = new TalonFXConfiguration();
+        for(TalonFX motor : driveMotors) {
+            //motors MUST be reset every powerup!!!
+            motor.configFactoryDefault();
+            motor.getAllConfigs(allConfigs);
+            //old software pid values are p 0.5, i 0.03, d 0
+            allConfigs.slot0.kP = 0;  //turn off P for now
+            //old value of 0.03 means if we had 1m/s error for 1 second, add 0.03V to the PID (or 1.705 counts of 1023)
+            //unknown why we need 2/3, but then the math works...
+            //allConfigs.slot0.kI = 0.03 * Constants.CTRE_P_RES / COUNTS_PER_METER * (2./3);
+            allConfigs.slot0.kI = 0;
+            allConfigs.slot0.kD = 0;
+            //this works out to 1023 / Max speed in counts
+            allConfigs.slot0.kF = 1023 / (maxSpeed * VELO_PER_METER);
+
+            allConfigs.slot0.integralZone = 0;
+            allConfigs.slot0.allowableClosedloopError = 0;
+
+            //the maximum velocity we want the motor to go
+            allConfigs.motionCruiseVelocity = maxSpeed * VELO_PER_METER;
+            //the maximum acceleration we want the motor to go
+            allConfigs.motionAcceleration = 5 * VELO_PER_METER;
+
+            motor.configAllSettings(allConfigs);
+            motor.setSelectedSensorPosition(0);
+
+            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 40);
+        }
+
         //register stuff for logging
         for(int wheel = 0; wheel<NUM_MOTORS; wheel++) {
             final int wheelFinal = wheel;
@@ -103,8 +136,12 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
 
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
+            turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
             turnPid[wheel] = new PIDController(.5/Math.PI, .2, 0);
+            turnMotors[wheel].setInverted(true);
         }
+        setDriveMotorBrakeMode(false);
+        setTurnMotorBrakeMode(false);
     }
 
     @Override
@@ -139,10 +176,16 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
 
     @Override
     public void setCornerState(int wheel, SwerveModuleState swerveModuleState) {
-        //set the drive command
-        double velPct = swerveModuleState.speedMetersPerSecond / 5;  //TODO set equal to max module speed
-        driveMotors[wheel].set(TalonFXControlMode.PercentOutput, velPct);
+        //hardware test in % output mode
+        //double velPct = swerveModuleState.speedMetersPerSecond / 5;  //TODO set equal to max module speed
+        //driveMotors[wheel].set(TalonFXControlMode.PercentOutput, velPct);
+        
+        //velPct = (swerveModuleState.angle.getDegrees() - correctedAngle[wheel])*.2/90;
+        //turnMotors[wheel].set(velPct);
 
+
+        //PID control
+        driveMotors[wheel].set(TalonFXControlMode.Velocity, swerveModuleState.speedMetersPerSecond * VELO_PER_METER);
         //set the turn command
         //we need the request to be within the boundaries, not wrap around the 180 point
         double turnRequest = MathUtil.inputModulus(swerveModuleState.angle.getDegrees(), correctedAngle[wheel]-180, correctedAngle[wheel]+180);
@@ -150,7 +193,7 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             //reset the PID to remove all the I term error so we don't overshoot and rebound
             turnPid[wheel].reset();
         }
-        double turnOutput = -turnPid[wheel].calculate(Math.toRadians(correctedAngle[wheel]), Math.toRadians(turnRequest));
+        double turnOutput = turnPid[wheel].calculate(Math.toRadians(correctedAngle[wheel]), Math.toRadians(turnRequest));
         turnMotors[wheel].set(turnOutput);
     }
 
