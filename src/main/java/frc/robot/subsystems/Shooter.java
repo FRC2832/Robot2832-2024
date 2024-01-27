@@ -1,13 +1,4 @@
 package frc.robot.subsystems;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkFlex;
-
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -44,19 +35,8 @@ public class Shooter extends SubsystemBase {
         return 0.00;
     }
     
-    public double RPMToVelocity(double RPM) {
+    public static double RPMToVelocity(double RPM) {
         return ((((RPM*(Math.PI)*2)/60)*2)/(39.3700787402));
-    }
-    public double getCurrentRPM(CANSparkFlex motor){        
-
-        RelativeEncoder encoder = motor.getEncoder();
-        return encoder.getVelocity();
-    }
-    
-    public void putStats(CANSparkFlex motor){
-        double currentRPM = getCurrentRPM(motor);
-        SmartDashboard.putNumber("Current RPM: ", currentRPM);
-        SmartDashboard.putNumber("Current velocity: ", RPMToVelocity(currentRPM));
     }
 
     public boolean isAtSpeed() {
