@@ -35,9 +35,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Controls.FlightDriveControls;
+import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.interfaces.IDriveControls;
 import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
 
@@ -53,9 +55,13 @@ public class RobotContainer {
     private Odometry odometry;
     private LedSubsystem leds;
     private Shooter shooter;
-
-
     private SendableChooser<Command> autoChooser;
+
+    // Controller Options
+    private final String kXbox = "Xbox";
+    private final String kFlight = "T16000M";
+    private IDriveControls controls;
+    private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
         
@@ -109,9 +115,10 @@ public class RobotContainer {
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
 
-        // Controller chooser
-        SmartDashboard.putBoolean("FlightSticks", false);
-
+        // Controller chooser Setup
+        driveControllerChooser.addOption("Xbox Controller", kXbox );
+        driveControllerChooser.setDefaultOption("Fight Sticks", kFlight);
+        SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
         // Configure the AutoBuilder
         AutoBuilder.configureHolonomic(
             odometry::getPose, // Robot pose supplier
@@ -144,17 +151,15 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
-        //setup default commands that are used for driving
+        //setup commands that are used for driving based on starting controller
         if(SmartDashboard.getBoolean("FlightStick", false)){
-            T16000M driveContLeft = new T16000M(0);
-            T16000M driveContRight = new T16000M(1);
-            FlightDriveControls controls = new FlightDriveControls(driveContLeft, driveContRight);
-            swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, controls));
+            controls = new FlightDriveControls();
         }
         else{
-            XboxController driverController = new XboxController(2);
-            swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
+            controls = new XboxDriveControls();
         }
+        swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, controls));
+
         leds.setDefaultCommand(new RainbowLeds(leds));
         if(shooter != null) {
             shooter.setDefaultCommand(new TestShooter(shooter));

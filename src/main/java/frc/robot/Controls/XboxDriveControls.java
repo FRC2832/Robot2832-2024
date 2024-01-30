@@ -1,30 +1,29 @@
 package frc.robot.Controls;
 
 import frc.robot.interfaces.IDriveControls;
-import org.livoniawarriors.T16000M;
 import org.livoniawarriors.UtilFunctions;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj.XboxController;
 
 
 /**
  * Drive the robot with T16000 controller 
  */
-public class FlightDriveControls implements IDriveControls {
+public class XboxDriveControls implements IDriveControls {
 
-    private T16000M driveContLeft;
-    private T16000M driveContRight;
+    private XboxController cont;
+
     private DoubleSubscriber deadband;
 
     /**
      * Inject the drivetrain and controller to use
      * @param drive Drivetrain to command
-     * @param driveContLeft Controller to read from
-     * @param driveContRight Controller to read from
+     * @param cont Controller to read from
      */
-    public FlightDriveControls() {
+    public XboxDriveControls() {
 
-        this.driveContLeft = new T16000M(0);
-        this.driveContRight = new T16000M(1);
+        this.cont = new XboxController(2);
+
         deadband = UtilFunctions.getSettingSub("DriveXbox/Deadband", 0.13);
         
     }
@@ -33,23 +32,23 @@ public class FlightDriveControls implements IDriveControls {
     @Override
     public double GetXDrivePct() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(driveContRight.getyAxis1(), dead);
+        return UtilFunctions.deadband(-cont.getLeftY(), dead);
     }
 
     @Override
     public double GetYDrivePct() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(driveContRight.getxAxis1(), dead);
+        return UtilFunctions.deadband(-cont.getLeftX(), dead);
     }
 
     @Override
     public double GetTurnPct() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(driveContLeft.getxAxis1(), dead);
+        return UtilFunctions.deadband(-cont.getRightX(), dead);
     }
 
     @Override
     public boolean IsFieldOrientedResetRequested() {
-        return driveContLeft.getRawButtonPressed(2);
+        return cont.getLeftStickButtonPressed();
     }
 }
