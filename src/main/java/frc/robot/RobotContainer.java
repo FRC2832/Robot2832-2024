@@ -89,6 +89,7 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
+        // Need a shoot command in the future to shoot with
 
         // Configure the AutoBuilder
         AutoBuilder.configureHolonomic(
