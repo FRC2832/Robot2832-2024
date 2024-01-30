@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.15,
-      "y": 6.62
+      "x": 0.76,
+      "y": 6.79
     },
     "rotation": 0
   },
@@ -38,25 +38,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1-2"
+            "pathName": "1-4Shoot"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "flashRed"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2-3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "flashBlue"
           }
         }
       ]
