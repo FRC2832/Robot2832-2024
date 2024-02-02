@@ -23,11 +23,11 @@ public class ShooterHw implements IShooterHw {
         encoders = new RelativeEncoder[4];
         shooters[0] = new CANSparkFlex(1, MotorType.kBrushless);
         shooters[1] = new CANSparkFlex(2, MotorType.kBrushless);
-        shooters[2] = new CANSparkFlex(3, MotorType.kBrushless);
-        shooters[3] = new CANSparkFlex(4, MotorType.kBrushless);
+//        shooters[2] = new CANSparkFlex(3, MotorType.kBrushless);
+//        shooters[3] = new CANSparkFlex(4, MotorType.kBrushless);
 
         shooters[1].setInverted(true);
-        shooters[3].setInverted(true);
+//        shooters[3].setInverted(true);
 
         final double MAX_MOTOR_RPM = 6450;
         for(int i=0; i<shooters.length; i++) {
@@ -75,8 +75,8 @@ public class ShooterHw implements IShooterHw {
     public void updateInputs() {
         SmartDashboard.putNumber("Shooter0 Speed", shooters[0].getEncoder().getVelocity());
         SmartDashboard.putNumber("Shooter1 Speed", shooters[1].getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter2 Speed", shooters[2].getEncoder().getVelocity());
-        SmartDashboard.putNumber("Shooter3 Speed", shooters[3].getEncoder().getVelocity());
+//        SmartDashboard.putNumber("Shooter2 Speed", shooters[2].getEncoder().getVelocity());
+//        SmartDashboard.putNumber("Shooter3 Speed", shooters[3].getEncoder().getVelocity());
     }
 
 

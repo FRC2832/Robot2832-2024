@@ -58,14 +58,14 @@ public class Shooter extends SubsystemBase {
         var currentSpeed = SmartDashboard.getNumber("Shooter Command", 0); 
         if(spinRight) {
             currentSpeed -= speedDiff; // changing the speed
-            for(int i = 1; i < 5; i++){ 
+            for(int i = 1; i < 3; i++){ 
                 if(i % 2 != 0) { //setting speed to even motors
                     hw.setIndividualPower(i, currentSpeed);
                 }            
             }
         } else {
             currentSpeed -= speedDiff; // changing the speed
-            for(int i = 1; i < 5; i++){
+            for(int i = 1; i < 3; i++){
                 if(i % 2 == 0) { //setting speed to even motors
                     hw.setIndividualPower(i, currentSpeed); 
                 }            
