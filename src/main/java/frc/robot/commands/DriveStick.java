@@ -78,6 +78,9 @@ public class DriveStick extends Command {
         else{
             turn = -turnTable.get(Math.abs(cont.GetTurnPct()));
         }
+        xSpeed = cont.GetXDrivePct();
+        ySpeed = cont.GetYDrivePct();
+        turn = cont.GetTurnPct();
         drive.SwerveDrive(
             xSpeed * drive.getMaxDriverSpeed(), 
             ySpeed * drive.getMaxDriverSpeed(), 

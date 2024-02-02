@@ -35,7 +35,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     private SwerveModulePosition[] swervePositions;
     private SwerveModuleState[] swerveTargets;
     private double gyroOffset = 0;
-    private PIDController pidZero = new PIDController(0.15, 0.001, 0);
+    private PIDController pidZero = new PIDController(0, 0, 0);
     private SwerveModuleState[] swerveStates;
     private boolean optimize;
     private boolean resetZeroPid;
@@ -289,7 +289,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     }
 
     public void resetFieldOriented() {
-        fieldOffset = odometry.getPose().getRotation().minus(odometry.getGyroRotation());
+        fieldOffset = odometry.getPose().getRotation().minus(odometry.getGyroRotation()).plus(Rotation2d.fromDegrees(90));
     }
 
     public SwerveDriveKinematics getKinematics() {

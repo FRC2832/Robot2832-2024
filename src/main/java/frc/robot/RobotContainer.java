@@ -149,7 +149,7 @@ public class RobotContainer {
      */
     public void configureBindings() {
         //setup commands that are used for driving based on starting controller
-        if(SmartDashboard.getBoolean("FlightStick", false)){
+        if(SmartDashboard.getString("Drive Controller Select", "FlightStick")=="FlightStick"){
             controls = new FlightDriveControls();
         }
         else{
