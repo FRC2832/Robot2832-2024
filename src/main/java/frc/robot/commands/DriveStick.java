@@ -60,6 +60,7 @@ public class DriveStick extends Command {
             drive.resetFieldOriented();
         }
 
+        /*
         if(cont.GetXDrivePct()>=0){
             xSpeed = controlTable.get(Math.abs(cont.GetXDrivePct()));
         }
@@ -78,6 +79,7 @@ public class DriveStick extends Command {
         else{
             turn = -turnTable.get(Math.abs(cont.GetTurnPct()));
         }
+        */
         xSpeed = cont.GetXDrivePct();
         ySpeed = cont.GetYDrivePct();
         turn = cont.GetTurnPct();

@@ -9,7 +9,6 @@ import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
 import org.livoniawarriors.leds.TestLeds;
 import org.livoniawarriors.odometry.Odometry;
-import org.livoniawarriors.odometry.Pigeon2Gyro;
 import org.livoniawarriors.odometry.PigeonGyro;
 import org.livoniawarriors.odometry.SimSwerveGyro;
 import org.livoniawarriors.swerve.MoveWheels;
@@ -149,7 +148,7 @@ public class RobotContainer {
      */
     public void configureBindings() {
         //setup commands that are used for driving based on starting controller
-        if(SmartDashboard.getString("Drive Controller Select", "FlightStick")=="FlightStick"){
+        if(driveControllerChooser.getSelected() == kFlight) {
             controls = new FlightDriveControls();
         }
         else{

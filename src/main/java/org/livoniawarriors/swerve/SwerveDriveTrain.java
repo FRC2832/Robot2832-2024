@@ -5,6 +5,7 @@ import org.livoniawarriors.odometry.Odometry;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -16,6 +17,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveDriveTrain extends SubsystemBase {
@@ -60,6 +62,9 @@ public class SwerveDriveTrain extends SubsystemBase {
     private DoublePublisher swerveXSpeed;
     private DoublePublisher swerveYSpeed;
     private DoublePublisher swerveOmega;
+    private DoublePublisher swerveCurrentHeading;
+    private DoublePublisher swerveGyroOffset;
+    private DoublePublisher swerveFieldOffset;
     private DoubleArrayPublisher swerveStatePub;
     private DoubleArrayPublisher swerveRequestPub;
 
@@ -108,6 +113,9 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveXSpeed = UtilFunctions.getNtPub("/Swerve Drive/X Speed (mps)", 0);
         swerveYSpeed = UtilFunctions.getNtPub("/Swerve Drive/Y Speed (mps)", 0);
         swerveOmega = UtilFunctions.getNtPub("/Swerve Drive/Omega (dps)", 0);
+        swerveCurrentHeading = UtilFunctions.getNtPub("/Swerve Drive/Current Heading", 0);
+        swerveGyroOffset = UtilFunctions.getNtPub("/Swerve Drive/Gyro Offset", 0);
+        swerveFieldOffset = UtilFunctions.getNtPub("/Swerve Drive/Field Offset", 0);
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
     }
@@ -144,6 +152,9 @@ public class SwerveDriveTrain extends SubsystemBase {
         PushSwerveStates(swerveStates,swerveTargets);
         minSpeed = UtilFunctions.getSetting(MIN_SPEED_KEY, 0.5);
         maxSpeed = UtilFunctions.getSetting(MAX_SPEED_KEY, 5);
+        swerveCurrentHeading.set(currentHeading.getDegrees());
+        swerveGyroOffset.set(gyroOffset);
+        swerveFieldOffset.set(fieldOffset.getDegrees());
     }
 
     /**
@@ -289,7 +300,18 @@ public class SwerveDriveTrain extends SubsystemBase {
     }
 
     public void resetFieldOriented() {
-        fieldOffset = odometry.getPose().getRotation().minus(odometry.getGyroRotation()).plus(Rotation2d.fromDegrees(90));
+        //fieldOffset = odometry.getPose().getRotation().plus(odometry.getGyroRotation());
+        fieldOffset = new Rotation2d();
+        var alliance = DriverStation.getAlliance();
+        if(alliance.isPresent() && alliance.get() == Alliance.Red) {
+            //fieldOffset.rotateBy(Rotation2d.fromDegrees(180));
+        }
+
+        if(odometry.getLoopsTagSeen() < 10) {
+            //if we don't have confidence in our position yet, reset rotation on field.
+            Pose2d newPose = new Pose2d(odometry.getPose().getTranslation(), new Rotation2d());
+            odometry.resetPose(newPose);
+        }
     }
 
     public SwerveDriveKinematics getKinematics() {
