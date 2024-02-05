@@ -33,9 +33,17 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
+import frc.robot.commands.DriveClimb;
 import frc.robot.commands.TestShooter;
+import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
+
 import frc.robot.interfaces.IDriveControls;
+import frc.robot.simulation.InclinatorSim;
+import frc.robot.simulation.IntakeSim;
+import frc.robot.simulation.ShooterSim;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
 
@@ -51,6 +59,9 @@ public class RobotContainer {
     private Odometry odometry;
     private LedSubsystem leds;
     private Shooter shooter;
+    private XboxController driverController;
+    private Inclinator inclinator;
+    private Intake intake;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -80,22 +91,32 @@ public class RobotContainer {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
-            shooter = new Shooter(new ShooterHw());
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+            shooter = new Shooter(new ShooterHw());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else {
             //competition robot
-            shooter = new Shooter(new ShooterHw());
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         }
-        
+
         odometry.setSwerveDrive(swerveDrive);
         odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
 
@@ -110,6 +131,7 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
+        // Need a shoot command in the future to shoot with
 
         // Controller chooser Setup
         driveControllerChooser.addOption("Xbox Controller", kXbox );
@@ -157,9 +179,8 @@ public class RobotContainer {
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, controls));
 
         leds.setDefaultCommand(new RainbowLeds(leds));
-        if(shooter != null) {
-            shooter.setDefaultCommand(new TestShooter(shooter));
-        }
+        shooter.setDefaultCommand(new TestShooter(shooter));
+        inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
     /**
