@@ -59,7 +59,6 @@ public class RobotContainer {
     private Odometry odometry;
     private LedSubsystem leds;
     private Shooter shooter;
-    private XboxController driverController;
     private Inclinator inclinator;
     private Intake intake;
     private SendableChooser<Command> autoChooser;
