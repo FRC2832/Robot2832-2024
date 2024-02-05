@@ -24,4 +24,8 @@ public class InclinatorHw implements IInclinatorHw {
         rightClimb.set(ControlMode.PercentOutput, powerRight);
     }
 
+    @Override
+    public void updateInputs() {
+    }
+
 }

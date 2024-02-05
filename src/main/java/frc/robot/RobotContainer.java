@@ -36,6 +36,7 @@ import frc.robot.commands.DriveClimb;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.simulation.InclinatorSim;
 import frc.robot.simulation.IntakeSim;
 import frc.robot.simulation.ShooterSim;
 import frc.robot.subsystems.Intake;
@@ -57,6 +58,7 @@ public class RobotContainer {
     private Shooter shooter;
     private XboxController driverController;
     private Inclinator inclinator;
+    private Intake intake;
 
     private SendableChooser<Command> autoChooser;
 
@@ -82,23 +84,30 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new Shooter(new ShooterSim());
-            new Intake(new IntakeSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
-            shooter = new Shooter(new ShooterHw());
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+            shooter = new Shooter(new ShooterHw());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else {
             //competition robot
-            shooter = new Shooter(new ShooterHw());
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         }
-        inclinator = new Inclinator(new InclinatorHw());
 
         odometry.setSwerveDrive(swerveDrive);
         odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
@@ -151,9 +160,7 @@ public class RobotContainer {
         //setup default commands that are used for driving
         swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
         leds.setDefaultCommand(new RainbowLeds(leds));
-        if(shooter != null) {
-            shooter.setDefaultCommand(new TestShooter(shooter));
-        }
+        shooter.setDefaultCommand(new TestShooter(shooter));
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
