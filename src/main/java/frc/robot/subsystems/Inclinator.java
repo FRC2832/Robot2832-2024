@@ -5,10 +5,16 @@ import frc.robot.interfaces.IInclinatorHw;
 
 public class Inclinator extends SubsystemBase {
     private IInclinatorHw hardware;
+    
     public Inclinator(IInclinatorHw hardware){
         this.hardware = hardware;
     }
     
+    @Override
+    public void periodic() {
+        hardware.updateInputs();
+    }
+
     /** @param position in inches */
     public void setPosition(double position) {
         
