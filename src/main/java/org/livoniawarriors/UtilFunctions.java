@@ -261,4 +261,16 @@ public class UtilFunctions {
         } 
         return false;
     }
+
+    public static double LimitChange(double current, double target, double maxChangePerLoop) {
+        double delta = target - current;
+        double newValue;
+
+        if(Math.abs(delta) > maxChangePerLoop) {  
+            newValue = current + Math.copySign(maxChangePerLoop, delta);
+        } else {
+            newValue = target;
+        }
+        return newValue;
+    }
 }
