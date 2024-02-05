@@ -1,6 +1,14 @@
 package frc.robot.subsystems;
 
-public class Inclinator {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.interfaces.IInclinatorHw;
+
+public class Inclinator extends SubsystemBase {
+    private IInclinatorHw hardware;
+    public Inclinator(IInclinatorHw hardware){
+        this.hardware = hardware;
+    }
+    
     /** @param position in inches */
     public void setPosition(double position) {
         
@@ -16,5 +24,18 @@ public class Inclinator {
 
     public void home() {
         
+    }
+
+    public void setPower(double power) {
+        hardware.setPower(power);
+    }
+
+    public void setOffsetPower(double power, boolean left){
+        if(left){
+            hardware.setPower(power, 0);
+        } 
+        else{
+            hardware.setPower(0, power);
+        }
     }
 }
