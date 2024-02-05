@@ -48,6 +48,7 @@ public class ShooterHw implements IShooterHw {
         motor.configAllSettings(allConfigs);}
 
         shooters[1].setInverted(true);
+        shooters[0].setInverted(false);
 //        shooters[3].setInverted(true);
 
         final double MAX_MOTOR_RPM = 6450;
@@ -75,7 +76,7 @@ public class ShooterHw implements IShooterHw {
 
     public void setPower(double power) {
         for (TalonFX shooter : shooters) {
-            shooter.set(TalonFXControlMode.Velocity, 6000*power);//Probably not best method
+            shooter.set(TalonFXControlMode.Velocity, 6450*power);//Probably not best method
         }
     }
     //@Override
