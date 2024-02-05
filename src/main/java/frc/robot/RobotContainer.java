@@ -106,7 +106,7 @@ public class RobotContainer {
             odometry.setGyroHardware(new PigeonGyro(0));
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
-            inclinator = new Inclinator(new InclinatorHw());
+            inclinator = new Inclinator(new InclinatorSim());
         }
 
         odometry.setSwerveDrive(swerveDrive);
