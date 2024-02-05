@@ -35,6 +35,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.interfaces.IIntakeHw;
+import frc.robot.simulation.IntakeSim;
+import frc.robot.simulation.ShooterSim;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
 
@@ -75,6 +79,8 @@ public class RobotContainer {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+            shooter = new Shooter(new ShooterSim());
+            new Intake(new IntakeSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
