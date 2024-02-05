@@ -33,8 +33,11 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.DriveClimb;
 import frc.robot.commands.TestShooter;
+import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
 
@@ -51,6 +54,7 @@ public class RobotContainer {
     private LedSubsystem leds;
     private Shooter shooter;
     private XboxController driverController;
+    private Inclinator inclinator;
 
     private SendableChooser<Command> autoChooser;
 
@@ -90,7 +94,8 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
         }
-        
+        inclinator = new Inclinator(new InclinatorHw());
+
         odometry.setSwerveDrive(swerveDrive);
         odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
 
@@ -145,6 +150,7 @@ public class RobotContainer {
         if(shooter != null) {
             shooter.setDefaultCommand(new TestShooter(shooter));
         }
+        inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
     /**
