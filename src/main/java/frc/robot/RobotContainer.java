@@ -11,7 +11,6 @@ import org.livoniawarriors.leds.TestLeds;
 import org.livoniawarriors.odometry.Odometry;
 import org.livoniawarriors.odometry.PigeonGyro;
 import org.livoniawarriors.odometry.SimSwerveGyro;
-import org.livoniawarriors.swerve.DriveXbox;
 import org.livoniawarriors.swerve.MoveWheels;
 import org.livoniawarriors.swerve.SwerveDriveSim;
 import org.livoniawarriors.swerve.SwerveDriveTrain;
@@ -25,17 +24,21 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Controls.FlightDriveControls;
+import frc.robot.Controls.XboxDriveControls;
+import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
+
+import frc.robot.interfaces.IDriveControls;
 import frc.robot.simulation.InclinatorSim;
 import frc.robot.simulation.IntakeSim;
 import frc.robot.simulation.ShooterSim;
@@ -59,11 +62,16 @@ public class RobotContainer {
     private XboxController driverController;
     private Inclinator inclinator;
     private Intake intake;
-
     private SendableChooser<Command> autoChooser;
 
+    // Controller Options
+    private final String kXbox = "Xbox";
+    private final String kFlight = "T16000M";
+    private IDriveControls controls;
+    private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
+
     public RobotContainer() {
-        driverController = new XboxController(0);
+        
 
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
@@ -125,6 +133,10 @@ public class RobotContainer {
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
         // Need a shoot command in the future to shoot with
 
+        // Controller chooser Setup
+        driveControllerChooser.addOption("Xbox Controller", kXbox );
+        driveControllerChooser.setDefaultOption("Fight Sticks", kFlight);
+        SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
         // Configure the AutoBuilder
         AutoBuilder.configureHolonomic(
             odometry::getPose, // Robot pose supplier
@@ -157,8 +169,15 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
-        //setup default commands that are used for driving
-        swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
+        //setup commands that are used for driving based on starting controller
+        if(driveControllerChooser.getSelected() == kFlight) {
+            controls = new FlightDriveControls();
+        }
+        else{
+            controls = new XboxDriveControls();
+        }
+        swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, controls));
+
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(new TestShooter(shooter));
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
