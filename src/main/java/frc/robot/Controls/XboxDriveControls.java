@@ -22,7 +22,7 @@ public class XboxDriveControls implements IDriveControls {
      */
     public XboxDriveControls() {
 
-        this.cont = new XboxController(2);
+        this.cont = new XboxController(0);
 
         deadband = UtilFunctions.getSettingSub("DriveXbox/Deadband", 0.13);
         
@@ -50,5 +50,17 @@ public class XboxDriveControls implements IDriveControls {
     @Override
     public boolean IsFieldOrientedResetRequested() {
         return cont.getLeftStickButtonPressed();
+    }
+
+
+    @Override
+    public boolean IsIntakeRequested() {
+        return cont.getLeftTriggerAxis()>0;
+    }
+
+
+    @Override
+    public boolean IsMaxSpeedRequested() {
+        return cont.getRightTriggerAxis()>0;
     }
 }

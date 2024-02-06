@@ -1,13 +1,13 @@
 package frc.robot.interfaces;
 
 public interface IOperatorControls {
-    
-    boolean autoSubAimRequested();
-    double getManualSubAim();
+    boolean AutoSubAimRequested();
+    double GetManualSubAim();
     boolean IsSubShotRequested();
     boolean IsClimbLeftRequested();
     boolean IsClimbRightRequested();
     boolean IsClimbUpRequested();
     boolean IsClimbDownRequested();
-    
+    boolean IsManualShotRequested();
+    double GetTurnPct();
 }
