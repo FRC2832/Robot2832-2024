@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.interfaces.IIntakeHw;
 
 public class Intake extends SubsystemBase {
@@ -14,20 +15,19 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
         hardware.updateInputs();
+        SmartDashboard.putNumber("Intake Percent", getPercentOutput());
     }
 
     public boolean isPieceDetected() {
         return hardware.isPieceSeen();
     }
 
-    public void runMotor() {
-        
+    /** @param inverted true = spin backwards, false = spin forwards */
+    public void setIntake(boolean isRunning, boolean inverted) {
+        hardware.setIntake(isRunning, inverted);
     }
 
-    /**
-     * @param power Percent -1 to 1
-     */
-    public void setPower(double power) {
-
+    public double getPercentOutput() {
+        return hardware.getPercentOutput();
     }
 }

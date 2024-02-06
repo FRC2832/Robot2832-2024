@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveClimb;
+import frc.robot.commands.TestIntake;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
@@ -161,6 +162,7 @@ public class RobotContainer {
         swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(new TestShooter(shooter));
+        intake.setDefaultCommand(new TestIntake(intake));
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
