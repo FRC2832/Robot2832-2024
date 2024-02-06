@@ -5,4 +5,6 @@ public interface IDriveControls {
     double GetYDrivePct();
     double GetTurnPct();
     boolean IsFieldOrientedResetRequested();
+    boolean IsIntakeRequested();
+    boolean IsMaxSpeedRequested();
 }

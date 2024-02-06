@@ -52,4 +52,16 @@ public class FlightDriveControls implements IDriveControls {
     public boolean IsFieldOrientedResetRequested() {
         return driveContLeft.getRawButtonPressed(2);
     }
+
+
+    @Override
+    public boolean IsIntakeRequested() {
+        return driveContLeft.getTriggerPressed();
+    }
+
+
+    @Override
+    public boolean IsMaxSpeedRequested() {
+        return driveContRight.getTriggerPressed();
+    }
 }
