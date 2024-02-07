@@ -3,6 +3,7 @@ package frc.robot.simulation;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.SimDevice.Direction;
+import frc.robot.Robot;
 import frc.robot.interfaces.IInclinatorHw;
 
 public class InclinatorSim implements IInclinatorHw {
@@ -33,7 +34,7 @@ public class InclinatorSim implements IInclinatorHw {
 
     @Override
     public void updateInputs() {
-        leftPos.set(leftPos.get() + (leftPower * kFactor));
-        rightPos.set(rightPos.get() + (rightPower * kFactor));
+        leftPos.set(leftPos.get() + (leftPower * kFactor * Robot.kDefaultPeriod));
+        rightPos.set(rightPos.get() + (rightPower * kFactor * Robot.kDefaultPeriod));
     } 
 }

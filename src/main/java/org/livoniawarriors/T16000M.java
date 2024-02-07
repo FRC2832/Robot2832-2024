@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.event.EventLoop;
  * https://www.thrustmaster.com/products/t-16000m-fcs/
  */
 public class T16000M extends GenericHID {
-  /** Represents a digital button on an Saitek. */
+  /** Represents a digital button on an T16000M. */
   public enum Button {
     trigger(1),
     middle (2),
