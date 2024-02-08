@@ -26,6 +26,7 @@ public class ShooterHw implements IShooterHw {
         shooters[2] = new CANSparkFlex(3, MotorType.kBrushless);
         shooters[3] = new CANSparkFlex(4, MotorType.kBrushless);
 
+    
         shooters[1].setInverted(true);
         shooters[3].setInverted(true);
 
