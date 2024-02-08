@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -19,6 +20,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,6 +30,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -49,6 +52,7 @@ public class VisionSystem extends SubsystemBase {
     public static final Matrix<N3, N1> kSingleTagStdDeviations = VecBuilder.fill(4, 4, 8);
     public static final Matrix<N3, N1> kMultiTagStdDeviations = VecBuilder.fill(0.5, 0.5, 1);
     public static final double kMaxVisionDistance = 4;
+    private DoubleSubscriber visionStdDev;
 
     public VisionSystem(Odometry odometry) {
         super();
@@ -64,12 +68,13 @@ public class VisionSystem extends SubsystemBase {
         //get camera by name
         frontCam = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
-        frontCamPos = new Transform3d(new Translation3d(0, -Units.inchesToMeters(9.0), Units.inchesToMeters(24.5)), new Rotation3d(0,0,0));
+        frontCamPos = new Transform3d(new Translation3d(0, -Units.inchesToMeters(9.0), Units.inchesToMeters(24.5)), new Rotation3d(0,0,Math.toRadians(180)));
         //get the estimator of it
         frontCamEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCam, frontCamPos);
         frontCamEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
         m_atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+        visionStdDev = UtilFunctions.getSettingSub("/Odometry/VisionStdDev", 4);
     }
 
     @Override
@@ -107,7 +112,9 @@ public class VisionSystem extends SubsystemBase {
           SmartDashboard.putNumber("Pose Data X", estimatedPose.getX());
           SmartDashboard.putNumber("Pose Data Y", estimatedPose.getY());
           SmartDashboard.putNumber("Pose Data Z", estimatedPose.getZ());
-          odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds());
+          double stdDiv = visionStdDev.get();
+          Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
+          odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
         }
     });
     }

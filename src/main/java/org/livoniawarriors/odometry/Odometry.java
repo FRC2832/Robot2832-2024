@@ -75,8 +75,9 @@ public class Odometry extends SubsystemBase {
             drive.getSwervePositions(),
             startPose,
             //TODO: Make these calibratable
+            //X, Y , Angle 
             VecBuilder.fill(0.1, 0.1, 0.1),
-            VecBuilder.fill(0.9, 0.9, 0.9)
+            VecBuilder.fill(9, 9, 9)
         );
     }
 
