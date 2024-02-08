@@ -43,5 +43,7 @@ public class kicker extends SubsystemBase {
         hw.setPower(power);
     }
 
-
+    public void setRPM(double rpm) {
+        hw.setRpm(rpm);
+    }
    }

@@ -17,9 +17,9 @@ public class kickerHW implements IkickerHW {
     private RelativeEncoder[] encoders;
 
     public kickerHW() {
-        kickers = new CANSparkFlex[4];
-        pids = new SparkPIDController[4];
-        encoders = new RelativeEncoder[4];
+        kickers = new CANSparkFlex[2];
+        pids = new SparkPIDController[2];
+        encoders = new RelativeEncoder[2];
         kickers[0] = new CANSparkFlex(3, MotorType.kBrushless);
         kickers[1] = new CANSparkFlex(4, MotorType.kBrushless);
     

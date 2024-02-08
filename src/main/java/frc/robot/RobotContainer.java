@@ -39,8 +39,9 @@ import frc.robot.commands.TestIntake;
 import frc.robot.commands.TestShooter;
 import frc.robot.commands.OperatorStick;
 import frc.robot.hardware.InclinatorHw;
+import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
-
+import frc.robot.hardware.kickerHW;
 import frc.robot.interfaces.IDriveControls;
 import frc.robot.interfaces.IOperatorControls;
 import frc.robot.simulation.InclinatorSim;
@@ -50,6 +51,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.kicker;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -65,6 +67,7 @@ public class RobotContainer {
     private Shooter shooter;
     private Inclinator inclinator;
     private Intake intake;
+    private kicker kick;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -110,8 +113,9 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new Shooter(new ShooterHw());
-            intake = new Intake(new IntakeSim());
-            inclinator = new Inclinator(new InclinatorSim());
+            intake = new Intake(new IntakeHw());
+            //inclinator = new Inclinator(new InclinatorSim());
+            kick = new kicker(new kickerHW());
         } else {
             //competition robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -182,11 +186,11 @@ public class RobotContainer {
         }
         operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
-        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, intake);
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick);
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(operatorStick);
-        intake.setDefaultCommand(operatorStick);
-        inclinator.setDefaultCommand(new DriveClimb(inclinator));
+        kick.setDefaultCommand(operatorStick);
+        //inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
     /**
