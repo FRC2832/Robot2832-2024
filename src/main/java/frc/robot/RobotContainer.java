@@ -181,10 +181,10 @@ public class RobotContainer {
         }
         operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
-        
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, intake);
         leds.setDefaultCommand(new RainbowLeds(leds));
-        shooter.setDefaultCommand(new OperatorStick(shooter, operatorControls, intake));
-        intake.setDefaultCommand(new OperatorStick(shooter, operatorControls, intake));
+        shooter.setDefaultCommand(operatorStick);
+        intake.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 

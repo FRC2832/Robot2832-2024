@@ -18,7 +18,8 @@ public class OperatorStick extends Command {
         this.shoot = shoot;
         this.cont = cont;
         this.intake = intake;
-
+        addRequirements(shoot);
+        addRequirements(intake);
     }
 
     public void initialize() {
