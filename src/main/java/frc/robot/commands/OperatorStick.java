@@ -4,39 +4,38 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.interfaces.IOperatorControls;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.kicker;
 
 
 public class OperatorStick extends Command {
     private Shooter shoot;
-    private Intake intake;
+    private kicker kick;
     private IOperatorControls cont;
-    private boolean isShootRequested;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, Intake intake){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, kicker kick){
         this.shoot = shoot;
         this.cont = cont;
-        this.intake = intake;
+        this.kick = kick;
         addRequirements(shoot);
-        addRequirements(intake);
+        addRequirements(kick);
     }
 
     @Override
     public void initialize() {
-        SmartDashboard.putNumber("Intake Command",0);
-        SmartDashboard.putNumber("Shooter Command",0);
+        SmartDashboard.putNumber("Shooter RPM Command",3000);
+        SmartDashboard.putNumber("Kicker RPM Command",4000);
     }
 
     @Override
     public void execute() {
         if(cont.IsSubShotRequested()){
-            shoot.setPower(SmartDashboard.getNumber("Shooter Command", 0));
-            intake.setPower(SmartDashboard.getNumber("Intake Command", 0));
+            shoot.setRPM(SmartDashboard.getNumber("Shooter RPM Command", 3000));
+            kick.setRPM(SmartDashboard.getNumber("Kicker RPM Command", 4000));
         }
         else{
             shoot.setPower(0);
-            intake.setPower(0);
+            kick.setPower(0);
         }
     }
     
