@@ -34,6 +34,7 @@ import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveClimb;
+import frc.robot.commands.TestIntake;
 import frc.robot.commands.TestShooter;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
@@ -179,6 +180,7 @@ public class RobotContainer {
 
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(new TestShooter(shooter));
+        intake.setDefaultCommand(new TestIntake(intake));
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
