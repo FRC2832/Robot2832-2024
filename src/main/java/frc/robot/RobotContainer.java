@@ -31,15 +31,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Controls.FlightDriveControls;
+import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.TestIntake;
 import frc.robot.commands.TestShooter;
+import frc.robot.commands.OperatorStick;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.ShooterHw;
 
 import frc.robot.interfaces.IDriveControls;
+import frc.robot.interfaces.IOperatorControls;
 import frc.robot.simulation.InclinatorSim;
 import frc.robot.simulation.IntakeSim;
 import frc.robot.simulation.ShooterSim;
@@ -67,7 +70,8 @@ public class RobotContainer {
     // Controller Options
     private final String kXbox = "Xbox";
     private final String kFlight = "T16000M";
-    private IDriveControls controls;
+    private IDriveControls driveControls;
+    private OperatorControls operatorControls;
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
@@ -171,16 +175,17 @@ public class RobotContainer {
     public void configureBindings() {
         //setup commands that are used for driving based on starting controller
         if(driveControllerChooser.getSelected() == kFlight) {
-            controls = new FlightDriveControls();
+            driveControls = new FlightDriveControls();
         }
         else{
-            controls = new XboxDriveControls();
+            driveControls = new XboxDriveControls();
         }
-        swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, controls));
-
+        operatorControls = new OperatorControls();
+        swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, intake);
         leds.setDefaultCommand(new RainbowLeds(leds));
-        shooter.setDefaultCommand(new TestShooter(shooter));
-        intake.setDefaultCommand(new TestIntake(intake));
+        shooter.setDefaultCommand(operatorStick);
+        intake.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
