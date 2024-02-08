@@ -6,5 +6,6 @@ public interface IIntakeHw {
     boolean isRunning();
     boolean isInverted();
     boolean isPieceSeen();
+    void removeInterrupt();
     void updateInputs();
 }

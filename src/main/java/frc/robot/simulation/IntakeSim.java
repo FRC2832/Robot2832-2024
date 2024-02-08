@@ -43,6 +43,9 @@ public class IntakeSim implements IIntakeHw {
     }
 
     @Override
+    public void removeInterrupt() { }
+
+    @Override
     public void updateInputs() {
 
     }

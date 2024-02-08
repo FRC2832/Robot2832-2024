@@ -30,4 +30,8 @@ public class Intake extends SubsystemBase {
     public double getPercentOutput() {
         return hardware.getPercentOutput();
     }
+
+    public void removeInterrupt() {
+        hardware.removeInterrupt();
+    }
 }
