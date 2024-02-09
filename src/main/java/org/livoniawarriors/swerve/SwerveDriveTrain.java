@@ -375,9 +375,7 @@ public class SwerveDriveTrain extends SubsystemBase {
 
 
     public void resetSwervePositions(){
-        for(int wheel = 0; wheel < swervePositions.length; wheel++) {
-            swervePositions[wheel].distanceMeters = 0;
-        }
+        hardware.resetWheelPositions();
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
