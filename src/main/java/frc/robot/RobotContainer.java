@@ -35,17 +35,14 @@ import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveClimb;
-import frc.robot.commands.TestIntake;
-import frc.robot.commands.TestShooter;
 import frc.robot.commands.OperatorStick;
-import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
 import frc.robot.hardware.kickerHW;
 import frc.robot.interfaces.IDriveControls;
-import frc.robot.interfaces.IOperatorControls;
 import frc.robot.simulation.InclinatorSim;
 import frc.robot.simulation.IntakeSim;
+import frc.robot.simulation.KickerSim;
 import frc.robot.simulation.ShooterSim;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Inclinator;
@@ -101,6 +98,7 @@ public class RobotContainer {
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
+            kick = new kicker(new KickerSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -108,13 +106,14 @@ public class RobotContainer {
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
+            kick = new kicker(new KickerSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
-            //inclinator = new Inclinator(new InclinatorSim());
+            inclinator = new Inclinator(new InclinatorSim());
             kick = new kicker(new kickerHW());
         } else {
             //competition robot
@@ -123,6 +122,7 @@ public class RobotContainer {
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
+            kick = new kicker(new KickerSim());
         }
 
         odometry.setSwerveDrive(swerveDrive);
@@ -190,7 +190,8 @@ public class RobotContainer {
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
-        //inclinator.setDefaultCommand(new DriveClimb(inclinator));
+        inclinator.setDefaultCommand(new DriveClimb(inclinator));
+        //TODO need intake default command
     }
 
     /**
