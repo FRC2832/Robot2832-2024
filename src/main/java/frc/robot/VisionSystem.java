@@ -1,10 +1,8 @@
 package frc.robot;
 
 import java.io.IOException;
-import java.util.Optional;
-
+import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -15,8 +13,10 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -24,6 +24,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSystem extends SubsystemBase {
@@ -35,12 +38,15 @@ public class VisionSystem extends SubsystemBase {
 
     private PhotonCamera frontCam;
     private Transform3d frontCamPos;
+    private double lastTimestamp;
+    private final double APRILTAG_POSE_AMBIGUITY_THRESHOLD = 0.2;
     
     // The standard deviations of our vision estimated poses, which affect correction rate
     // (Fake values. Experiment and determine estimation noise on an actual robot.)
     public static final Matrix<N3, N1> kSingleTagStdDeviations = VecBuilder.fill(4, 4, 8);
     public static final Matrix<N3, N1> kMultiTagStdDeviations = VecBuilder.fill(0.5, 0.5, 1);
     public static final double kMaxVisionDistance = 4;
+    private DoubleSubscriber visionStdDev;
 
     public VisionSystem(Odometry odometry) {
         super();
@@ -51,25 +57,62 @@ public class VisionSystem extends SubsystemBase {
         } catch (IOException e) {
             // should never fail, as WpiLib always provides this file
         }
+        aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
         //get camera by name
-        frontCam = new PhotonCamera("FrontCam");
+        frontCam = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
-        frontCamPos = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));
+        frontCamPos = new Transform3d(new Translation3d(0, -Units.inchesToMeters(9.0), Units.inchesToMeters(24.5)), new Rotation3d(0,0,Math.toRadians(180)));
         //get the estimator of it
         frontCamEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCam, frontCamPos);
+        frontCamEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+        visionStdDev = UtilFunctions.getSettingSub("/Odometry/VisionStdDev", 4);
+        lastTimestamp = 0;
     }
 
     @Override
     public void periodic() {
+        /*
         frontCamEstimator.setReferencePose(odometry.getPose());
         Optional<EstimatedRobotPose> frontPose = frontCamEstimator.update();
-        frontCam.getLatestResult();
+        frontCamEstimator.getReferencePose();
         if(frontPose.isPresent()) {
             EstimatedRobotPose pose = frontPose.get();
+            Pose3d pose3d = pose.estimatedPose;
+            SmartDashboard.putNumber("Pose Data X", pose3d.getX());
+            SmartDashboard.putNumber("Pose Data Y", pose3d.getY());
+            SmartDashboard.putNumber("Pose Data Z", pose3d.getZ());
             var deviations = getEstimationStdDeviations(pose.estimatedPose.toPose2d(), frontCamEstimator, frontCam.getLatestResult());
             odometry.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds, deviations);
         }
+        */
+        // Update and log inputs
+        frontCamEstimator.setReferencePose(odometry.getPose());
+    PhotonPipelineResult pipelineResult = frontCam.getLatestResult();
+
+    // Return if result is non-existent or invalid
+    if (!pipelineResult.hasTargets()) return;
+    if(lastTimestamp == pipelineResult.getLatencyMillis()) return;
+    if (pipelineResult.targets.size() == 1
+        && pipelineResult.targets.get(0).getPoseAmbiguity() > APRILTAG_POSE_AMBIGUITY_THRESHOLD) return;
+
+    // Update pose estimate
+    frontCamEstimator.update(pipelineResult).ifPresent(estimatedRobotPose -> {
+      var estimatedPose = estimatedRobotPose.estimatedPose;
+        // Make sure the measurement is on the field
+        if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Odometry.FIELD_LENGTH_METERS
+            && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Odometry.FIELD_WIDTH_METERS) {
+          //m_atomicEstimatedRobotPose.set(estimatedRobotPose);
+          SmartDashboard.putNumber("Pose Data X", estimatedPose.getX());
+          SmartDashboard.putNumber("Pose Data Y", estimatedPose.getY());
+          SmartDashboard.putNumber("Pose Data Z", estimatedPose.getZ());
+          double stdDiv = visionStdDev.get();
+          Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
+          odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
+          lastTimestamp = pipelineResult.getTimestampSeconds();
+        }
+    });
     }
 
     @Override

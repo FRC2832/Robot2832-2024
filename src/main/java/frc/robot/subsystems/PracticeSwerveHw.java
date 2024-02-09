@@ -63,24 +63,24 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
         turnPid = new PIDController[NUM_MOTORS];
 
         //FL
-        driveMotors[0] = new TalonFX(11);  // TODO: update with correct info when receive it
-        turnMotors[0] = new CANSparkMax(12, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[0] = new CANCoder(13);  // TODO: update with correct info when receive it
+        driveMotors[0] = new TalonFX(11);  
+        turnMotors[0] = new CANSparkMax(12, MotorType.kBrushless);  
+        turnSensors[0] = new CANCoder(13);  
         
         //FR
-        driveMotors[1] = new TalonFX(21);  // TODO: update with correct info when receive it
-        turnMotors[1] = new CANSparkMax(22, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[1] = new CANCoder(23);  // TODO: update with correct info when receive it
+        driveMotors[1] = new TalonFX(21);  
+        turnMotors[1] = new CANSparkMax(22, MotorType.kBrushless);  
+        turnSensors[1] = new CANCoder(23);  
 
         //RL
-        driveMotors[2] = new TalonFX(31);  // TODO: update with correct info when receive it
-        turnMotors[2] = new CANSparkMax(32, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[2] = new CANCoder(33);  // TODO: update with correct info when receive it
+        driveMotors[2] = new TalonFX(31);  
+        turnMotors[2] = new CANSparkMax(32, MotorType.kBrushless);  
+        turnSensors[2] = new CANCoder(33);  
 
         //RR
-        driveMotors[3] = new TalonFX(41);  // TODO: update with correct info when receive it
-        turnMotors[3] = new CANSparkMax(42, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[3] = new CANCoder(43);  // TODO: update with correct info when receive it
+        driveMotors[3] = new TalonFX(41);  
+        turnMotors[3] = new CANSparkMax(42, MotorType.kBrushless);  
+        turnSensors[3] = new CANCoder(43);  
 
         for (CANCoder sensor: turnSensors) {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 18);

@@ -8,7 +8,8 @@ import frc.robot.interfaces.IInclinatorHw;
 
 public class InclinatorSim implements IInclinatorHw {
     private SimDevice climbDevice;
-    private SimDouble leftPos, rightPos;
+    private SimDouble leftPosDev, rightPosDev;
+    private double leftPos, rightPos;
     private double leftPower, rightPower;
 
     //6380 rpm * 1/100 gear ratio * 2.536"/rev (0.75" spool diameter) * 1/60 min/sec
@@ -16,8 +17,12 @@ public class InclinatorSim implements IInclinatorHw {
 
     public InclinatorSim() {
         climbDevice = SimDevice.create("Jukebox:Climber");
-        leftPos = climbDevice.createDouble("Left Climb Pos", Direction.kOutput, 17);
-        rightPos = climbDevice.createDouble("Right Climb Pos", Direction.kOutput, 17);
+        if(climbDevice != null) {
+            leftPosDev = climbDevice.createDouble("Left Climb Pos", Direction.kOutput, 17);
+            rightPosDev = climbDevice.createDouble("Right Climb Pos", Direction.kOutput, 17);
+        }
+        leftPos = 17;
+        rightPos = 17;
     }
 
     @Override
@@ -34,7 +39,11 @@ public class InclinatorSim implements IInclinatorHw {
 
     @Override
     public void updateInputs() {
-        leftPos.set(leftPos.get() + (leftPower * kFactor * Robot.kDefaultPeriod));
-        rightPos.set(rightPos.get() + (rightPower * kFactor * Robot.kDefaultPeriod));
+        leftPos = leftPos + (leftPower * kFactor * Robot.kDefaultPeriod);
+        rightPos = rightPos + (rightPower * kFactor * Robot.kDefaultPeriod);
+        if(climbDevice != null) {
+            leftPosDev.set(leftPos);
+            rightPosDev.set(rightPos);
+        }
     } 
 }
