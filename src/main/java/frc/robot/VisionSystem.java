@@ -1,12 +1,8 @@
 package frc.robot;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
-import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -22,7 +18,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -43,8 +38,7 @@ public class VisionSystem extends SubsystemBase {
 
     private PhotonCamera frontCam;
     private Transform3d frontCamPos;
-
-    private AtomicReference<EstimatedRobotPose> m_atomicEstimatedRobotPose;
+    private double lastTimestamp;
     private final double APRILTAG_POSE_AMBIGUITY_THRESHOLD = 0.2;
     
     // The standard deviations of our vision estimated poses, which affect correction rate
@@ -73,8 +67,8 @@ public class VisionSystem extends SubsystemBase {
         frontCamEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCam, frontCamPos);
         frontCamEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
-        m_atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
         visionStdDev = UtilFunctions.getSettingSub("/Odometry/VisionStdDev", 4);
+        lastTimestamp = 0;
     }
 
     @Override
@@ -99,6 +93,7 @@ public class VisionSystem extends SubsystemBase {
 
     // Return if result is non-existent or invalid
     if (!pipelineResult.hasTargets()) return;
+    if(lastTimestamp == pipelineResult.getLatencyMillis()) return;
     if (pipelineResult.targets.size() == 1
         && pipelineResult.targets.get(0).getPoseAmbiguity() > APRILTAG_POSE_AMBIGUITY_THRESHOLD) return;
 
@@ -115,6 +110,7 @@ public class VisionSystem extends SubsystemBase {
           double stdDiv = visionStdDev.get();
           Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
           odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
+          lastTimestamp = pipelineResult.getTimestampSeconds();
         }
     });
     }
