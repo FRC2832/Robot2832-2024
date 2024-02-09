@@ -35,4 +35,8 @@ public class ResetWheelPosition extends Command {
     @Override
     public void end(boolean interrupted) {}
     
+    @Override
+    public boolean runsWhenDisabled() {
+        return true;
+    }
 }
