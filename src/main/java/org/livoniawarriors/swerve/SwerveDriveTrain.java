@@ -110,12 +110,12 @@ public class SwerveDriveTrain extends SubsystemBase {
         /** How fast we want the driver to turn during normal operation in deg/s */
         driverMaxOmega = UtilFunctions.getSettingSub("/Swerve Drive/Max Driver Omega (dps)", 625);   //1.8 * Pi rad/sec
 
-        swerveXSpeed = UtilFunctions.getNtPub("/Swerve Drive/X Speed (mps)", 0);
-        swerveYSpeed = UtilFunctions.getNtPub("/Swerve Drive/Y Speed (mps)", 0);
-        swerveOmega = UtilFunctions.getNtPub("/Swerve Drive/Omega (dps)", 0);
-        swerveCurrentHeading = UtilFunctions.getNtPub("/Swerve Drive/Current Heading", 0);
-        swerveGyroOffset = UtilFunctions.getNtPub("/Swerve Drive/Gyro Offset", 0);
-        swerveFieldOffset = UtilFunctions.getNtPub("/Swerve Drive/Field Offset", 0);
+        swerveXSpeed = UtilFunctions.getNtPub("/Swerve Drive/X Speed (mps)", 0.);
+        swerveYSpeed = UtilFunctions.getNtPub("/Swerve Drive/Y Speed (mps)", 0.);
+        swerveOmega = UtilFunctions.getNtPub("/Swerve Drive/Omega (dps)", 0.);
+        swerveCurrentHeading = UtilFunctions.getNtPub("/Swerve Drive/Current Heading", 0.);
+        swerveGyroOffset = UtilFunctions.getNtPub("/Swerve Drive/Gyro Offset", 0.);
+        swerveFieldOffset = UtilFunctions.getNtPub("/Swerve Drive/Field Offset", 0.);
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
     }
