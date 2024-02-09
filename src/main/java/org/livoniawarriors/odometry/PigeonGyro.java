@@ -27,7 +27,7 @@ public class PigeonGyro implements IGyroHardware {
         pigeon.getBiasedAccelerometer(temp);
 
         for(int i=0; i<3; i++) {
-            xyz_mps[i] = ((double)temp[i])/16384;
+            xyz_mps[i] = ((double)temp[i])/16384.;
         }
     }
 

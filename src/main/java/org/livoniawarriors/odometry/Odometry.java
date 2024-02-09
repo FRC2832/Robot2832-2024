@@ -34,6 +34,7 @@ public class Odometry extends SubsystemBase {
     SwerveDriveTrain drive;
     Pose2d robotPose;
     Pose2d startPose;
+    int loopsTagsSeen;
     
     private Field2d field;
     private Translation2d[] swervePositions;
@@ -50,6 +51,7 @@ public class Odometry extends SubsystemBase {
         startPose = new Pose2d(FIELD_LENGTH_METERS / 2, FIELD_WIDTH_METERS / 2, new Rotation2d());
         lastVisionTime = 0;
         frameCount = 0;
+        loopsTagsSeen = 0;
 
         field = new Field2d();
         resetPos = UtilFunctions.getNtSub("/Odometry/Reset Position", false);
@@ -197,11 +199,21 @@ public class Odometry extends SubsystemBase {
         visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
         visionFrameCount.set(frameCount++);
         poseEstimator.addVisionMeasurement(pose, timestamp);
+        loopsTagsSeen++;
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDeviation) {
         visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
         visionFrameCount.set(frameCount++);
         poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
+        loopsTagsSeen++;
+    }
+
+    /**
+     * Returns how many frames that we have seen an April Tag.
+     * @return
+     */
+    public int getLoopsTagSeen() {
+        return loopsTagsSeen;
     }
 }

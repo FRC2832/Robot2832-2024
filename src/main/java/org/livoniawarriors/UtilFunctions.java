@@ -279,5 +279,16 @@ public class UtilFunctions {
         double xDist = pose1.getX() - pose2.getX();
         double yDist = pose1.getY() - pose2.getY();
         return Math.sqrt((xDist * xDist) + (yDist * yDist));
+
+    public static double LimitChange(double current, double target, double maxChangePerLoop) {
+        double delta = target - current;
+        double newValue;
+
+        if(Math.abs(delta) > maxChangePerLoop) {  
+            newValue = current + Math.copySign(maxChangePerLoop, delta);
+        } else {
+            newValue = target;
+        }
+        return newValue;
     }
 }

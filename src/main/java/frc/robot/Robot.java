@@ -116,6 +116,7 @@ public class Robot extends TimedRobot {
         }
 
         //this clears all the old polled triggers
+        CommandScheduler.getInstance().cancelAll();
         CommandScheduler.getInstance().getActiveButtonLoop().clear();
         //since we sometimes switch configurations based on controller type, 
         //reset the bindings

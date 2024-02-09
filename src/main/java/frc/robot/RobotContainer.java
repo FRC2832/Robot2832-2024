@@ -9,10 +9,8 @@ import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
 import org.livoniawarriors.leds.TestLeds;
 import org.livoniawarriors.odometry.Odometry;
-import org.livoniawarriors.odometry.Pigeon2Gyro;
 import org.livoniawarriors.odometry.PigeonGyro;
 import org.livoniawarriors.odometry.SimSwerveGyro;
-import org.livoniawarriors.swerve.DriveXbox;
 import org.livoniawarriors.swerve.MoveWheels;
 import org.livoniawarriors.swerve.SwerveDriveSim;
 import org.livoniawarriors.swerve.SwerveDriveTrain;
@@ -26,17 +24,34 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Controls.FlightDriveControls;
+import frc.robot.Controls.OperatorControls;
+import frc.robot.Controls.XboxDriveControls;
+import frc.robot.commands.DriveStick;
+import frc.robot.commands.DriveClimb;
+import frc.robot.commands.TestIntake;
 import frc.robot.commands.TestShooter;
+import frc.robot.commands.OperatorStick;
+import frc.robot.hardware.InclinatorHw;
+import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.hardware.kickerHW;
+import frc.robot.interfaces.IDriveControls;
+import frc.robot.interfaces.IOperatorControls;
+import frc.robot.simulation.InclinatorSim;
+import frc.robot.simulation.IntakeSim;
+import frc.robot.simulation.ShooterSim;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.kicker;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -50,12 +65,20 @@ public class RobotContainer {
     private Odometry odometry;
     private LedSubsystem leds;
     private Shooter shooter;
-    private XboxController driverController;
-
+    private Inclinator inclinator;
+    private Intake intake;
+    private kicker kick;
     private SendableChooser<Command> autoChooser;
 
+    // Controller Options
+    private final String kXbox = "Xbox";
+    private final String kFlight = "T16000M";
+    private IDriveControls driveControls;
+    private OperatorControls operatorControls;
+    private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
+
     public RobotContainer() {
-        driverController = new XboxController(0);
+        
 
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
@@ -75,22 +98,33 @@ public class RobotContainer {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
-            shooter = new Shooter(new ShooterHw());
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
+            shooter = new Shooter(new ShooterHw());
+            intake = new Intake(new IntakeHw());
+            //inclinator = new Inclinator(new InclinatorSim());
+            kick = new kicker(new kickerHW());
         } else {
             //competition robot
-            shooter = new Shooter(new ShooterHw());
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
+            shooter = new Shooter(new ShooterSim());
+            intake = new Intake(new IntakeSim());
+            inclinator = new Inclinator(new InclinatorSim());
         }
-        
+
         odometry.setSwerveDrive(swerveDrive);
         odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
 
@@ -107,6 +141,10 @@ public class RobotContainer {
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
         // Need a shoot command in the future to shoot with
 
+        // Controller chooser Setup
+        driveControllerChooser.addOption("Xbox Controller", kXbox );
+        driveControllerChooser.setDefaultOption("Fight Sticks", kFlight);
+        SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
         // Configure the AutoBuilder
         AutoBuilder.configureHolonomic(
             odometry::getPose, // Robot pose supplier
@@ -139,12 +177,20 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
-        //setup default commands that are used for driving
-        swerveDrive.setDefaultCommand(new DriveXbox(swerveDrive, driverController));
-        leds.setDefaultCommand(new RainbowLeds(leds));
-        if(shooter != null) {
-            shooter.setDefaultCommand(new TestShooter(shooter));
+        //setup commands that are used for driving based on starting controller
+        if(driveControllerChooser.getSelected() == kFlight) {
+            driveControls = new FlightDriveControls();
         }
+        else{
+            driveControls = new XboxDriveControls();
+        }
+        operatorControls = new OperatorControls();
+        swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick);
+        leds.setDefaultCommand(new RainbowLeds(leds));
+        shooter.setDefaultCommand(operatorStick);
+        kick.setDefaultCommand(operatorStick);
+        //inclinator.setDefaultCommand(new DriveClimb(inclinator));
     }
 
     /**
