@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.hardware;
 
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;

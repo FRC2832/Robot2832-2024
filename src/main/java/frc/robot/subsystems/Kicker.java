@@ -1,14 +1,13 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.interfaces.IkickerHW;
+import frc.robot.interfaces.IKickerHw;
 
-public class kicker extends SubsystemBase {
-    private IkickerHW hw;
+public class Kicker extends SubsystemBase {
+    private IKickerHw hw;
 
-    public kicker(IkickerHW hardware) {
+    public Kicker(IKickerHw hardware) {
         super();
         hw = hardware;
-
     }
     
     @Override

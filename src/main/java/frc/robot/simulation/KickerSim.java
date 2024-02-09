@@ -5,9 +5,9 @@ import org.livoniawarriors.UtilFunctions;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.hal.SimDouble;
-import frc.robot.interfaces.IkickerHW;
+import frc.robot.interfaces.IKickerHw;
 
-public class KickerSim implements IkickerHW {
+public class KickerSim implements IKickerHw {
     private SimDevice kickerDevice;
     private SimDouble leftRpmDev;
     private SimDouble rightRpmDev;

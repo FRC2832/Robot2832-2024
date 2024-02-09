@@ -1,6 +1,6 @@
 package frc.robot.interfaces;
 
-public interface IkickerHW {
+public interface IKickerHw {
     void setPower(double power);
     void setRpm(double rpm);
     void updateInputs();
