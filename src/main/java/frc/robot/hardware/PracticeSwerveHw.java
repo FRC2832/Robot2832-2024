@@ -23,8 +23,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 public class PracticeSwerveHw implements ISwerveDriveIo {
 
     //measuring the robot, we got 13899 counts/rev, theoretical is 13824 counts/rev (L2 gear set at 6.75:1 ratio)
-    //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms)
-    private final double COUNTS_PER_METER = 43311;     //velocity units
+    //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms) = 43311
+    //the scale factor is average of 4 wheels/measured distance
+    private final double COUNTS_PER_METER = 43311 / 1.002855;     //velocity units
     private final double VELO_PER_METER = COUNTS_PER_METER/10;        //distance units
 
     //Swerve corner locations for kinematics
@@ -133,8 +134,8 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             turnPid[wheel] = new PIDController(.5/Math.PI, .2, 0);
             turnMotors[wheel].setInverted(true);
         }
-        setDriveMotorBrakeMode(false);
-        setTurnMotorBrakeMode(false);
+        setDriveMotorBrakeMode(true);
+        setTurnMotorBrakeMode(true);
     }
 
     @Override
