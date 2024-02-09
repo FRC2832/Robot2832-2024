@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.interfaces.IShooterHw;
 import frc.robot.interfaces.IkickerHW;
 
 public class kicker extends SubsystemBase {

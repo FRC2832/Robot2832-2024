@@ -2,13 +2,13 @@ package frc.robot.hardware;
 
 import frc.robot.interfaces.IIntakeHw;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 
+@SuppressWarnings("removal")
 public class IntakeHw implements IIntakeHw {
     private TalonFX hardware;
     private DigitalInput enterSensor;
@@ -17,9 +17,6 @@ public class IntakeHw implements IIntakeHw {
     private boolean interrupt;
 
     public IntakeHw() {
-        //TODO: can set config for this later
-        TalonFXConfiguration configuration = new TalonFXConfiguration();
-
         this.hardware = new TalonFX(50);
         this.enterSensor = new DigitalInput(0);
         this.isRunning = false;
