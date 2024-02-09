@@ -11,7 +11,8 @@ public class ResetWheelPosition extends Command {
     private SwerveDriveTrain swerve;
     private Odometry odometry;
     
-    public ResetWheelPosition(SwerveDriveTrain swerve, Odometry odometry){
+    public ResetWheelPosition(SwerveDriveTrain swerve, Odometry odometry) {
+        addRequirements(swerve);
         this.swerve = swerve;
         this.odometry = odometry;
     }

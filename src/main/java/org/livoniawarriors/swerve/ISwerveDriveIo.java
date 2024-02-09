@@ -45,4 +45,6 @@ public  interface ISwerveDriveIo {
     void setCorrectedAngle(int wheel, double angle);
 
     void setCornerState(int wheel, SwerveModuleState swerveModuleState);
+
+    void resetWheelPositions();
 }

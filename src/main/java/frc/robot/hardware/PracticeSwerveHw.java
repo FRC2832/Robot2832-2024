@@ -233,5 +233,11 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
     public void updateInputs() {
         
     }
-    
+
+    @Override
+    public void resetWheelPositions() {
+        for(int wheel = 0; wheel < driveMotors.length; wheel++) {
+            driveMotors[wheel].setSelectedSensorPosition(0);
+        }
+    }
 }

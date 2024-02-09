@@ -253,4 +253,11 @@ public class SwerveHw23 implements ISwerveDriveIo {
     public void setCorrectedAngle(int wheel, double angle) {
         correctedAngle[wheel] = angle;
     }
+
+    @Override
+    public void resetWheelPositions() {
+        for(int wheel = 0; wheel < driveMotor.length; wheel++) {
+            driveMotor[wheel].setSelectedSensorPosition(0);
+        }
+    }
 }
