@@ -5,15 +5,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.interfaces.IOperatorControls;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.kicker;
+import frc.robot.subsystems.Kicker;
 
 
 public class OperatorStick extends Command {
     private Shooter shoot;
-    private kicker kick;
+    private Kicker kick;
     private IOperatorControls cont;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, kicker kick){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;

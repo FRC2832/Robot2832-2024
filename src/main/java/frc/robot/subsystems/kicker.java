@@ -3,12 +3,12 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.interfaces.IShooterHw;
-import frc.robot.interfaces.IkickerHW;
+import frc.robot.interfaces.IKickerHw;
 
-public class kicker extends SubsystemBase {
-    private IkickerHW hw;
+public class Kicker extends SubsystemBase {
+    private IKickerHw hw;
 
-    public kicker(IkickerHW hardware) {
+    public Kicker(IKickerHw hardware) {
         super();
         hw = hardware;
 

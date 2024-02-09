@@ -2,13 +2,13 @@ package frc.robot.hardware;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import frc.robot.interfaces.Ivert_adjust_HW;
+import frc.robot.interfaces.IVertAdjustHw;
 
 @SuppressWarnings("removal")
-public class vert_adjust_HW implements Ivert_adjust_HW {
+public class VertAdjustHw implements IVertAdjustHw {
     private TalonFX motor;
     
-    public vert_adjust_HW() {
+    public VertAdjustHw() {
         motor = new TalonFX(40);//#!RANDOM NUMBER!##>
     }
 

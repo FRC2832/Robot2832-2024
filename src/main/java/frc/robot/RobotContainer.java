@@ -38,10 +38,12 @@ import frc.robot.commands.DriveClimb;
 import frc.robot.commands.TestIntake;
 import frc.robot.commands.TestShooter;
 import frc.robot.commands.OperatorStick;
+import frc.robot.commands.ResetWheelPosition;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
-import frc.robot.hardware.kickerHW;
+import frc.robot.hardware.KickerHw;
+import frc.robot.hardware.PracticeSwerveHw;
 import frc.robot.interfaces.IDriveControls;
 import frc.robot.interfaces.IOperatorControls;
 import frc.robot.simulation.InclinatorSim;
@@ -49,9 +51,8 @@ import frc.robot.simulation.IntakeSim;
 import frc.robot.simulation.ShooterSim;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Inclinator;
-import frc.robot.subsystems.PracticeSwerveHw;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.kicker;
+import frc.robot.subsystems.Kicker;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -67,7 +68,7 @@ public class RobotContainer {
     private Shooter shooter;
     private Inclinator inclinator;
     private Intake intake;
-    private kicker kick;
+    private Kicker kick;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -101,6 +102,7 @@ public class RobotContainer {
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
+            kick = new Kicker(new KickerHw());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -108,6 +110,7 @@ public class RobotContainer {
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
+
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
@@ -115,7 +118,7 @@ public class RobotContainer {
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
             //inclinator = new Inclinator(new InclinatorSim());
-            kick = new kicker(new kickerHW());
+            kick = new Kicker(new KickerHw());
         } else {
             //competition robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -135,6 +138,7 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Wheels Straight", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsStraight()));
         SmartDashboard.putData("Drive Wheels Diamond", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsDiamond()));
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
+        SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));

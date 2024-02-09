@@ -7,16 +7,16 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.interfaces.IkickerHW;
+import frc.robot.interfaces.IKickerHw;
 import org.livoniawarriors.Logger;
 
-public class kickerHW implements IkickerHW {
+public class KickerHw implements IKickerHw {
 //
     private CANSparkFlex[] kickers;
     private SparkPIDController[] pids;
     private RelativeEncoder[] encoders;
 
-    public kickerHW() {
+    public KickerHw() {
         kickers = new CANSparkFlex[2];
         pids = new SparkPIDController[2];
         encoders = new RelativeEncoder[2];
