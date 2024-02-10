@@ -83,9 +83,20 @@ public class DriveStick extends Command {
         xSpeed = cont.GetXDrivePct();
         ySpeed = cont.GetYDrivePct();
         turn = cont.GetTurnPct();
+
+        double xDrive = xSpeed * drive.getMaxDriverSpeed();
+        double yDrive = ySpeed * drive.getMaxDriverSpeed();
+        double hyp = Math.pow(Math.pow(xDrive,2) + Math.pow(yDrive,2),0.5);
+        
+        if(hyp > drive.getMaxDriverSpeed() && yDrive != 0){
+            double angle = Math.atan(xDrive / yDrive);
+            xDrive = Math.sin(angle) * drive.getMaxDriverSpeed();
+            yDrive = Math.cos(angle) * drive.getMaxDriverSpeed();
+        }
+
         drive.SwerveDrive(
-            xSpeed * drive.getMaxDriverSpeed(), 
-            ySpeed * drive.getMaxDriverSpeed(), 
+            xDrive, 
+            yDrive, 
             turn * drive.getMaxDriverOmega()
         );
     }
