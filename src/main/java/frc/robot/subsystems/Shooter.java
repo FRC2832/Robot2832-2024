@@ -22,11 +22,35 @@ public class Shooter extends SubsystemBase {
         var rpm = table.get(175.0);
     }
     
+
+
     @Override
     public void periodic() {
         hw.updateInputs();
     }
-    
+    public double[] estimate(double d){
+        InterpolatingDoubleTreeMap speed = new InterpolatingDoubleTreeMap();
+
+        //input: Inches from target, output: RPM of shot  
+        speed.put(125.0, 450.0);
+        speed.put(200.0, 510.0);
+        speed.put(268.0, 525.0);
+        speed.put(312.0, 550.0);
+        speed.put(326.0, 650.0);
+
+        InterpolatingDoubleTreeMap angle = new InterpolatingDoubleTreeMap();
+
+        //input: Inches from target, output: RPM of shot  
+        angle.put(125.0, 450.0);
+        angle.put(200.0, 510.0);
+        angle.put(268.0, 525.0);
+        angle.put(312.0, 550.0);
+        angle.put(326.0, 650.0);
+
+        return new double[]{speed.get(d),angle.get(d)};
+
+
+    }
     public void setRPM(double RPM) {
         hw.setRpm(RPM);
     }
