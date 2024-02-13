@@ -128,8 +128,9 @@ public class RobotContainer {
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
 
         // Register Named Commands for PathPlanner
-        NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
-        NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
+        NamedCommands.registerCommand("Shoot", new LightningFlash(leds, Color.kFirstRed));
+        NamedCommands.registerCommand("Intake", new LightningFlash(leds, Color.kFirstBlue));
+        
         // Need a shoot command in the future to shoot with
 
         // Controller chooser Setup

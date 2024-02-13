@@ -20,31 +20,57 @@
         {
           "type": "named",
           "data": {
-            "name": "flashRed"
+            "name": "Shoot"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "1Shoot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "1Shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "flashBlue"
+            "name": "Shoot"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "1-4Shoot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "1-4Shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "flashRed"
+            "name": "Shoot"
           }
         }
       ]

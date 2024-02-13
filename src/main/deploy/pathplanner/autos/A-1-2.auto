@@ -1,50 +1,50 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 0.76,
+      "y": 6.79
+    },
+    "rotation": 0
+  },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 1.5
+            "pathName": "A-1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "flashRed"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Drive1"
+            "pathName": "1Shoot"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.5
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Driveto2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.5
+            "name": "flashBlue"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Drive2To3"
+            "pathName": "1-2"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.5
+            "name": "flashRed"
           }
         }
       ]
