@@ -9,14 +9,17 @@ import frc.robot.interfaces.IShooterHw;
 
 public class ShooterSim implements IShooterHw {
     private SimDevice shooterDevice;
-    private SimDouble leftRpm;
-    private SimDouble rightRpm;
+    private SimDouble leftRpmDev;
+    private SimDouble rightRpmDev;
+    private double leftRpm, rightRpm;
     private double leftTarget, rightTarget;
 
     public ShooterSim() {
         shooterDevice = SimDevice.create("Jukebox:Shooter");
-        leftRpm = shooterDevice.createDouble("Left RPM", Direction.kOutput, 0);
-        rightRpm = shooterDevice.createDouble("Right RPM", Direction.kOutput, 0);
+        if(shooterDevice != null) {
+            leftRpmDev = shooterDevice.createDouble("Left RPM", Direction.kOutput, 0);
+            rightRpmDev = shooterDevice.createDouble("Right RPM", Direction.kOutput, 0);
+        }
     }
 
     @Override
@@ -34,9 +37,9 @@ public class ShooterSim implements IShooterHw {
     @Override
     public double getCurrentRPM(int shooterID) {
         if(shooterID % 2 == 0) {
-            return leftRpm.get();
+            return leftRpm;
         } else {
-            return rightRpm.get();
+            return rightRpm;
         }
     }
 
@@ -51,7 +54,11 @@ public class ShooterSim implements IShooterHw {
 
     @Override
     public void updateInputs() {
-        leftRpm.set(UtilFunctions.LimitChange(leftRpm.get(), leftTarget, 150));
-        rightRpm.set(UtilFunctions.LimitChange(rightRpm.get(), rightTarget, 150));
+        leftRpm = UtilFunctions.LimitChange(leftRpm, leftTarget, 150);
+        rightRpm = UtilFunctions.LimitChange(rightRpm, rightTarget, 150);
+        if(shooterDevice != null) {
+            leftRpmDev.set(leftRpm);
+            rightRpmDev.set(rightRpm);
+        }
     }
 }
