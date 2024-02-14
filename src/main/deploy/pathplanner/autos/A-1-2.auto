@@ -20,31 +20,20 @@
         {
           "type": "named",
           "data": {
-            "name": "flashRed"
+            "name": "Shoot"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "1Shoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "flashBlue"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "1-2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "flashRed"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "1Shoot"
+                }
+              }
+            ]
           }
         }
       ]
