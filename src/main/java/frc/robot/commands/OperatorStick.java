@@ -5,24 +5,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.interfaces.IOperatorControls;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Kicker;
 
 
 public class OperatorStick extends Command {
     private Shooter shoot;
     private Kicker kick;
-    private Intake intake;
     private IOperatorControls cont;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick,Intake intake){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;
-        this.intake = intake;
         addRequirements(shoot);
         addRequirements(kick);
-        addRequirements(intake);
     }
 
     @Override
@@ -40,12 +36,6 @@ public class OperatorStick extends Command {
         else{
             shoot.setPower(0);
             kick.setPower(0);
-        }
-        if(cont.IsIntakeRequested()){
-            intake.setIntake(true,false);
-        }
-        else{
-            intake.setIntake(false,false);
         }
     }
     
