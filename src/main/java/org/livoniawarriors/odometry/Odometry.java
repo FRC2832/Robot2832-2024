@@ -198,14 +198,20 @@ public class Odometry extends SubsystemBase {
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
         visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
         visionFrameCount.set(frameCount++);
-        poseEstimator.addVisionMeasurement(pose, timestamp);
+        //TODO have vision work while enabled
+        if(DriverStation.isDisabled()) {
+            poseEstimator.addVisionMeasurement(pose, timestamp);
+        }
         loopsTagsSeen++;
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDeviation) {
         visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
         visionFrameCount.set(frameCount++);
-        poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
+        //TODO have vision work while enabled
+        if(DriverStation.isDisabled()) {
+            poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
+        }
         loopsTagsSeen++;
     }
 
