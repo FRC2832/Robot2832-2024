@@ -54,7 +54,7 @@ public class OperatorControls implements IOperatorControls{
     }
 
     @Override
-    public boolean IsManualShotRequested() {
+    public boolean IsIntakeRequested() {
         return cont.getLeftTriggerAxis()>.5;
     }
 

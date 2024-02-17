@@ -9,6 +9,7 @@ import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
 import org.livoniawarriors.leds.TestLeds;
 import org.livoniawarriors.odometry.Odometry;
+import org.livoniawarriors.odometry.Pigeon2Gyro;
 import org.livoniawarriors.odometry.PigeonGyro;
 import org.livoniawarriors.odometry.SimSwerveGyro;
 import org.livoniawarriors.swerve.MoveWheels;
@@ -35,10 +36,12 @@ import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveClimb;
+import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.ResetWheelPosition;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.hardware.SwerveHw24;
 import frc.robot.hardware.KickerHw;
 import frc.robot.hardware.PracticeSwerveHw;
 import frc.robot.interfaces.IDriveControls;
@@ -58,6 +61,7 @@ import frc.robot.subsystems.Kicker;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+    public static String kCanBusName = "Jukebox";
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     private SwerveDriveTrain swerveDrive;
     private Odometry odometry;
@@ -76,7 +80,7 @@ public class RobotContainer {
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        
+
 
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
@@ -118,8 +122,8 @@ public class RobotContainer {
             kick = new Kicker(new KickerHw());
         } else {
             //competition robot
-            swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
-            odometry.setGyroHardware(new PigeonGyro(0));
+            swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
+            odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
@@ -195,7 +199,8 @@ public class RobotContainer {
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
-        //TODO need intake default command
+        new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
     }
 
     /**
