@@ -33,7 +33,6 @@ public class DriveStick extends Command {
         this.cont = cont;
         this.intake = intake;
         addRequirements(drive);
-        addRequirements(intake);
     }
 
     @Override
