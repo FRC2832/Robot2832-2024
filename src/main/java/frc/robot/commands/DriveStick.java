@@ -7,6 +7,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.interfaces.IDriveControls;
+import frc.robot.subsystems.Intake;
 
 
 /**
@@ -15,6 +16,7 @@ import frc.robot.interfaces.IDriveControls;
 public class DriveStick extends Command {
 
     private SwerveDriveTrain drive;
+    private Intake intake;
     private IDriveControls cont;
     private InterpolatingDoubleTreeMap controlTable;
     private InterpolatingDoubleTreeMap turnTable;
@@ -26,10 +28,12 @@ public class DriveStick extends Command {
      * @param drive Drivetrain to command
      * @param cont Controller to read from
      */
-    public DriveStick(SwerveDriveTrain drive, IDriveControls cont) {
+    public DriveStick(SwerveDriveTrain drive, IDriveControls cont, Intake intake) {
         this.drive = drive;
         this.cont = cont;
+        this.intake = intake;
         addRequirements(drive);
+        addRequirements(intake);
     }
 
     @Override
@@ -59,7 +63,12 @@ public class DriveStick extends Command {
         if (cont.IsFieldOrientedResetRequested()) {
             drive.resetFieldOriented();
         }
-
+        if (cont.IsIntakeRequested()){
+            intake.setIntake(true,false);
+        }
+        else{
+            intake.setIntake(false,false);
+        }
         /*
         if(cont.GetXDrivePct()>=0){
             xSpeed = controlTable.get(Math.abs(cont.GetXDrivePct()));
@@ -88,6 +97,7 @@ public class DriveStick extends Command {
             ySpeed * drive.getMaxDriverSpeed(), 
             turn * drive.getMaxDriverOmega()
         );
+
     }
     @Override
     public boolean isFinished() {
