@@ -36,6 +36,7 @@ import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveClimb;
+import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.ResetWheelPosition;
 import frc.robot.hardware.IntakeHw;
@@ -198,7 +199,8 @@ public class RobotContainer {
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
-        //TODO need intake default command
+        new Trigger(operatorControls::IsIntakeRequested).onTrue(new DriveIntake(intake, false));
+        new Trigger(driveControls::IsIntakeRequested).onTrue(new DriveIntake(intake, true));
     }
 
     /**
