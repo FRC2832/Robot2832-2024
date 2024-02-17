@@ -199,8 +199,8 @@ public class RobotContainer {
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
-        new Trigger(operatorControls::IsIntakeRequested).onTrue(new DriveIntake(intake, false));
-        new Trigger(driveControls::IsIntakeRequested).onTrue(new DriveIntake(intake, true));
+        new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
     }
 
     /**
