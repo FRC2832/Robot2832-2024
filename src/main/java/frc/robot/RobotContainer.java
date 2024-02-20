@@ -186,7 +186,7 @@ public class RobotContainer {
         else{
             driveControls = new XboxDriveControls();
         }
-        operatorControls = new OperatorControls();
+        OperatorControls operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
         swerveDrive.resetFieldOriented();
         OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick);
