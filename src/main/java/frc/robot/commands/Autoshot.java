@@ -21,6 +21,7 @@ public class Autoshot extends Command {
     @Override 
     public void execute(){
         double targetAngle = shooter.estimate(0)[1]; //Get angle from hashmap, HOW TO GET Distance
+        //^^WE NEED TO PASS TARGETANGLE AS -1 when we need it idle.
         pneumatic.goTo(targetAngle);
     }
 }

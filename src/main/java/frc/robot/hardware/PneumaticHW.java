@@ -22,13 +22,14 @@ public class PneumaticHW implements IPneumaticHW {
 
     /**@param target The target angle the pnuematics should go to */
     public void goTo(double target) {
+        if(target!=-1){
         double currentAngle = angSensor.getPitch();
         if(currentAngle <= (target + moe) && currentAngle >= (target - moe)){
             solenoid.set(kOff);  
         }
         else {
             solenoid.set(currentAngle < target ? kForward : kReverse);
-        }
+        }}
     }
 
     @Override
