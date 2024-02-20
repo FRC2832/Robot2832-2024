@@ -39,6 +39,7 @@ import frc.robot.commands.DriveClimb;
 import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.ResetWheelPosition;
+import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
 import frc.robot.hardware.SwerveHw24;
@@ -61,7 +62,7 @@ import frc.robot.subsystems.Kicker;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    public static String kCanBusName = "Jukebox";
+    public static String kCanBusName = "rio";
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     private SwerveDriveTrain swerveDrive;
     private Odometry odometry;
@@ -80,8 +81,6 @@ public class RobotContainer {
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
-
-
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
         //known Rio serial numbers:
@@ -124,9 +123,9 @@ public class RobotContainer {
             //competition robot
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
-            shooter = new Shooter(new ShooterSim());
-            intake = new Intake(new IntakeSim());
-            inclinator = new Inclinator(new InclinatorSim());
+            shooter = new Shooter(new ShooterHw());
+            intake = new Intake(new IntakeHw());
+            inclinator = new Inclinator(new InclinatorHw());
             kick = new Kicker(new KickerSim());
         }
 
@@ -201,6 +200,13 @@ public class RobotContainer {
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
+    }
+
+    public void disableBindings() {
+        swerveDrive.removeDefaultCommand();
+        shooter.removeDefaultCommand();
+        kick.removeDefaultCommand();
+        inclinator.removeDefaultCommand();
     }
 
     /**
