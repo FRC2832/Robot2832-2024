@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
+import org.livoniawarriors.Logger;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 
@@ -23,6 +25,7 @@ public class IntakeHw implements IIntakeHw {
         this.inverted = false;
         this.interrupt = false;
 
+        Logger.RegisterTalon( "Intake", hardware);
         SmartDashboard.putBoolean("Note In", false);
     }
 

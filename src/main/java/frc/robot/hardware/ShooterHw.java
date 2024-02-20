@@ -3,6 +3,9 @@ package frc.robot.hardware;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotContainer;
 import frc.robot.interfaces.IShooterHw;
+
+import org.livoniawarriors.Logger;
+
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -31,6 +34,7 @@ public class ShooterHw implements IShooterHw {
             allConfigs.motionCruiseVelocity = 0;
             allConfigs.motionAcceleration = 0;
             motor.configAllSettings(allConfigs);
+            Logger.RegisterTalon("Shooter" + Integer.toString(motor.getDeviceID()-4), motor);
         }
 
         shooters[1].setInverted(true);
