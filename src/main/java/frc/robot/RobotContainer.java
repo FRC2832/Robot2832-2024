@@ -23,6 +23,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,22 +35,26 @@ import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
+import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.ResetWheelPosition;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
 import frc.robot.hardware.KickerHw;
+import frc.robot.hardware.PneumaticHW;
 import frc.robot.hardware.PracticeSwerveHw;
 import frc.robot.interfaces.IDriveControls;
 import frc.robot.simulation.InclinatorSim;
 import frc.robot.simulation.IntakeSim;
 import frc.robot.simulation.KickerSim;
+import frc.robot.simulation.PneumaticsSim;
 import frc.robot.simulation.ShooterSim;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Kicker;
+import frc.robot.subsystems.Pneumatics;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -66,6 +71,8 @@ public class RobotContainer {
     private Inclinator inclinator;
     private Intake intake;
     private Kicker kick;
+    private Pneumatics aimer;
+    private PneumaticHub ph;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -100,6 +107,7 @@ public class RobotContainer {
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
+            aimer = new Pneumatics(new PneumaticsSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -108,6 +116,7 @@ public class RobotContainer {
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
+            aimer = new Pneumatics(new PneumaticsSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
@@ -116,14 +125,19 @@ public class RobotContainer {
             intake = new Intake(new IntakeHw());
             //inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerHw());
+            aimer = new Pneumatics(new PneumaticsSim());
         } else {
             //competition robot
+            ph = new PneumaticHub();
+            ph.enableCompressorAnalog(50, 80);
+
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
             shooter = new Shooter(new ShooterSim());
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
+            aimer = new Pneumatics(new PneumaticHW());
         }
 
         odometry.setSwerveDrive(swerveDrive);
@@ -194,7 +208,7 @@ public class RobotContainer {
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
-        //TODO need intake default command
+        new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
     }
 
     /**
