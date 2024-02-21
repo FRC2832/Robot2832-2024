@@ -9,6 +9,7 @@ import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
 import org.livoniawarriors.leds.TestLeds;
 import org.livoniawarriors.odometry.Odometry;
+import org.livoniawarriors.odometry.Pigeon2Gyro;
 import org.livoniawarriors.odometry.PigeonGyro;
 import org.livoniawarriors.odometry.SimSwerveGyro;
 import org.livoniawarriors.swerve.MoveWheels;
@@ -37,10 +38,13 @@ import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
+import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.ResetWheelPosition;
+import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
+import frc.robot.hardware.SwerveHw24;
 import frc.robot.hardware.KickerHw;
 import frc.robot.hardware.PneumaticHW;
 import frc.robot.hardware.PracticeSwerveHw;
@@ -63,6 +67,7 @@ import frc.robot.subsystems.Pneumatics;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+    public static String kCanBusName = "rio";
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     private SwerveDriveTrain swerveDrive;
     private Odometry odometry;
@@ -83,8 +88,6 @@ public class RobotContainer {
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
-        
-
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
         //known Rio serial numbers:
@@ -123,7 +126,7 @@ public class RobotContainer {
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
-            //inclinator = new Inclinator(new InclinatorSim());
+            inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticsSim());
         } else {
@@ -131,11 +134,11 @@ public class RobotContainer {
             ph = new PneumaticHub();
             ph.enableCompressorAnalog(50, 80);
 
-            swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
-            odometry.setGyroHardware(new PigeonGyro(0));
+            swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
+            odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterSim());
-            intake = new Intake(new IntakeSim());
-            inclinator = new Inclinator(new InclinatorSim());
+            intake = new Intake(new IntakeHw());
+            inclinator = new Inclinator(new InclinatorHw());
             kick = new Kicker(new KickerSim());
             aimer = new Pneumatics(new PneumaticHW());
         }
@@ -155,6 +158,7 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
+        NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
         // Need a shoot command in the future to shoot with
 
         // Controller chooser Setup
@@ -168,8 +172,8 @@ public class RobotContainer {
             swerveDrive::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             swerveDrive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+                new PIDConstants(3.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(3.0, 0.0, 0.0), // Rotation PID constants
                 swerveDrive.getMaxSpeed(), // Max module speed, in m/s
                 swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
                 new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -209,6 +213,15 @@ public class RobotContainer {
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
+        new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
+    }
+
+    public void disableBindings() {
+        swerveDrive.removeDefaultCommand();
+        shooter.removeDefaultCommand();
+        kick.removeDefaultCommand();
+        inclinator.removeDefaultCommand();
     }
 
     /**

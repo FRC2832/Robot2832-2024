@@ -1,6 +1,7 @@
 package frc.robot.hardware;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotContainer;
 import frc.robot.interfaces.IShooterHw;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -14,8 +15,8 @@ public class ShooterHw implements IShooterHw {
 
     public ShooterHw() {
         shooters = new TalonFX[2];
-        shooters[0] = new TalonFX(5);
-        shooters[1] = new TalonFX(6);
+        shooters[0] = new TalonFX(5, RobotContainer.kCanBusName);
+        shooters[1] = new TalonFX(6, RobotContainer.kCanBusName);
 
         for(TalonFX motor:shooters){
             //motors MUST be reset every powerup!!!
