@@ -132,14 +132,14 @@ public class RobotContainer {
         } else {
             //competition robot
             ph = new PneumaticHub();
-            ph.enableCompressorAnalog(50, 80);
+            ph.enableCompressorAnalog(95, 115);
 
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
-            shooter = new Shooter(new ShooterSim());
+            shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
             inclinator = new Inclinator(new InclinatorHw());
-            kick = new Kicker(new KickerSim());
+            kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticHW());
         }
 
