@@ -24,6 +24,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,24 +36,29 @@ import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
+import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.ResetWheelPosition;
+import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
 import frc.robot.hardware.SwerveHw24;
 import frc.robot.hardware.KickerHw;
+import frc.robot.hardware.PneumaticHW;
 import frc.robot.hardware.PracticeSwerveHw;
 import frc.robot.interfaces.IDriveControls;
 import frc.robot.simulation.InclinatorSim;
 import frc.robot.simulation.IntakeSim;
 import frc.robot.simulation.KickerSim;
+import frc.robot.simulation.PneumaticsSim;
 import frc.robot.simulation.ShooterSim;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Kicker;
+import frc.robot.subsystems.Pneumatics;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -61,7 +67,7 @@ import frc.robot.subsystems.Kicker;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    public static String kCanBusName = "Jukebox";
+    public static String kCanBusName = "rio";
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     private SwerveDriveTrain swerveDrive;
     private Odometry odometry;
@@ -70,6 +76,8 @@ public class RobotContainer {
     private Inclinator inclinator;
     private Intake intake;
     private Kicker kick;
+    private Pneumatics aimer;
+    private PneumaticHub ph;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -80,8 +88,6 @@ public class RobotContainer {
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
-
-
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
         //known Rio serial numbers:
@@ -104,6 +110,7 @@ public class RobotContainer {
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
+            aimer = new Pneumatics(new PneumaticsSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -112,22 +119,28 @@ public class RobotContainer {
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
+            aimer = new Pneumatics(new PneumaticsSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
-            //inclinator = new Inclinator(new InclinatorSim());
+            inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerHw());
+            aimer = new Pneumatics(new PneumaticsSim());
         } else {
             //competition robot
+            ph = new PneumaticHub();
+            ph.enableCompressorAnalog(95, 115);
+
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
-            shooter = new Shooter(new ShooterSim());
-            intake = new Intake(new IntakeSim());
-            inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerSim());
+            shooter = new Shooter(new ShooterHw());
+            intake = new Intake(new IntakeHw());
+            inclinator = new Inclinator(new InclinatorHw());
+            kick = new Kicker(new KickerHw());
+            aimer = new Pneumatics(new PneumaticHW());
         }
 
         odometry.setSwerveDrive(swerveDrive);
@@ -191,7 +204,7 @@ public class RobotContainer {
         else{
             driveControls = new XboxDriveControls();
         }
-        operatorControls = new OperatorControls();
+        OperatorControls operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
         swerveDrive.resetFieldOriented();
         OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick);
@@ -199,8 +212,16 @@ public class RobotContainer {
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
+        new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
+    }
+
+    public void disableBindings() {
+        swerveDrive.removeDefaultCommand();
+        shooter.removeDefaultCommand();
+        kick.removeDefaultCommand();
+        inclinator.removeDefaultCommand();
     }
 
     /**

@@ -12,8 +12,8 @@ public class InclinatorHw implements IInclinatorHw {
     private TalonFX rightClimb;
     
     public InclinatorHw() {
-        leftClimb = new TalonFX(60);
-        rightClimb = new TalonFX(61);
+        leftClimb = new TalonFX(61);
+        rightClimb = new TalonFX(62);
         //Add Logger Data for Faults 
         Logger.RegisterTalon( "Left Climb", leftClimb);
         Logger.RegisterTalon( "Right Climb", rightClimb);
