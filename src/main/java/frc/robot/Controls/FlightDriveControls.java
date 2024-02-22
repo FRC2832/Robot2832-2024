@@ -32,13 +32,13 @@ public class FlightDriveControls implements IDriveControls {
     @Override
     public double GetXDrivePct() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(driveContRight.getxAxis1(), dead);
+        return UtilFunctions.deadband(-driveContRight.getyAxis1(), dead);
     }
 
     @Override
     public double GetYDrivePct() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(driveContRight.getyAxis1(), dead);
+        return UtilFunctions.deadband(-driveContRight.getxAxis1(), dead);
     }
 
     @Override
