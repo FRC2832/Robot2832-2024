@@ -1,4 +1,6 @@
 package frc.robot.hardware;
+import org.livoniawarriors.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
@@ -12,6 +14,9 @@ public class InclinatorHw implements IInclinatorHw {
     public InclinatorHw() {
         leftClimb = new TalonFX(61);
         rightClimb = new TalonFX(62);
+        //Add Logger Data for Faults 
+        Logger.RegisterTalon( "Left Climb", leftClimb);
+        Logger.RegisterTalon( "Right Climb", rightClimb);
     }
 
     public void setPower(double power){

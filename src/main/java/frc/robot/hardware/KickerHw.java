@@ -38,7 +38,6 @@ public class KickerHw implements IKickerHw {
             encoders[i] = kickers[i].getEncoder();
             final int wheel = i;
             Logger.RegisterSensor("Kicker " + i + " RPM", () -> getCurrentRPM(wheel));
-            //Logger.RegisterCanSparkMax(shooters[wheel]);
         }
     }
     @Override

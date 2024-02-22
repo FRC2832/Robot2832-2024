@@ -1,4 +1,6 @@
 package frc.robot.hardware;
+import org.livoniawarriors.Logger;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
@@ -10,6 +12,7 @@ public class VertAdjustHw implements IVertAdjustHw {
     
     public VertAdjustHw() {
         motor = new TalonFX(40);//#!RANDOM NUMBER!##>
+        Logger.RegisterTalon( "Vertical Adjuster", motor);
     }
 
     public void setPower(double power){

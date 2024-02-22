@@ -25,6 +25,7 @@ public class IntakeHw implements IIntakeHw {
         this.inverted = false;
         this.interrupt = false;
 
+        Logger.RegisterTalon( "Intake", hardware);
         SmartDashboard.putBoolean("Note In", false);
         Logger.RegisterTalon("Intake", hardware);
     }
