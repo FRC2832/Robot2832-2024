@@ -31,12 +31,12 @@ public class SwerveHw24 implements ISwerveDriveIo {
     private final double VELO_PER_METER = COUNTS_PER_METER/10;        //distance units
 
     //Swerve corner locations for kinematics
-    // 22.75"x17.25"
+    // 22.75"x17.25" (5.5" above center)
     private Translation2d[] swervePositions = {
-        new Translation2d(Units.inchesToMeters(5.875), Units.inchesToMeters(22.75/2)),  //convert inches to meters. y is front to back. left front is 1st wheel
-        new Translation2d(Units.inchesToMeters(5.875), Units.inchesToMeters(22.75/2)),  //front right wheel
-        new Translation2d(Units.inchesToMeters(22.75/2), Units.inchesToMeters(22.75/2)),  // rear left
-        new Translation2d(Units.inchesToMeters(22.75/2), Units.inchesToMeters(22.75/2))  // rear right
+        new Translation2d(Units.inchesToMeters(17.25/2), Units.inchesToMeters(22.75/2)),  //convert inches to meters. y is front to back. left front is 1st wheel
+        new Translation2d(Units.inchesToMeters(17.25/2), Units.inchesToMeters(-22.75/2)),  //front right wheel
+        new Translation2d(Units.inchesToMeters(-17.25/2), Units.inchesToMeters(22.75/2)),  // rear left
+        new Translation2d(Units.inchesToMeters(-17.25/2), Units.inchesToMeters(-22.75/2))  // rear right
     };
 
     private String[] moduleNames = {
@@ -116,7 +116,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
             motor.configAllSettings(allConfigs);
             motor.setSelectedSensorPosition(0);
-
+            motor.setInverted(false);
             motor.setStatusFramePeriod(StatusFrame.Status_1_General, 40);
         }
 
