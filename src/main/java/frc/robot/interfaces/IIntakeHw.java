@@ -8,4 +8,6 @@ public interface IIntakeHw {
     boolean isPieceSeen();
     void removeInterrupt();
     void updateInputs();
+    void setPower(double power);
+    void setRpm(double rpm);
 }

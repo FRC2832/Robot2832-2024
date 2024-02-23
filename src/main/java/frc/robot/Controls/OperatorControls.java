@@ -25,7 +25,7 @@ public class OperatorControls implements IOperatorControls{
     @Override
     public double GetManualSubAim() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(-cont.getRightY(), dead);
+        return UtilFunctions.deadband(-cont.getLeftY(), dead);
     }
 
     @Override
@@ -55,13 +55,19 @@ public class OperatorControls implements IOperatorControls{
 
     @Override
     public boolean IsIntakeRequested() {
-        return cont.getLeftTriggerAxis()>.5;
+        return cont.getRightTriggerAxis()>.5;
     }
 
     @Override
     public double GetTurnPct() {
         var dead = deadband.get();
         return UtilFunctions.deadband(-cont.getLeftX(), dead);
+    }
+
+
+    @Override
+    public boolean IsIntakeDownRequested() {
+        return cont.getLeftTriggerAxis()>.5;
     }
     
 }

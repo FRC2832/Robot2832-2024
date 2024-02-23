@@ -57,5 +57,15 @@ public class IntakeSim implements IIntakeHw {
             invertedDev.set(inverted);
         }
     }
+
+    @Override
+    public void setPower(double power) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void setRpm(double rpm) {
+        // TODO Auto-generated method stub
+    }
     
 }

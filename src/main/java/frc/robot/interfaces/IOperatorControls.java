@@ -9,5 +9,6 @@ public interface IOperatorControls {
     boolean IsClimbUpRequested();
     boolean IsClimbDownRequested();
     boolean IsIntakeRequested();
+    boolean IsIntakeDownRequested();
     double GetTurnPct();
 }
