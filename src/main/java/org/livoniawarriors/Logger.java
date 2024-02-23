@@ -19,6 +19,7 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.Pigeon2_Faults;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU_Faults;
+import com.ctre.phoenix6.hardware.core.CoreTalonFX;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -107,6 +108,10 @@ public class Logger implements Runnable {
         items.put(name, talon);
     }
 
+    public static void RegisterTalon(String name, CoreTalonFX talon) {
+        items.put(name, talon);
+    }
+
     public static void RegisterCanSparkMax(String name, CANSparkMax spark) {
         items.put(name, spark);
     }
@@ -144,6 +149,8 @@ public class Logger implements Runnable {
 
             if(item instanceof BaseTalon) {
                 readTalon(i, (BaseTalon)item);
+            } else if(item instanceof CoreTalonFX) {
+                readTalon(i, (CoreTalonFX)item);
             } else if(item instanceof DoubleSupplier) {
                 sensorTable.getEntry(i).setDouble(((DoubleSupplier)item).getAsDouble());
             } else if(item instanceof CANCoder) {
@@ -290,6 +297,15 @@ public class Logger implements Runnable {
             flashDriveAttached = true;
         }
         flashDrivePresent.set(flashDriveAttached);
+    }
+
+    private void readTalon(String name, CoreTalonFX talon) {
+        commandTable.getEntry(name).setDouble(talon.getMotorVoltage().getValueAsDouble());
+        currentTable.getEntry(name).setDouble(talon.getSupplyCurrent().getValueAsDouble());
+        faultTable.getEntry(name).setString("Not Implemented");
+        stickyTable.getEntry(name).setString("Not Implemented");
+        tempTable.getEntry(name).setDouble(talon.getDeviceTemp().getValueAsDouble());
+        //canStatusTable.getEntry(name).setString(talon.can);
     }
 
     private void readTalon(String name, BaseTalon talon) {

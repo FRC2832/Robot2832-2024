@@ -40,6 +40,7 @@ import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
+import frc.robot.commands.PitIntake;
 import frc.robot.commands.ResetWheelPosition;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
@@ -84,7 +85,6 @@ public class RobotContainer {
     private final String kXbox = "Xbox";
     private final String kFlight = "T16000M";
     private IDriveControls driveControls;
-    private OperatorControls operatorControls;
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
     public RobotContainer() {
@@ -154,6 +154,7 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Wheels Diamond", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsDiamond()));
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
+        SmartDashboard.putData("Pit Intake", new PitIntake(intake));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
@@ -214,6 +215,7 @@ public class RobotContainer {
         inclinator.setDefaultCommand(new DriveClimb(inclinator));
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
+        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
     }
 

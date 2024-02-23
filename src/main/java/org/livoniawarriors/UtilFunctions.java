@@ -2,6 +2,7 @@ package org.livoniawarriors;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import edu.wpi.first.math.MathUtil;
@@ -19,6 +20,8 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -291,5 +294,14 @@ public class UtilFunctions {
             newValue = target;
         }
         return newValue;
+    }
+
+    public static Alliance getAlliance() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+            return Alliance.Red;
+        } else {
+            return Alliance.Blue;
+        }
     }
 }

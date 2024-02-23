@@ -34,4 +34,12 @@ public class Intake extends SubsystemBase {
     public void removeInterrupt() {
         hardware.removeInterrupt();
     }
+
+    public void setPower(double power) {
+        hardware.setPower(power);
+    }
+
+    public void setRpm(double rpm) {
+        hardware.setRpm(rpm);
+    }
 }

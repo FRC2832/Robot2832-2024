@@ -1,25 +1,40 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Intake;
+
+import org.livoniawarriors.UtilFunctions;
+
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveIntake extends Command {
     private Intake intake;
     private boolean stop;
+    private boolean invert;
+    DoubleSubscriber intakeSpeed;
 
     public DriveIntake(Intake intake, boolean stop) {
+        this(intake, stop, false);
+    }
+
+    public DriveIntake(Intake intake, boolean stop, boolean invert) {
         this.intake = intake;
         this.stop = stop;
+        this.invert = invert;
         addRequirements(intake);
+        intakeSpeed = UtilFunctions.getSettingSub("/DriveIntake/Intake Speed", 150);
     }
 
     @Override
     public void execute() {
-        intake.setIntake(true, false);
+        double dir = 1;
+        if(invert) dir = -1;
+        intake.setRpm(dir * intakeSpeed.get());
     }
 
     @Override
     public void end(boolean interrupted) {
-        intake.setIntake(false, false);
+        //we want to use the set power here to ramp down the motor, not PID control
+        intake.setPower(0);
     }
 }

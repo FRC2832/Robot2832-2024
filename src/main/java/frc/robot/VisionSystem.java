@@ -24,7 +24,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -62,7 +61,10 @@ public class VisionSystem extends SubsystemBase {
         //get camera by name
         frontCam = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
-        frontCamPos = new Transform3d(new Translation3d(0, -Units.inchesToMeters(9.0), Units.inchesToMeters(24.5)), new Rotation3d(0,0,Math.toRadians(180)));
+        frontCamPos = new Transform3d(
+            new Translation3d(-0.31, -0.29, 0.47), 
+            new Rotation3d(0,Math.toRadians(11.5),Math.toRadians(180))
+        );
         //get the estimator of it
         frontCamEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCam, frontCamPos);
         frontCamEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);

@@ -1,7 +1,5 @@
 package org.livoniawarriors.swerve;
 
-import java.util.Optional;
-
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
 
@@ -175,9 +173,9 @@ public class SwerveDriveTrain extends SubsystemBase {
         ChassisSpeeds speeds;
 
         //compensate when the alliance is red and direction is flipped
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if(alliance.isPresent() && alliance.get() == Alliance.Red) {
+        if(UtilFunctions.getAlliance() == Alliance.Red) {
             xSpeed = -xSpeed;
+            ySpeed = -ySpeed;
         }
 
         if (Math.abs(turn) > 0.1) {

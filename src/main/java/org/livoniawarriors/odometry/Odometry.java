@@ -1,7 +1,5 @@
 package org.livoniawarriors.odometry;
 
-import java.util.Optional;
-
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.swerve.SwerveDriveTrain;
@@ -133,8 +131,7 @@ public class Odometry extends SubsystemBase {
      * @return pose relative to the other alliance's coordinate system
      */
     public static Pose2d flipAlliance(Pose2d poseToFlip) {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+        if (UtilFunctions.getAlliance() == Alliance.Red) {
             return poseToFlip.relativeTo(new Pose2d(
                 new Translation2d(FIELD_LENGTH_METERS, FIELD_WIDTH_METERS),
                 new Rotation2d(Math.PI)));
@@ -148,8 +145,7 @@ public class Odometry extends SubsystemBase {
      * @return If we need to flip
      */
     public boolean shouldFlipAlliance() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+        if (UtilFunctions.getAlliance() == Alliance.Red) {
             return true;
         } else {
             return false;
