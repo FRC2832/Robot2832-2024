@@ -6,30 +6,14 @@ import frc.robot.interfaces.IShooterHw;
 
 public class Shooter extends SubsystemBase {
     private IShooterHw hw;
+    private InterpolatingDoubleTreeMap speed, angle;
 
     public Shooter(IShooterHw hardware) {
         super();
         hw = hardware;
-        InterpolatingDoubleTreeMap table = new InterpolatingDoubleTreeMap();
-
-        //input: Inches from target, output: RPM of shot  
-        table.put(125.0, 450.0);
-        table.put(200.0, 510.0);
-        table.put(268.0, 525.0);
-        table.put(312.0, 550.0);
-        table.put(326.0, 650.0);
-
-        var rpm = table.get(175.0);
-    }
-    
-
-
-    @Override
-    public void periodic() {
-        hw.updateInputs();
-    }
-    public double[] estimate(double d){
-        InterpolatingDoubleTreeMap speed = new InterpolatingDoubleTreeMap();
+        
+        speed = new InterpolatingDoubleTreeMap();
+        angle = new InterpolatingDoubleTreeMap();
 
         //input: Inches from target, output: RPM of shot  
         speed.put(125.0, 450.0);
@@ -38,19 +22,22 @@ public class Shooter extends SubsystemBase {
         speed.put(312.0, 550.0);
         speed.put(326.0, 650.0);
 
-        InterpolatingDoubleTreeMap angle = new InterpolatingDoubleTreeMap();
-
         //input: Inches from target, output: RPM of shot  
         angle.put(125.0, 450.0);
         angle.put(200.0, 510.0);
         angle.put(268.0, 525.0);
         angle.put(312.0, 550.0);
         angle.put(326.0, 650.0);
-
-        return new double[]{speed.get(d),angle.get(d)};
-
-
     }
+
+    @Override
+    public void periodic() {
+        hw.updateInputs();
+    }
+    public double[] estimate(double d){
+        return new double[]{speed.get(d),angle.get(d)};
+    }
+
     public void setRPM(double RPM) {
         hw.setRpm(RPM);
     }
