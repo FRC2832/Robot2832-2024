@@ -3,6 +3,7 @@ package frc.robot.hardware;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
@@ -15,6 +16,7 @@ public class KickerHw implements IKickerHw {
     private CANSparkFlex[] kickers;
     private SparkPIDController[] pids;
     private RelativeEncoder[] encoders;
+    
 
     public KickerHw() {
         kickers = new CANSparkFlex[2];
@@ -34,7 +36,7 @@ public class KickerHw implements IKickerHw {
             pids[i].setD(0);
             pids[i].setFF(1./MAX_MOTOR_RPM);
             pids[i].setIZone(100);
-
+            kickers[i].setIdleMode(IdleMode.kBrake);
             encoders[i] = kickers[i].getEncoder();
 
             
