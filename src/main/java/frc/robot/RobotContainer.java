@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import org.livoniawarriors.Logger;
+import javax.tools.Diagnostic;
+
 import org.livoniawarriors.leds.LedSubsystem;
 import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
@@ -26,7 +27,6 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.PneumaticHub;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -38,6 +38,7 @@ import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
+import frc.robot.commands.Diagnostics;
 import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.DriveIntake;
@@ -89,13 +90,6 @@ public class RobotContainer {
     private IDriveControls driveControls;
     private SendableChooser<String> driveControllerChooser = new SendableChooser<>();
 
-    private String[] pdpList = {
-        "LR DRV" , "LR TURN", "RR DRV", "RR TURN", "L SHT"  , "R SHT" ,
-        "SHT ANG", "R CLIMB", "L INTK", "R MPM"  , "L MPM"  , "PH"    ,
-        "L CLIMB", "R INTK" , "R ACC" , "L ACC"  , "RF TURN", "RF DRV",
-        "LF TURN", "LR DRV" , "RIO"   , "22"     , "RADIO"  , "24"
-    };
-
     public RobotContainer() {
         String serNum = RobotController.getSerialNumber();
         SmartDashboard.putString("Serial Number", serNum);
@@ -142,7 +136,7 @@ public class RobotContainer {
             //competition robot
             ph = new PneumaticHub();
             ph.enableCompressorAnalog(95, 115);
-            Logger.RegisterPdp(new PowerDistribution(), pdpList);
+
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterHw());
@@ -164,14 +158,14 @@ public class RobotContainer {
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
         SmartDashboard.putData("Pit Intake", new PitIntake(intake));
+        SmartDashboard.putData("Diagnostics", new Diagnostics());
+
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("Shoot", new LightningFlash(leds, Color.kFirstRed));
-        NamedCommands.registerCommand("Intake", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
+        // Need a shoot command in the future to shoot with
 
         // Controller chooser Setup
         driveControllerChooser.addOption("Xbox Controller", kXbox );
@@ -197,7 +191,6 @@ public class RobotContainer {
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-        
     }
 
     /**
