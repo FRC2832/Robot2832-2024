@@ -1,5 +1,7 @@
 package org.livoniawarriors.swerve;
 
+import java.util.Optional;
+
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
 
@@ -98,11 +100,11 @@ public class SwerveDriveTrain extends SubsystemBase {
             swerveTargets[wheel] = new SwerveModuleState();
             swerveStates[wheel] = new SwerveModuleState();
             wheelOffsetSetting[wheel] = UtilFunctions.getSettingSub("/Swerve Drive/Wheel Offset " + moduleNames[wheel] + " (deg)", 0);
-            wheelCalcAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Calc Angle (deg)", 0);
-            wheelCommandAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Command Angle (deg)", 0);
-            wheelRequestAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Request Angle (deg)", 0);
-            wheelCommandSpeed[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Command Speed (mps)", 0);
-            wheelRequestSpeed[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Request Speed (mps)", 0);
+            wheelCalcAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Calc Angle (deg)", 0.);
+            wheelCommandAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Command Angle (deg)", 0.);
+            wheelRequestAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Request Angle (deg)", 0.);
+            wheelCommandSpeed[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Command Speed (mps)", 0.);
+            wheelRequestSpeed[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Request Speed (mps)", 0.);
         }
 
         /** How fast we want the driver to go during normal operation in m/s */
@@ -110,12 +112,12 @@ public class SwerveDriveTrain extends SubsystemBase {
         /** How fast we want the driver to turn during normal operation in deg/s */
         driverMaxOmega = UtilFunctions.getSettingSub("/Swerve Drive/Max Driver Omega (dps)", 625);   //1.8 * Pi rad/sec
 
-        swerveXSpeed = UtilFunctions.getNtPub("/Swerve Drive/X Speed (mps)", 0);
-        swerveYSpeed = UtilFunctions.getNtPub("/Swerve Drive/Y Speed (mps)", 0);
-        swerveOmega = UtilFunctions.getNtPub("/Swerve Drive/Omega (dps)", 0);
-        swerveCurrentHeading = UtilFunctions.getNtPub("/Swerve Drive/Current Heading", 0);
-        swerveGyroOffset = UtilFunctions.getNtPub("/Swerve Drive/Gyro Offset", 0);
-        swerveFieldOffset = UtilFunctions.getNtPub("/Swerve Drive/Field Offset", 0);
+        swerveXSpeed = UtilFunctions.getNtPub("/Swerve Drive/X Speed (mps)", 0.);
+        swerveYSpeed = UtilFunctions.getNtPub("/Swerve Drive/Y Speed (mps)", 0.);
+        swerveOmega = UtilFunctions.getNtPub("/Swerve Drive/Omega (dps)", 0.);
+        swerveCurrentHeading = UtilFunctions.getNtPub("/Swerve Drive/Current Heading", 0.);
+        swerveGyroOffset = UtilFunctions.getNtPub("/Swerve Drive/Gyro Offset", 0.);
+        swerveFieldOffset = UtilFunctions.getNtPub("/Swerve Drive/Field Offset", 0.);
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
     }
@@ -143,7 +145,6 @@ public class SwerveDriveTrain extends SubsystemBase {
         boolean curTeleop = DriverStation.isTeleopEnabled();
         if(lastTeleop == false && curTeleop == true || resetZeroPid) {
             gyroOffset = currentHeading.getDegrees();
-            fieldOffset = currentHeading;
             pidZero.reset();
         }
         lastTeleop = curTeleop;
@@ -173,6 +174,12 @@ public class SwerveDriveTrain extends SubsystemBase {
         //ask the kinematics to determine our swerve command
         ChassisSpeeds speeds;
 
+        //compensate when the alliance is red and direction is flipped
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if(alliance.isPresent() && alliance.get() == Alliance.Red) {
+            xSpeed = -xSpeed;
+        }
+
         if (Math.abs(turn) > 0.1) {
             //if a turn is requested, reset the zero for the drivetrain
             gyroOffset = currentHeading.getDegrees();
@@ -183,7 +190,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         }
 
         if (fieldOriented) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turn, currentHeading.minus(fieldOffset));
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turn, currentHeading);
         } else {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, turn);
         }
@@ -300,12 +307,8 @@ public class SwerveDriveTrain extends SubsystemBase {
     }
 
     public void resetFieldOriented() {
-        //fieldOffset = odometry.getPose().getRotation().plus(odometry.getGyroRotation());
+        //make field offset 0, as odometry works out the angle with tags
         fieldOffset = new Rotation2d();
-        var alliance = DriverStation.getAlliance();
-        if(alliance.isPresent() && alliance.get() == Alliance.Red) {
-            //fieldOffset.rotateBy(Rotation2d.fromDegrees(180));
-        }
 
         if(odometry.getLoopsTagSeen() < 10) {
             //if we don't have confidence in our position yet, reset rotation on field.
@@ -371,6 +374,11 @@ public class SwerveDriveTrain extends SubsystemBase {
             wheelCommandAngle[wheel].set(states[wheel].angle.getDegrees());
             wheelCommandSpeed[wheel].set(states[wheel].speedMetersPerSecond);
         }
+    }
+
+
+    public void resetSwervePositions(){
+        hardware.resetWheelPositions();
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds() {

@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.hardware;
 
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;
@@ -18,22 +18,25 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import frc.robot.RobotContainer;
 
 @SuppressWarnings("removal")
-public class PracticeSwerveHw implements ISwerveDriveIo {
+public class SwerveHw24 implements ISwerveDriveIo {
 
     //measuring the robot, we got 13899 counts/rev, theoretical is 13824 counts/rev (L2 gear set at 6.75:1 ratio)
-    //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms)
-    private final double COUNTS_PER_METER = 43311;     //velocity units
+    //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms) = 43311
+    //the scale factor is average of 4 wheels/measured distance
+    private final double COUNTS_PER_METER = 43311 / 1.002855;     //velocity units
     private final double VELO_PER_METER = COUNTS_PER_METER/10;        //distance units
 
     //Swerve corner locations for kinematics
-    //24.75" square
+    // 22.75"x17.25"
     private Translation2d[] swervePositions = {
-        new Translation2d(0.314, 0.314),  //convert inches to meters. y is front to back. left front is 1st wheel
-        new Translation2d(0.314, -0.314),  //front right wheel
-        new Translation2d(-0.314, 0.314),  // rear left
-        new Translation2d(-0.314, -0.314)  // rear right
+        new Translation2d(Units.inchesToMeters(5.875), Units.inchesToMeters(22.75/2)),  //convert inches to meters. y is front to back. left front is 1st wheel
+        new Translation2d(Units.inchesToMeters(5.875), Units.inchesToMeters(22.75/2)),  //front right wheel
+        new Translation2d(Units.inchesToMeters(22.75/2), Units.inchesToMeters(22.75/2)),  // rear left
+        new Translation2d(Units.inchesToMeters(22.75/2), Units.inchesToMeters(22.75/2))  // rear right
     };
 
     private String[] moduleNames = {
@@ -51,11 +54,11 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
 
     private double correctedAngle[];
     
-    public PracticeSwerveHw() {
+    public SwerveHw24() {
 
         //allocate our hardware
         int NUM_MOTORS = swervePositions.length;
-        driveMotors =new TalonFX[NUM_MOTORS];
+        driveMotors = new TalonFX[NUM_MOTORS];
         turnMotors = new CANSparkMax[NUM_MOTORS];
         turnSensors = new CANCoder[NUM_MOTORS];
         correctedAngle = new double[NUM_MOTORS];
@@ -63,24 +66,24 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
         turnPid = new PIDController[NUM_MOTORS];
 
         //FL
-        driveMotors[0] = new TalonFX(11);  // TODO: update with correct info when receive it
-        turnMotors[0] = new CANSparkMax(12, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[0] = new CANCoder(13);  // TODO: update with correct info when receive it
+        driveMotors[0] = new TalonFX(11, RobotContainer.kCanBusName);  
+        turnMotors[0] = new CANSparkMax(12, MotorType.kBrushless);  
+        turnSensors[0] = new CANCoder(13, RobotContainer.kCanBusName);  
         
         //FR
-        driveMotors[1] = new TalonFX(21);  // TODO: update with correct info when receive it
-        turnMotors[1] = new CANSparkMax(22, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[1] = new CANCoder(23);  // TODO: update with correct info when receive it
+        driveMotors[1] = new TalonFX(21, RobotContainer.kCanBusName);  
+        turnMotors[1] = new CANSparkMax(22, MotorType.kBrushless);  
+        turnSensors[1] = new CANCoder(23, RobotContainer.kCanBusName);  
 
         //RL
-        driveMotors[2] = new TalonFX(31);  // TODO: update with correct info when receive it
-        turnMotors[2] = new CANSparkMax(32, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[2] = new CANCoder(33);  // TODO: update with correct info when receive it
+        driveMotors[2] = new TalonFX(31, RobotContainer.kCanBusName);  
+        turnMotors[2] = new CANSparkMax(32, MotorType.kBrushless);  
+        turnSensors[2] = new CANCoder(33, RobotContainer.kCanBusName);  
 
         //RR
-        driveMotors[3] = new TalonFX(41);  // TODO: update with correct info when receive it
-        turnMotors[3] = new CANSparkMax(42, MotorType.kBrushless);  // TODO: update with correct info when receive it
-        turnSensors[3] = new CANCoder(43);  // TODO: update with correct info when receive it
+        driveMotors[3] = new TalonFX(41, RobotContainer.kCanBusName);  
+        turnMotors[3] = new CANSparkMax(42, MotorType.kBrushless);  
+        turnSensors[3] = new CANCoder(43, RobotContainer.kCanBusName);  
 
         for (CANCoder sensor: turnSensors) {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 18);
@@ -133,8 +136,8 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             turnPid[wheel] = new PIDController(.5/Math.PI, .2, 0);
             turnMotors[wheel].setInverted(true);
         }
-        setDriveMotorBrakeMode(false);
-        setTurnMotorBrakeMode(false);
+        setDriveMotorBrakeMode(true);
+        setTurnMotorBrakeMode(true);
     }
 
     @Override
@@ -233,5 +236,11 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
     public void updateInputs() {
         
     }
-    
+
+    @Override
+    public void resetWheelPositions() {
+        for(int wheel = 0; wheel < driveMotors.length; wheel++) {
+            driveMotors[wheel].setSelectedSensorPosition(0);
+        }
+    }
 }

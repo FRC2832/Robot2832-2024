@@ -26,20 +26,19 @@ public class FlightDriveControls implements IDriveControls {
         this.driveContLeft = new T16000M(0);
         this.driveContRight = new T16000M(1);
         deadband = UtilFunctions.getSettingSub("DriveXbox/Deadband", 0.13);
-        
     }
 
 
     @Override
     public double GetXDrivePct() {
         var dead = deadband.get();
-        return -UtilFunctions.deadband(driveContRight.getyAxis1(), dead);
+        return UtilFunctions.deadband(-driveContRight.getyAxis1(), dead);
     }
 
     @Override
     public double GetYDrivePct() {
         var dead = deadband.get();
-        return -UtilFunctions.deadband(driveContRight.getxAxis1(), dead);
+        return UtilFunctions.deadband(-driveContRight.getxAxis1(), dead);
     }
 
     @Override

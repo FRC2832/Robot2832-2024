@@ -19,7 +19,7 @@ public class OperatorControls implements IOperatorControls{
 
     @Override
     public boolean AutoSubAimRequested() {
-        return cont.getAButtonPressed();
+        return cont.getAButton();
     }
 
     @Override
@@ -30,7 +30,7 @@ public class OperatorControls implements IOperatorControls{
 
     @Override
     public boolean IsSubShotRequested() {
-        return cont.getYButtonPressed();
+        return cont.getYButton();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class OperatorControls implements IOperatorControls{
     }
 
     @Override
-    public boolean IsManualShotRequested() {
+    public boolean IsIntakeRequested() {
         return cont.getLeftTriggerAxis()>.5;
     }
 

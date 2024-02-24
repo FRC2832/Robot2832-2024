@@ -168,4 +168,9 @@ public class SwerveDriveSim implements ISwerveDriveIo {
     public void setCorrectedAngle(int wheel, double angle) {
         correctedAngle[wheel] = angle;
     }
+
+    @Override
+    public void resetWheelPositions() {
+        //TODO Implement?
+    }
 }

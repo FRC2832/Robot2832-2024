@@ -12,11 +12,12 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -29,7 +30,6 @@ public class Odometry extends SubsystemBase {
     
     IGyroHardware hardware;
     double lastVisionTime;
-    SwerveDriveOdometry odometry;
     SwerveDrivePoseEstimator poseEstimator;
     SwerveDriveTrain drive;
     Pose2d robotPose;
@@ -40,6 +40,9 @@ public class Odometry extends SubsystemBase {
     private Translation2d[] swervePositions;
     private BooleanSubscriber resetPos;
     private BooleanSubscriber plotCorners;
+    private DoublePublisher visionOffset;
+    private IntegerPublisher visionFrameCount;
+    private long frameCount;
 
     public Odometry() {
         super();
@@ -47,11 +50,14 @@ public class Odometry extends SubsystemBase {
         robotPose = new Pose2d(FIELD_LENGTH_METERS / 2, FIELD_WIDTH_METERS / 2, new Rotation2d());
         startPose = new Pose2d(FIELD_LENGTH_METERS / 2, FIELD_WIDTH_METERS / 2, new Rotation2d());
         lastVisionTime = 0;
+        frameCount = 0;
         loopsTagsSeen = 0;
 
         field = new Field2d();
         resetPos = UtilFunctions.getNtSub("/Odometry/Reset Position", false);
         plotCorners = UtilFunctions.getSettingSub("/Odometry/Plot Swerve Corners", false);
+        visionOffset = UtilFunctions.getNtPub("/Odometry/Vision Error", 0.);
+        visionFrameCount = UtilFunctions.getNtPub("/Odometry/VisionFrames", 0);
 
         SmartDashboard.putData("Field", field);
         Logger.RegisterSensor("Gyro Yaw", this::getGyroAngle);
@@ -65,18 +71,15 @@ public class Odometry extends SubsystemBase {
     public void setSwerveDrive(SwerveDriveTrain drive) {
         this.drive = drive;
         swervePositions = drive.getCornerLocations();
-        odometry = new SwerveDriveOdometry(
-            drive.getKinematics(), 
-            getGyroRotation(), 
-            drive.getSwervePositions());
         poseEstimator = new SwerveDrivePoseEstimator(
             drive.getKinematics(),
             getGyroRotation(),
             drive.getSwervePositions(),
             startPose,
             //TODO: Make these calibratable
+            //X, Y , Angle 
             VecBuilder.fill(0.1, 0.1, 0.1),
-            VecBuilder.fill(0.9, 0.9, 0.9)
+            VecBuilder.fill(9, 9, 9)
         );
     }
 
@@ -92,10 +95,8 @@ public class Odometry extends SubsystemBase {
 
         if(drive != null) {
             SwerveModulePosition[] states = drive.getSwervePositions();
-            robotPose = odometry.update(heading, states);
-            poseEstimator.update(heading, states);
+            robotPose = poseEstimator.update(heading, states);
             field.setRobotPose(robotPose);
-            field.getObject("Vision Pose").setPose(poseEstimator.getEstimatedPosition());
 
             Pose2d[] swervePoses;
             if(plotCorners.get()) {
@@ -161,13 +162,13 @@ public class Odometry extends SubsystemBase {
     }
 
     public void resetPose(Pose2d pose) {
-        odometry.resetPosition(getGyroRotation(), drive.getSwervePositions(), pose);
+        poseEstimator.resetPosition(getGyroRotation(), drive.getSwervePositions(), pose);
     }
 
     public void resetHeading() {
         //reset the robot back to it's spot, just facing forward now
         Pose2d pose = new Pose2d(robotPose.getTranslation(),Rotation2d.fromDegrees(0));
-        odometry.resetPosition(getGyroRotation(), drive.getSwervePositions(), pose);
+        poseEstimator.resetPosition(getGyroRotation(), drive.getSwervePositions(), pose);
     }
 
     public Pose2d getPose() {
@@ -195,12 +196,22 @@ public class Odometry extends SubsystemBase {
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
-        poseEstimator.addVisionMeasurement(pose, timestamp);
+        visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
+        visionFrameCount.set(frameCount++);
+        //TODO have vision work while enabled
+        if(DriverStation.isDisabled()) {
+            poseEstimator.addVisionMeasurement(pose, timestamp);
+        }
         loopsTagsSeen++;
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDeviation) {
-        poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
+        visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
+        visionFrameCount.set(frameCount++);
+        //TODO have vision work while enabled
+        if(DriverStation.isDisabled()) {
+            poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
+        }
         loopsTagsSeen++;
     }
 

@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.function.Consumer;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.BooleanTopic;
@@ -204,6 +205,18 @@ public class UtilFunctions {
      * @param key The parameter you want to get (slashes are allowed)
      * @return The publisher to put data in
      */
+    public static IntegerPublisher getNtPub(String key, long initValue) {
+        IntegerTopic topic = NetworkTableInstance.getDefault().getIntegerTopic(checkKey(key));
+        IntegerPublisher pub = topic.publish();
+        pub.setDefault(initValue);
+        return pub;
+    }
+
+    /**
+     * This creates a NT publisher so we don't have to keep querying the key in the table.
+     * @param key The parameter you want to get (slashes are allowed)
+     * @return The publisher to put data in
+     */
     public static DoubleArrayPublisher getNtPub(String key, double[] initValue) {
         DoubleArrayTopic topic = NetworkTableInstance.getDefault().getDoubleArrayTopic(checkKey(key));
         DoubleArrayPublisher pub = topic.publish();
@@ -262,6 +275,12 @@ public class UtilFunctions {
         return false;
     }
 
+    public static double getDistance(Pose2d pose1, Pose2d pose2) {
+        double xDist = pose1.getX() - pose2.getX();
+        double yDist = pose1.getY() - pose2.getY();
+        return Math.sqrt((xDist * xDist) + (yDist * yDist));
+    }
+    
     public static double LimitChange(double current, double target, double maxChangePerLoop) {
         double delta = target - current;
         double newValue;

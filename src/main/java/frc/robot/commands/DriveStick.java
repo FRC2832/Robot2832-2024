@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.interfaces.IDriveControls;
 
-
 /**
  * Drive the robot with joysticks 
  */
@@ -59,8 +58,7 @@ public class DriveStick extends Command {
         if (cont.IsFieldOrientedResetRequested()) {
             drive.resetFieldOriented();
         }
-
-        /*
+        
         if(cont.GetXDrivePct()>=0){
             xSpeed = controlTable.get(Math.abs(cont.GetXDrivePct()));
         }
@@ -79,7 +77,7 @@ public class DriveStick extends Command {
         else{
             turn = -turnTable.get(Math.abs(cont.GetTurnPct()));
         }
-        */
+        
         xSpeed = cont.GetXDrivePct();
         ySpeed = cont.GetYDrivePct();
         turn = cont.GetTurnPct();
@@ -88,6 +86,7 @@ public class DriveStick extends Command {
             ySpeed * drive.getMaxDriverSpeed(), 
             turn * drive.getMaxDriverOmega()
         );
+
     }
     @Override
     public boolean isFinished() {

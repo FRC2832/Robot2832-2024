@@ -7,3 +7,6 @@ public interface IShooterHw {
     void setIndividualPower(int shooterID, double newPower);
     void updateInputs();
 }
+
+
+
