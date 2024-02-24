@@ -18,6 +18,7 @@ public class DriveStick extends Command {
     private InterpolatingDoubleTreeMap controlTableX;
     private InterpolatingDoubleTreeMap controlTableY;
     private InterpolatingDoubleTreeMap turnTable;
+    private double speed;
     private double xSpeed;
     private double ySpeed;
     private double turn;
@@ -90,9 +91,16 @@ public class DriveStick extends Command {
         xSpeed = cont.GetXDrivePct();
         ySpeed = cont.GetYDrivePct();
         turn = cont.GetTurnPct();
+        if(cont.IsMaxSpeedRequested()){
+            speed = drive.getMaxSpeed();
+        }
+        else{
+            speed = drive.getMaxDriverSpeed();
+        }
+        
         drive.SwerveDrive(
-            xSpeed * drive.getMaxDriverSpeed(), 
-            ySpeed * drive.getMaxDriverSpeed(), 
+            xSpeed * speed,
+            ySpeed * speed, 
             turn * drive.getMaxDriverOmega()
         );
 
