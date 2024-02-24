@@ -15,7 +15,8 @@ public class DriveStick extends Command {
 
     private SwerveDriveTrain drive;
     private IDriveControls cont;
-    private InterpolatingDoubleTreeMap controlTable;
+    private InterpolatingDoubleTreeMap controlTableX;
+    private InterpolatingDoubleTreeMap controlTableY;
     private InterpolatingDoubleTreeMap turnTable;
     private double xSpeed;
     private double ySpeed;
@@ -35,15 +36,23 @@ public class DriveStick extends Command {
     public void initialize() {
         SmartDashboard.putNumber("Turtle Turn Speed", 4);
         drive.SwerveDrive(0, 0, 0, false);
-        controlTable = new InterpolatingDoubleTreeMap();
+        controlTableX = new InterpolatingDoubleTreeMap();
+        controlTableY = new InterpolatingDoubleTreeMap();
         turnTable = new InterpolatingDoubleTreeMap();
-        //Table for Smoother Driving
-        controlTable.put(0.0,0.0);
-        controlTable.put(0.2,0.04);
-        controlTable.put(0.4,0.16);
-        controlTable.put(0.6,0.36);
-        controlTable.put(0.8,0.64);
-        controlTable.put(1.0,1.0);
+        //Table for Smoother X Driving
+        controlTableX.put(0.0,0.0);
+        controlTableX.put(0.2,0.04);
+        controlTableX.put(0.4,0.16);
+        controlTableX.put(0.6,0.36);
+        controlTableX.put(0.8,0.64);
+        controlTableX.put(1.0,1.0);
+        //Table for Smoother Y Driving
+        controlTableY.put(0.0,0.0);
+        controlTableY.put(0.2,0.04);
+        controlTableY.put(0.4,0.16);
+        controlTableY.put(0.6,0.36);
+        controlTableY.put(0.8,0.64);
+        controlTableY.put(1.0,1.0);
         //Table for Smoother turning
         turnTable.put(0.0,0.0);
         turnTable.put(0.2,0.04);
@@ -60,16 +69,16 @@ public class DriveStick extends Command {
         }
         
         if(cont.GetXDrivePct()>=0){
-            xSpeed = controlTable.get(Math.abs(cont.GetXDrivePct()));
+            xSpeed = controlTableX.get(Math.abs(cont.GetXDrivePct()));
         }
         else{
-            xSpeed = -controlTable.get(Math.abs(cont.GetXDrivePct()));
+            xSpeed = -controlTableX.get(Math.abs(cont.GetXDrivePct()));
         }
         if(cont.GetYDrivePct()>=0){
-            ySpeed = controlTable.get(Math.abs(cont.GetYDrivePct()));
+            ySpeed = controlTableY.get(Math.abs(cont.GetYDrivePct()));
         }
         else{
-            ySpeed = -controlTable.get(Math.abs(cont.GetYDrivePct()));
+            ySpeed = -controlTableY.get(Math.abs(cont.GetYDrivePct()));
         }
         if(cont.GetTurnPct()>=0){
             turn = turnTable.get(Math.abs(cont.GetTurnPct()));
