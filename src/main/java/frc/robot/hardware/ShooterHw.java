@@ -34,15 +34,10 @@ public class ShooterHw implements IShooterHw {
             allConfigs.motionCruiseVelocity = 0;
             allConfigs.motionAcceleration = 0;
             motor.configAllSettings(allConfigs);
-            String motorDirection;
-            if(motor.getDeviceID()==5){
-                motorDirection = "Left";
-            }
-            else{
-                motorDirection = "Right";
-            }
-            Logger.RegisterTalon("Shooter" + motorDirection, motor);
         }
+        Logger.RegisterTalon("Left Shooter",shooters[1]);
+        Logger.RegisterTalon("Right Shooter",shooters[0]);
+
 
         shooters[1].setInverted(true);
         shooters[0].setInverted(false);
