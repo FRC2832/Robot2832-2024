@@ -159,8 +159,10 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
+        NamedCommands.registerCommand("Shoot", new LightningFlash(leds, Color.kFirstRed));
+        NamedCommands.registerCommand("Intake", new LightningFlash(leds, Color.kFirstBlue));
+        NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
-        // Need a shoot command in the future to shoot with
 
         // Controller chooser Setup
         driveControllerChooser.addOption("Xbox Controller", kXbox );

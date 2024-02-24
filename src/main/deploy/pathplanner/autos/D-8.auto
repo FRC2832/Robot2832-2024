@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.76,
-      "y": 6.79
+      "x": 0.75,
+      "y": 2.1
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A-1"
+            "pathName": "DShoot"
           }
         },
         {
@@ -30,32 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "1Shoot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "1-4Shoot"
+                  "pathName": "D-8"
                 }
               },
               {

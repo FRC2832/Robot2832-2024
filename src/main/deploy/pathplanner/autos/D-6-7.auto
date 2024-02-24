@@ -1,12 +1,6 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 1.15,
-      "y": 6.62
-    },
-    "rotation": 0
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
@@ -14,7 +8,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A-1"
+            "pathName": "DShoot"
           }
         },
         {
@@ -30,7 +24,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "1Shoot"
+                  "pathName": "D-6"
                 }
               },
               {
@@ -55,32 +49,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "1-2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "2-3"
+                  "pathName": "D-7"
                 }
               },
               {

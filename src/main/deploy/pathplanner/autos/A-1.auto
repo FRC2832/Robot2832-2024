@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.76,
-      "y": 6.79
+      "x": 1.2,
+      "y": 6.75
     },
     "rotation": 0
   },
@@ -31,31 +31,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "1Shoot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "1-4Shoot"
                 }
               },
               {

@@ -1,20 +1,20 @@
 {
   "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 2.883271729453586,
-      "y": 5.550936522700434
-    },
-    "rotation": 0
-  },
+  "startingPose": null,
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "TestPath"
+            "pathName": "Drive1"
           }
         }
       ]

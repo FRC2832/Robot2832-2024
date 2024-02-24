@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2.883271729453586,
-      "y": 5.550936522700434
+      "x": 0.76,
+      "y": 4.22
     },
     "rotation": 0
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "TestPath"
+            "pathName": "Drive3"
           }
         }
       ]
