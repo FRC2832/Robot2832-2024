@@ -38,6 +38,7 @@ import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
+import frc.robot.commands.HomeClimber;
 import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.DriveIntake;
@@ -164,6 +165,7 @@ public class RobotContainer {
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
         SmartDashboard.putData("Pit Intake", new PitIntake(intake));
+        SmartDashboard.putData("Home Climber", new HomeClimber(inclinator));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
@@ -224,7 +226,7 @@ public class RobotContainer {
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
-        inclinator.setDefaultCommand(new DriveClimb(inclinator));
+        inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));

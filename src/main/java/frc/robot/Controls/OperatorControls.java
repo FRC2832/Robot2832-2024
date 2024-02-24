@@ -54,6 +54,11 @@ public class OperatorControls implements IOperatorControls{
     }
 
     @Override
+    public boolean IsClimbRequested() {
+        return cont.getPOV()>=0;
+    }
+
+    @Override
     public boolean IsIntakeRequested() {
         return cont.getRightTriggerAxis()>.5;
     }
