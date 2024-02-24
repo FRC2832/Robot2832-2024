@@ -130,6 +130,7 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("Shoot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("Intake", new LightningFlash(leds, Color.kFirstBlue));
+        NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         
         // Need a shoot command in the future to shoot with
 
