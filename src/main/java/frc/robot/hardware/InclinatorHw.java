@@ -29,6 +29,14 @@ public class InclinatorHw implements IInclinatorHw {
         rightClimb.set(ControlMode.PercentOutput, powerRight);
     }
 
+    public double getLeftCurrent(){
+        return leftClimb.getSupplyCurrent();
+    }
+
+    public double getRightCurrent(){
+        return rightClimb.getSupplyCurrent();
+    }
+
     @Override
     public void updateInputs() {
     }

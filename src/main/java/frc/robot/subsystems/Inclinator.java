@@ -44,4 +44,12 @@ public class Inclinator extends SubsystemBase {
             hardware.setPower(0, power);
         }
     }
+
+    public double getLeftCurrent(){
+        return hardware.getLeftCurrent();
+    }
+
+    public double getRightCurrent(){
+        return hardware.getRightCurrent();
+    }
 }

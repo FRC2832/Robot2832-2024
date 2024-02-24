@@ -1,39 +1,36 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.interfaces.IOperatorControls;
 import frc.robot.subsystems.Inclinator;
 
 public class DriveClimb extends Command {
-    XboxController controller;
+    IOperatorControls controller;
     Inclinator climber;
-    public DriveClimb(Inclinator climber) {
-        controller = new XboxController(2);
+    public DriveClimb(Inclinator climber, IOperatorControls controller) {
+        this.controller = controller;
         this.climber = climber;
         addRequirements(climber);
     }
 
     @Override
     public void execute() {
-        int pov = controller.getPOV();
         // driving climber down
-        if(pov == 180 || pov == 225 || pov == 135){
+        if(controller.IsClimbDownRequested()){
             climber.setPower(-0.75);
         }
         // driving climber up
-        else if(pov == 0 || pov == 315 || pov == 45){
+        else if(controller.IsClimbUpRequested()){
             climber.setPower(0.75);
         }
-        else if(pov == 90){
+        else if(controller.IsClimbLeftRequested()){
             climber.setOffsetPower(0.5, false);
         }
-        else if(pov == 270){
+        else if(controller.IsClimbRightRequested()){
             climber.setOffsetPower(0.5, true);
         }
         else{
             climber.setPower(0);
         }
-        SmartDashboard.putNumber("Pov", controller.getPOV());
     }
 }
