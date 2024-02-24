@@ -35,22 +35,22 @@ public class OperatorControls implements IOperatorControls{
 
     @Override
     public boolean IsClimbLeftRequested() {
-        return cont.getPOV()==180;
+        return cont.getPOV()==270;
     }
 
     @Override
     public boolean IsClimbRightRequested() {
-        return cont.getPOV()==0;
-    }
-
-    @Override
-    public boolean IsClimbUpRequested() {
         return cont.getPOV()==90;
     }
 
     @Override
+    public boolean IsClimbUpRequested() {
+        return cont.getPOV()==0;
+    }
+
+    @Override
     public boolean IsClimbDownRequested() {
-        return cont.getPOV()==270;
+        return cont.getPOV()==180;
     }
 
     @Override
