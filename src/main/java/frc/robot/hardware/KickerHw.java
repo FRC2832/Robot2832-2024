@@ -36,9 +36,11 @@ public class KickerHw implements IKickerHw {
             pids[i].setIZone(100);
 
             encoders[i] = kickers[i].getEncoder();
-            final int wheel = i;
-            Logger.RegisterSensor("Kicker " + i + " RPM", () -> getCurrentRPM(wheel));
+
+            
         }
+        Logger.RegisterSensor("Left Kicker RPM", () -> getCurrentRPM(1));
+        Logger.RegisterSensor("Right Kicker RPM", () -> getCurrentRPM(0));
     }
     @Override
     public double getCurrentRPM(int shooterID) {        
