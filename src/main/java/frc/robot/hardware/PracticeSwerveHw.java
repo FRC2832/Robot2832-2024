@@ -5,6 +5,7 @@ import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.swerve.ISwerveDriveIo;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -112,6 +113,7 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             //the maximum acceleration we want the motor to go
             allConfigs.motionAcceleration = 5 * VELO_PER_METER;
 
+            allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
             motor.configAllSettings(allConfigs);
             motor.setSelectedSensorPosition(0);
 

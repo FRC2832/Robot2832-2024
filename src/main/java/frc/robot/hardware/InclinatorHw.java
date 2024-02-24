@@ -2,7 +2,9 @@ package frc.robot.hardware;
 import org.livoniawarriors.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import frc.robot.interfaces.IInclinatorHw;
 
@@ -10,11 +12,22 @@ import frc.robot.interfaces.IInclinatorHw;
 public class InclinatorHw implements IInclinatorHw {
     private TalonFX leftClimb;
     private TalonFX rightClimb;
+    private TalonFXConfiguration allConfigsL = new TalonFXConfiguration();
+    private TalonFXConfiguration allConfigsR = new TalonFXConfiguration();
     
     public InclinatorHw() {
         leftClimb = new TalonFX(61);
         rightClimb = new TalonFX(62);
         //Add Logger Data for Faults 
+        leftClimb.getAllConfigs(allConfigsL);
+        rightClimb.getAllConfigs(allConfigsR);
+
+        allConfigsL.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
+        allConfigsR.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
+
+        leftClimb.configAllSettings(allConfigsL);
+        rightClimb.configAllSettings(allConfigsR);
+
         Logger.RegisterTalon( "Left Climb", leftClimb);
         Logger.RegisterTalon( "Right Climb", rightClimb);
     }
