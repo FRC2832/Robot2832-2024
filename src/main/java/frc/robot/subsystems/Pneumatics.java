@@ -37,26 +37,17 @@ public class Pneumatics extends SubsystemBase {
     public void stop() {
         hardware.stop();
     }
-    public void diagnosticCheck(){
-        String[] results = new String[]{"false", "false", "false"};
-        
-        goTo(30); 
-        if(hardware.getAngle() <= (30 + moe) && hardware.getAngle() >= (30 - moe)){
-            results[0] = "true";
-        }
-        goTo(40);
-        if(hardware.getAngle() <= (40 + moe) && hardware.getAngle() >= (40 - moe)){
-            results[1]="true";
-        }
-        goTo(50);
-        if(hardware.getAngle() <= (50 + moe) && hardware.getAngle() >= (50 - moe)){
-            results[2]="true";
+    public void diagnosticCheck() {
+        boolean[] results = new boolean[]{false, false, false};
+        for(int i = 0; i < 3 ; i++) {
+            double testVal = (10 * i) + 30;
+            goTo(testVal); 
+            if(hardware.getAngle() <= (testVal + moe) && hardware.getAngle() >= (testVal - moe)){
+                results[i] = true;
+            }
         }
         
-        SmartDashboard.putString("Angle Check 30°", results[0] );
-        SmartDashboard.putString("Angle Check 40°", results[1] );
-        SmartDashboard.putString("Angle Check 50°", results[2] );
-
+        SmartDashboard.putBooleanArray("Angle Check 30°, 40°, 50°", results);
     }
     @Override
     public void periodic() {

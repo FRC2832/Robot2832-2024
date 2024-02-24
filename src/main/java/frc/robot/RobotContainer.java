@@ -158,8 +158,8 @@ public class RobotContainer {
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
         SmartDashboard.putData("Pit Intake", new PitIntake(intake));
-        SmartDashboard.putData("Diagnostics", new Diagnostics());
-
+        SmartDashboard.putData("Diagnostics", new Diagnostics(intake, shooter, aimer));
+        SmartDashboard.putBooleanArray("Angle Check 30°, 40°, 50°", new boolean[]{false, false, false});
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
