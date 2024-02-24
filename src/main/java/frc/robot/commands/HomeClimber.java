@@ -9,7 +9,7 @@ public class HomeClimber extends Command {
     int rightTimer;
     boolean isLeftHomed;
     boolean isRightHomed;
-    final double kCurrentLimit = 10;
+    final double kCurrentLimit = 4;
     final int kTimeoutThreshold = 10;
     final double kPower = -0.2;
 

@@ -24,10 +24,10 @@ public class DriveClimb extends Command {
             climber.setPower(0.75);
         }
         else if(controller.IsClimbLeftRequested()){
-            climber.setOffsetPower(0.5, false);
+            climber.setOffsetPower(0.5, true);
         }
         else if(controller.IsClimbRightRequested()){
-            climber.setOffsetPower(0.5, true);
+            climber.setOffsetPower(0.5, false);
         }
         else{
             climber.setPower(0);
