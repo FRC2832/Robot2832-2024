@@ -305,14 +305,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     }
 
     public void resetFieldOriented() {
-        //make field offset 0, as odometry works out the angle with tags
-        fieldOffset = new Rotation2d();
-
-        if(odometry.getLoopsTagSeen() < 10) {
-            //if we don't have confidence in our position yet, reset rotation on field.
-            Pose2d newPose = new Pose2d(odometry.getPose().getTranslation(), new Rotation2d());
-            odometry.resetPose(newPose);
-        }
+        fieldOffset = odometry.getGyroRotation();
     }
 
     public SwerveDriveKinematics getKinematics() {
