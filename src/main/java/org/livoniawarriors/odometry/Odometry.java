@@ -16,7 +16,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -194,20 +193,14 @@ public class Odometry extends SubsystemBase {
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
         visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
         visionFrameCount.set(frameCount++);
-        //TODO have vision work while enabled
-        if(DriverStation.isDisabled()) {
-            poseEstimator.addVisionMeasurement(pose, timestamp);
-        }
+        poseEstimator.addVisionMeasurement(pose, timestamp);
         loopsTagsSeen++;
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDeviation) {
         visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
         visionFrameCount.set(frameCount++);
-        //TODO have vision work while enabled
-        if(DriverStation.isDisabled()) {
-            poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
-        }
+        poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
         loopsTagsSeen++;
     }
 
