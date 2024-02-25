@@ -2,6 +2,7 @@ package frc.robot.hardware;
 import org.livoniawarriors.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -27,6 +28,9 @@ public class InclinatorHw implements IInclinatorHw {
 
         leftClimb.configAllSettings(allConfigsL);
         rightClimb.configAllSettings(allConfigsR);
+
+        leftClimb.setNeutralMode(NeutralMode.Brake);
+        rightClimb.setNeutralMode(NeutralMode.Brake);
 
         Logger.RegisterTalon( "Left Climb", leftClimb);
         Logger.RegisterTalon( "Right Climb", rightClimb);
