@@ -23,7 +23,7 @@ public class PneumaticHW implements IPneumaticHW {
 
     @Override
     public void updateInputs() {
-        currentAngle = angSensor.getPitch();
+        currentAngle = angSensor.getRoll();
     }
 
     @Override 
