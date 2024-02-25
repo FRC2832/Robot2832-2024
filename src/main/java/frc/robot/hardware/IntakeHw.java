@@ -1,7 +1,6 @@
 package frc.robot.hardware;
 
 import frc.robot.interfaces.IIntakeHw;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.livoniawarriors.Logger;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -16,6 +15,7 @@ public class IntakeHw implements IIntakeHw {
     private TalonFX hardware;
     private TalonFX leftIntake;
     private DigitalInput enterSensor;
+    private DigitalInput highSensor;
     private boolean isRunning;
     private boolean inverted;
     private boolean interrupt;
@@ -26,6 +26,7 @@ public class IntakeHw implements IIntakeHw {
         leftIntake = new TalonFX(51);
 
         this.enterSensor = new DigitalInput(0);
+        this.highSensor = new DigitalInput(1);
         this.isRunning = false;
         this.inverted = false;
         this.interrupt = false;
@@ -54,7 +55,8 @@ public class IntakeHw implements IIntakeHw {
         hardware.setInverted(false);
         leftIntake.setControl(new Follower(hardware.getDeviceID(), true));
 
-        SmartDashboard.putBoolean("Note In", false);
+        Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 1 : 0);
+        Logger.RegisterSensor("High Note", () -> highSensor.get() ? 1 : 0);
         Logger.RegisterTalon("Intake", hardware);
     }
 
@@ -78,7 +80,7 @@ public class IntakeHw implements IIntakeHw {
     }
 
     public boolean isPieceSeen() {
-        return false;
+        return highSensor.get();
     }
 
     public void removeInterrupt() {
@@ -92,11 +94,6 @@ public class IntakeHw implements IIntakeHw {
         if(interrupt && isRunning) {
             isRunning = false;
             setIntake(isRunning, inverted);
-            return;
-        }
-        if(enterSensor.get()) {
-            interrupt = true;
-            SmartDashboard.putBoolean("Note In", true);
             return;
         }
     }

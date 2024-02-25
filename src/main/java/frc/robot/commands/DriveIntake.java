@@ -29,7 +29,11 @@ public class DriveIntake extends Command {
     public void execute() {
         double dir = 1;
         if(invert) dir = -1;
-        intake.setRpm(dir * intakeSpeed.get());
+        if(stop && intake.isPieceDetected()) {
+            intake.setPower(0);
+        } else {
+            intake.setRpm(dir * intakeSpeed.get());
+        }
     }
 
     @Override
