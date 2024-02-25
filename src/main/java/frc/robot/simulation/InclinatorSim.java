@@ -45,5 +45,17 @@ public class InclinatorSim implements IInclinatorHw {
             leftPosDev.set(leftPos);
             rightPosDev.set(rightPos);
         }
+    }
+
+    @Override
+    public double getLeftCurrent() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public double getRightCurrent() {
+        // TODO Auto-generated method stub
+        return 0;
     } 
 }
