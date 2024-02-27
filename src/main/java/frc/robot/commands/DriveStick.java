@@ -18,7 +18,6 @@ public class DriveStick extends Command {
     private InterpolatingDoubleTreeMap controlTableX;
     private InterpolatingDoubleTreeMap controlTableY;
     private InterpolatingDoubleTreeMap turnTable;
-    private double speed;
     private double xSpeed;
     private double ySpeed;
     private double turn;
