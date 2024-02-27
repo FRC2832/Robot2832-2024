@@ -3,9 +3,10 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.Pneumatics;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import org.livoniawarriors.AutoShotLookup;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
 
@@ -38,9 +39,10 @@ public class Autoshot extends Command {
         
         var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose); //TODO: Need to handle rotation
 
-        double[] values = shooter.estimate(distance);
+        AutoShotLookup lookup = shooter.estimate(distance);
 
-        shooter.setRPM(values[0]);
-        pneumatic.goTo(values[1]);
+        shooter.setRPM(lookup.getShooterSpeed());
+        pneumatic.goTo(lookup.getAngle());
+        kicker.setRPM(lookup.getKickerSpeed());
     }
 }
