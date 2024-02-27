@@ -23,15 +23,15 @@ public class OperatorStick extends Command {
 
     @Override
     public void initialize() {
-        SmartDashboard.putNumber("Shooter RPM Command",3000);
-        SmartDashboard.putNumber("Kicker RPM Command",4000);
+        SmartDashboard.putNumber("Shooter RPM Command",4500);
+        SmartDashboard.putNumber("Kicker RPM Command",4500);
     }
 
     @Override
     public void execute() {
         if(cont.IsSubShotRequested()){
-            shoot.setRPM(SmartDashboard.getNumber("Shooter RPM Command", 3000));
-            kick.setRPM(SmartDashboard.getNumber("Kicker RPM Command", 4000));
+            shoot.setRPM(SmartDashboard.getNumber("Shooter RPM Command", 4500));
+            kick.setRPM(SmartDashboard.getNumber("Kicker RPM Command", 4500));
         }
         else{
             shoot.setPower(0);

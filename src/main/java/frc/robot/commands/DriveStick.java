@@ -57,9 +57,9 @@ public class DriveStick extends Command {
         //Table for Smoother turning
         turnTable.put(0.0,0.0);
         turnTable.put(0.2,0.04);
-        turnTable.put(0.4,0.16);
-        turnTable.put(0.6,0.36);
-        turnTable.put(0.8,0.64);
+        turnTable.put(0.4,0.10);
+        turnTable.put(0.6,0.25);
+        turnTable.put(0.8,0.50);
         turnTable.put(1.0,1.0);
     }
 
@@ -88,23 +88,26 @@ public class DriveStick extends Command {
             turn = -turnTable.get(Math.abs(cont.GetTurnPct()));
         }
         
-        xSpeed = cont.GetXDrivePct();
-        ySpeed = cont.GetYDrivePct();
-        turn = cont.GetTurnPct();
-        if(cont.IsMaxSpeedRequested()){
-            speed = drive.getMaxSpeed();
+        //make sure the drive command stays in the circle of max speed
+        //xSpeed + ySpeed could be bigger as they are independent
+        double maxSpeed = drive.getMaxDriverSpeed();
+        double xDrive = xSpeed * maxSpeed;
+        double yDrive = ySpeed * maxSpeed;
+        double hyp = Math.pow((xDrive * xDrive) + (yDrive * yDrive), 0.5);
+
+        //if faster than max speed, divide out the ratio too fast 
+        if(hyp > maxSpeed){
+            xDrive = xDrive * (maxSpeed / hyp);
+            yDrive = yDrive * (maxSpeed / hyp);
         }
-        else{
-            speed = drive.getMaxDriverSpeed();
-        }
-        
+
         drive.SwerveDrive(
-            xSpeed * speed,
-            ySpeed * speed, 
+            xDrive, 
+            yDrive, 
             turn * drive.getMaxDriverOmega()
         );
-
     }
+
     @Override
     public boolean isFinished() {
         //never end

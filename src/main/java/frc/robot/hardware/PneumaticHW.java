@@ -16,14 +16,14 @@ public class PneumaticHW implements IPneumaticHW {
     
     public PneumaticHW() {
         this.angSensor = new Pigeon2(10);
-        this.solenoid = new DoubleSolenoid(1, PneumaticsModuleType.REVPH, 0, 15);
+        this.solenoid = new DoubleSolenoid(1, PneumaticsModuleType.REVPH, 15, 0);
         
         Logger.RegisterSensor("Shooter Angle", ()->currentAngle);
     }
 
     @Override
     public void updateInputs() {
-        currentAngle = angSensor.getPitch();
+        currentAngle = -angSensor.getRoll();
     }
 
     @Override 

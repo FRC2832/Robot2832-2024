@@ -28,8 +28,8 @@ public class SwerveHw24 implements ISwerveDriveIo {
     //measuring the robot, we got 13899 counts/rev, theoretical is 13824 counts/rev (L2 gear set at 6.75:1 ratio)
     //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms) = 43311
     //the scale factor is average of 4 wheels/measured distance
-    private final double COUNTS_PER_METER = 43311 / 1.002855;     //velocity units
-    private final double VELO_PER_METER = COUNTS_PER_METER/10;        //distance units
+    private final double COUNTS_PER_METER = 44677;     //distance units
+    private final double VELO_PER_METER = COUNTS_PER_METER/10;        //velocity units
 
     //Swerve corner locations for kinematics
     // 22.75"x17.25" (5.5" above center)
@@ -131,11 +131,12 @@ public class SwerveHw24 implements ISwerveDriveIo {
             Logger.RegisterSensor(moduleNames[wheel] + " Speed", () -> getCornerSpeed(wheelFinal));
             Logger.RegisterSensor(moduleNames[wheel] + " Turn Pos", () -> getCornerAngle(wheelFinal));
             Logger.RegisterSensor(moduleNames[wheel] + " Drive Dist", () -> getCornerDistance(wheelFinal));
+            Logger.RegisterSensor(moduleNames[wheel] + " Raw Dist Pulses", () -> driveMotors[wheelFinal].getSelectedSensorPosition());
 
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
             turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
-            turnPid[wheel] = new PIDController(.5/Math.PI, .2, 0);
+            turnPid[wheel] = new PIDController(.3/Math.PI, .1, 0);
             turnMotors[wheel].setInverted(true);
         }
         setDriveMotorBrakeMode(true);

@@ -25,7 +25,7 @@ public class OperatorControls implements IOperatorControls{
     @Override
     public double GetManualSubAim() {
         var dead = deadband.get();
-        return UtilFunctions.deadband(-cont.getLeftY(), dead);
+        return UtilFunctions.deadband(cont.getLeftY(), dead);
     }
 
     @Override

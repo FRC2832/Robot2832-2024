@@ -4,7 +4,7 @@ import frc.robot.interfaces.IPneumaticHW;
 
 public class Pneumatics extends SubsystemBase {
     IPneumaticHW hardware;
-    private double moe = 3.00;
+    private double moe = 5.00;
 
     public Pneumatics(IPneumaticHW hardware) {
         super();
@@ -13,7 +13,7 @@ public class Pneumatics extends SubsystemBase {
 
     public void goTo(double target) {
         double currentAngle = hardware.getAngle();
-        if(currentAngle <= (target + moe) && currentAngle >= (target - moe)){
+        if(((target - moe) < currentAngle) && (currentAngle < (target + moe))){
             hardware.stop(); 
         }
         else {
@@ -35,6 +35,10 @@ public class Pneumatics extends SubsystemBase {
 
     public void stop() {
         hardware.stop();
+    }
+
+    public double getAngle() {
+        return hardware.getAngle();
     }
 
     @Override

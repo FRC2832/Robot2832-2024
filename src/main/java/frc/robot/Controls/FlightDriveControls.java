@@ -55,12 +55,12 @@ public class FlightDriveControls implements IDriveControls {
 
     @Override
     public boolean IsIntakeRequested() {
-        return driveContLeft.getTriggerPressed();
+        return driveContLeft.getTrigger();
     }
 
 
     @Override
     public boolean IsMaxSpeedRequested() {
-        return driveContRight.getTriggerPressed();
+        return driveContRight.getTrigger();
     }
 }
