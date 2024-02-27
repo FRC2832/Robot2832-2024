@@ -34,8 +34,8 @@ public class OperatorStick extends Command {
             kick.setRPM(SmartDashboard.getNumber("Kicker RPM Command", 4500));
         }
         else{
-            shoot.setPower(0);
-            kick.setPower(0);
+            shoot.setRPM(4000);
+            kick.setRPM(4000);
         }
     }
     
