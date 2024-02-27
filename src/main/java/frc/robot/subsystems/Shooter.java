@@ -1,4 +1,6 @@
 package frc.robot.subsystems;
+import org.livoniawarriors.AutoShotLookup;
+
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -6,7 +8,7 @@ import frc.robot.interfaces.IShooterHw;
 
 public class Shooter extends SubsystemBase {
     private IShooterHw hw;
-    private InterpolatingDoubleTreeMap speed, angle;
+    private InterpolatingDoubleTreeMap speed, angle, kicker;
 
     public Shooter(IShooterHw hardware) {
         super();
@@ -14,6 +16,7 @@ public class Shooter extends SubsystemBase {
         
         speed = new InterpolatingDoubleTreeMap();
         angle = new InterpolatingDoubleTreeMap();
+        kicker = new InterpolatingDoubleTreeMap();
 
         //input: Inches from target, output: RPM of shot  
         speed.put(125.0, 450.0);
@@ -28,14 +31,20 @@ public class Shooter extends SubsystemBase {
         angle.put(268.0, 525.0);
         angle.put(312.0, 550.0);
         angle.put(326.0, 650.0);
+
+        kicker.put(125.0, 450.0);
+        kicker.put(200.0, 510.0);
+        kicker.put(268.0, 525.0);
+        kicker.put(312.0, 550.0);
+        kicker.put(326.0, 650.0);
     }
 
     @Override
     public void periodic() {
         hw.updateInputs();
     }
-    public double[] estimate(double d){
-        return new double[]{speed.get(d),angle.get(d)};
+    public AutoShotLookup estimate(double d){
+        return new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
     }
 
     public void setRPM(double RPM) {

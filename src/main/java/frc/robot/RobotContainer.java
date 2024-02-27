@@ -39,6 +39,7 @@ import frc.robot.Controls.OperatorControls;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.commands.DriveStick;
 import frc.robot.commands.HomeClimber;
+import frc.robot.commands.Autoshot;
 import frc.robot.commands.DriveAimer;
 import frc.robot.commands.DriveClimb;
 import frc.robot.commands.DriveIntake;
@@ -171,6 +172,7 @@ public class RobotContainer {
         SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
         SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
+        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
