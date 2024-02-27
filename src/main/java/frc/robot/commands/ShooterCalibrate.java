@@ -1,0 +1,34 @@
+package frc.robot.commands;
+
+import org.livoniawarriors.UtilFunctions;
+
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Kicker;
+import frc.robot.subsystems.Pneumatics;
+import frc.robot.subsystems.Shooter;
+
+public class ShooterCalibrate extends Command{
+    private Shooter shooter;
+    private Kicker kicker;
+    private Pneumatics aimer;
+    private DoubleSubscriber shooterRpm, kickRpm, shooterAngle;
+
+    public ShooterCalibrate(Shooter shooter, Kicker kicker, Pneumatics aimer) {
+        this.shooter = shooter;
+        this.kicker = kicker;
+        this.aimer = aimer;
+        addRequirements(shooter, kicker, aimer);
+
+        shooterRpm = UtilFunctions.getNtSub("/Cal/Shooter Cal RPM", 0.);
+        kickRpm = UtilFunctions.getNtSub("/Cal/Kicker Cal RPM", 0.);
+        shooterAngle = UtilFunctions.getNtSub("/Cal/Shooter Cal Angle", 0.);
+    }
+    
+    @Override
+    public void execute() {
+        shooter.setRPM(shooterRpm.get());
+        kicker.setRPM(kickRpm.get());
+        aimer.goTo(shooterAngle.get());
+    }
+}

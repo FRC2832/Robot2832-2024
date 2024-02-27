@@ -55,8 +55,8 @@ public class IntakeHw implements IIntakeHw {
         hardware.setInverted(false);
         leftIntake.setControl(new Follower(hardware.getDeviceID(), true));
 
-        Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 1 : 0);
-        Logger.RegisterSensor("High Note", () -> highSensor.get() ? 1 : 0);
+        Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 0 : 1);
+        Logger.RegisterSensor("High Note", () -> highSensor.get() ? 0 : 1);
         Logger.RegisterTalon("Intake", hardware);
     }
 
@@ -80,7 +80,7 @@ public class IntakeHw implements IIntakeHw {
     }
 
     public boolean isPieceSeen() {
-        return highSensor.get();
+        return !highSensor.get();
     }
 
     public void removeInterrupt() {
@@ -93,7 +93,7 @@ public class IntakeHw implements IIntakeHw {
     public void updateInputs() {
         if(interrupt && isRunning) {
             isRunning = false;
-            setIntake(isRunning, inverted);
+            //setIntake(isRunning, inverted);
             return;
         }
     }

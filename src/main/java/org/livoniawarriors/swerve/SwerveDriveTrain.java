@@ -37,7 +37,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     private SwerveModulePosition[] swervePositions;
     private SwerveModuleState[] swerveTargets;
     private double gyroOffset = 0;
-    private PIDController pidZero = new PIDController(0.15, 0.001, 0);
+    private PIDController pidZero = new PIDController(0.18, 0.002, 0);
     private SwerveModuleState[] swerveStates;
     private boolean optimize;
     private boolean resetZeroPid;
@@ -172,12 +172,6 @@ public class SwerveDriveTrain extends SubsystemBase {
         //ask the kinematics to determine our swerve command
         ChassisSpeeds speeds;
 
-        //compensate when the alliance is red and direction is flipped
-        if(UtilFunctions.getAlliance() == Alliance.Red) {
-            xSpeed = -xSpeed;
-            ySpeed = -ySpeed;
-        }
-
         if (Math.abs(turn) > 0.1) {
             //if a turn is requested, reset the zero for the drivetrain
             gyroOffset = currentHeading.getDegrees();
@@ -188,7 +182,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         }
 
         if (fieldOriented) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turn, currentHeading);
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turn, currentHeading.minus(fieldOffset));
         } else {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, turn);
         }
@@ -306,6 +300,9 @@ public class SwerveDriveTrain extends SubsystemBase {
 
     public void resetFieldOriented() {
         fieldOffset = odometry.getGyroRotation();
+        if(UtilFunctions.getAlliance() == Alliance.Red) {
+            fieldOffset.plus(Rotation2d.fromDegrees(180));
+        }
     }
 
     public SwerveDriveKinematics getKinematics() {

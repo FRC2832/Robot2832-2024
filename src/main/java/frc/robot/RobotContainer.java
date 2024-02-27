@@ -45,6 +45,8 @@ import frc.robot.commands.DriveIntake;
 import frc.robot.commands.OperatorStick;
 import frc.robot.commands.PitIntake;
 import frc.robot.commands.ResetWheelPosition;
+import frc.robot.commands.SetAimer;
+import frc.robot.commands.ShooterCalibrate;
 import frc.robot.hardware.InclinatorHw;
 import frc.robot.hardware.IntakeHw;
 import frc.robot.hardware.ShooterHw;
@@ -166,6 +168,9 @@ public class RobotContainer {
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
         SmartDashboard.putData("Pit Intake", new PitIntake(intake));
         SmartDashboard.putData("Home Climber", new HomeClimber(inclinator));
+        SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
+        SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
+        SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
@@ -229,8 +234,8 @@ public class RobotContainer {
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
-        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
-        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
+        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true).alongWith(new SetAimer(aimer, 45)));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true).alongWith(new SetAimer(aimer, 45)));
     }
 
     public void disableBindings() {
