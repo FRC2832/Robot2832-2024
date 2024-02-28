@@ -1,10 +1,12 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.interfaces.IOperatorControls;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.DriverFeedback;
 import frc.robot.subsystems.Kicker;
 
 
@@ -30,12 +32,21 @@ public class OperatorStick extends Command {
     @Override
     public void execute() {
         if(cont.IsSubShotRequested()){
-            shoot.setRPM(SmartDashboard.getNumber("Shooter RPM Command", 4500));
-            kick.setRPM(SmartDashboard.getNumber("Kicker RPM Command", 4500));
+            double shotRpm = SmartDashboard.getNumber("Shooter RPM Command", 4500);
+            double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 4500);
+            shoot.setRPM(shotRpm);
+            kick.setRPM(kickRpm);
+
+            if(Math.abs(shotRpm - shoot.getRPM()) < 50) {
+                DriverFeedback.setColor(Color.kGreen);
+            } else {
+                DriverFeedback.setColor(Color.kYellow);
+            }
         }
         else{
-            shoot.setRPM(4000);
-            kick.setRPM(4000);
+            shoot.setRPM(3500);
+            kick.setRPM(0);
+            DriverFeedback.setColor(Color.kBlack);
         }
     }
     

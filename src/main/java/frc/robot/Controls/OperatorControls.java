@@ -45,12 +45,14 @@ public class OperatorControls implements IOperatorControls{
 
     @Override
     public boolean IsClimbUpRequested() {
-        return cont.getPOV()==0;
+        int pov = cont.getPOV();
+        return pov == 0 || pov == 45 || pov == 315;
     }
 
     @Override
     public boolean IsClimbDownRequested() {
-        return cont.getPOV()==180;
+        int pov = cont.getPOV();
+        return pov == 180 || pov == 135 || pov == 225;
     }
 
     @Override

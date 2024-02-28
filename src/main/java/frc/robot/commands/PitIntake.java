@@ -13,7 +13,12 @@ public class PitIntake extends Command {
 
     @Override
     public void execute() {
-        intake.setRpm(300);
+        intake.setRpm(225);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return intake.isPieceDetected();
     }
 
     @Override

@@ -19,7 +19,7 @@ public class DriveAimer extends Command {
         double command = controls.GetManualSubAim();
         if(command > 0.2) {
             pneumatics.driveDown();
-        } else if (command < -0.2) {
+        } else if (command < -0.2 && pneumatics.getAngle() < 50) {
             pneumatics.driveUp();
         } else {
             pneumatics.stop();
