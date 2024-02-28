@@ -44,8 +44,10 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         hw.updateInputs();
     }
-    public AutoShotLookup estimate(double d){
-        return new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
+    public AutoShotLookup estimate(double d) {
+        AutoShotLookup shot = new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
+        shot.printValues();
+        return shot;
     }
 
     public void setRPM(double RPM) {
@@ -53,7 +55,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getRPM() {
-        return 0.00;
+        return hw.getCurrentRPM(0);
     }
     
     public static double RPMToVelocity(double RPM) {

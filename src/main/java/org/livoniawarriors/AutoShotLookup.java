@@ -1,5 +1,7 @@
 package org.livoniawarriors;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class AutoShotLookup {
     private double angle;
     private double kickerSpeed;
@@ -27,5 +29,11 @@ public class AutoShotLookup {
 
     public double getShooterSpeed() {
         return shooterSpeed;
+    }
+
+    public void printValues() {
+        SmartDashboard.putNumber("Auto Angle", angle);
+        SmartDashboard.putNumber("Auto Kicker", kickerSpeed);
+        SmartDashboard.putNumber("Auto Shot RPM", shooterSpeed);
     }
 }
