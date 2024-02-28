@@ -133,7 +133,7 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
             turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
-            turnPid[wheel] = new PIDController(.5/Math.PI, .2, 0);
+            turnPid[wheel] = new PIDController(.4/Math.PI, .15, 0);
             turnMotors[wheel].setInverted(true);
         }
         setDriveMotorBrakeMode(true);

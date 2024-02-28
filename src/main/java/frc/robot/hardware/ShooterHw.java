@@ -6,6 +6,7 @@ import frc.robot.interfaces.IShooterHw;
 
 import org.livoniawarriors.Logger;
 
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -36,6 +37,9 @@ public class ShooterHw implements IShooterHw {
             allConfigs.motionAcceleration = 0;
             allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
             motor.configAllSettings(allConfigs);
+
+            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
         }
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
@@ -60,7 +64,7 @@ public class ShooterHw implements IShooterHw {
     
     @Override
     public double getCurrentRPM(int shooterID) {        
-        return shooters[0].getSelectedSensorVelocity();//not sure about this one
+        return shooters[shooterID].getSelectedSensorVelocity() * UNITS_TO_RPM;
     }
 
     /** @param shooterID should be less than length of shooters array */

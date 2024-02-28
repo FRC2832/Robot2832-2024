@@ -58,7 +58,8 @@ public class KickerHw implements IKickerHw {
     @Override
     public void setRpm(double rpm) {
         for (int i=0;i<pids.length; i++) {
-            pids[i].setReference(rpm, ControlType.kVelocity);
+            //pids[i].setReference(rpm, ControlType.kVelocity);
+            kickers[i].set(rpm/6500);
         }
     }
     
