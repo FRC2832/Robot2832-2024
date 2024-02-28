@@ -154,7 +154,6 @@ public class Odometry extends SubsystemBase {
     }
 
     public void setStartingPose(Pose2d pose) {
-        startPose = flipAlliance(pose);
         resetPose(startPose);
     }
 
