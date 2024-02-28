@@ -37,6 +37,7 @@ public class Odometry extends SubsystemBase {
     private Translation2d[] swervePositions;
     private BooleanSubscriber resetPos;
     private BooleanSubscriber plotCorners;
+    private BooleanSubscriber useVision;
     private DoublePublisher visionOffset;
     private IntegerPublisher visionFrameCount;
     private long frameCount;
@@ -53,6 +54,7 @@ public class Odometry extends SubsystemBase {
         field = new Field2d();
         resetPos = UtilFunctions.getNtSub("/Odometry/Reset Position", false);
         plotCorners = UtilFunctions.getSettingSub("/Odometry/Plot Swerve Corners", false);
+        useVision = UtilFunctions.getSettingSub("/Odometry/Use Vision", false);
         visionOffset = UtilFunctions.getNtPub("/Odometry/Vision Error", 0.);
         visionFrameCount = UtilFunctions.getNtPub("/Odometry/VisionFrames", 0);
 
@@ -152,18 +154,19 @@ public class Odometry extends SubsystemBase {
     }
 
     public void setStartingPose(Pose2d pose) {
-        startPose = flipAlliance(pose);
         resetPose(startPose);
     }
 
     public void resetPose(Pose2d pose) {
         poseEstimator.resetPosition(getGyroRotation(), drive.getSwervePositions(), pose);
+        robotPose = pose;
     }
 
     public void resetHeading() {
         //reset the robot back to it's spot, just facing forward now
         Pose2d pose = new Pose2d(robotPose.getTranslation(),Rotation2d.fromDegrees(0));
         poseEstimator.resetPosition(getGyroRotation(), drive.getSwervePositions(), pose);
+        robotPose = pose;
     }
 
     public Pose2d getPose() {
@@ -191,17 +194,21 @@ public class Odometry extends SubsystemBase {
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
-        visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
-        visionFrameCount.set(frameCount++);
-        poseEstimator.addVisionMeasurement(pose, timestamp);
-        loopsTagsSeen++;
+        if(useVision.get()) {
+            visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
+            visionFrameCount.set(frameCount++);
+            poseEstimator.addVisionMeasurement(pose, timestamp);
+            loopsTagsSeen++;
+        }
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDeviation) {
-        visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
-        visionFrameCount.set(frameCount++);
-        poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
-        loopsTagsSeen++;
+        if(useVision.get()) {
+            visionOffset.set(UtilFunctions.getDistance(pose, robotPose));
+            visionFrameCount.set(frameCount++);
+            poseEstimator.addVisionMeasurement(pose, timestamp, stdDeviation);
+            loopsTagsSeen++;
+        }
     }
 
     /**

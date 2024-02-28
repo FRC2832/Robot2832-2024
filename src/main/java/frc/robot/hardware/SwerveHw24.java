@@ -15,6 +15,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -54,6 +56,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
     private PIDController turnPid[];
 
     private double correctedAngle[];
+    private double absoluteAngle[];
     
     public SwerveHw24() {
 
@@ -63,6 +66,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
         turnMotors = new CANSparkMax[NUM_MOTORS];
         turnSensors = new CANCoder[NUM_MOTORS];
         correctedAngle = new double[NUM_MOTORS];
+        absoluteAngle = new double[NUM_MOTORS];
         turnEncoder = new RelativeEncoder[NUM_MOTORS];
         turnPid = new PIDController[NUM_MOTORS];
 
@@ -88,7 +92,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
         for (CANCoder sensor: turnSensors) {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 18);
-            sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 250);
+            sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 100);
         }
 
         double maxSpeed = UtilFunctions.getSetting("Swerve Drive/Max Speed", 5.0);
@@ -119,7 +123,8 @@ public class SwerveHw24 implements ISwerveDriveIo {
             motor.configAllSettings(allConfigs);
             motor.setSelectedSensorPosition(0);
             motor.setInverted(false);
-            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 40);
+            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
         }
 
         //register stuff for logging
@@ -136,8 +141,13 @@ public class SwerveHw24 implements ISwerveDriveIo {
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
             turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
-            turnPid[wheel] = new PIDController(.3/Math.PI, .1, 0);
+            turnPid[wheel] = new PIDController(.6/Math.PI, .2, 0);
             turnMotors[wheel].setInverted(true);
+
+            //from https://www.revrobotics.com/development-spark-max-users-manual/#section-3-3-2-1
+            turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+            turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
+
         }
         setDriveMotorBrakeMode(true);
         setTurnMotorBrakeMode(true);
@@ -145,7 +155,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public double getCornerAbsAngle(int wheel) {
-        return turnSensors[wheel].getAbsolutePosition();
+        return absoluteAngle[wheel];
     }
 
     @Override
@@ -237,7 +247,10 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public void updateInputs() {
-        
+        for (int wheel = 0; wheel < turnSensors.length; wheel++) {
+            var newAngle = turnSensors[wheel].getAbsolutePosition();
+            absoluteAngle[wheel] = MathUtil.inputModulus(newAngle, absoluteAngle[wheel] - 180, absoluteAngle[wheel] + 180);
+        }
     }
 
     @Override

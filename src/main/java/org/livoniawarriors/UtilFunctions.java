@@ -20,6 +20,8 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.IntegerTopic;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.StringTopic;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Preferences;
@@ -187,6 +189,18 @@ public class UtilFunctions {
     public static BooleanPublisher getNtPub(String key, boolean initValue) {
         BooleanTopic topic = NetworkTableInstance.getDefault().getBooleanTopic(checkKey(key));
         BooleanPublisher pub = topic.publish();
+        pub.setDefault(initValue);
+        return pub;
+    }
+
+    /**
+     * This creates a NT publisher so we don't have to keep querying the key in the table.
+     * @param key The parameter you want to get (slashes are allowed)
+     * @return The publisher to put data in
+     */
+    public static StringPublisher getNtPub(String key, String initValue) {
+        StringTopic topic = NetworkTableInstance.getDefault().getStringTopic(checkKey(key));
+        StringPublisher pub = topic.publish();
         pub.setDefault(initValue);
         return pub;
     }

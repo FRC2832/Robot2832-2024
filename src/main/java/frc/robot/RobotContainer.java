@@ -62,6 +62,7 @@ import frc.robot.simulation.KickerSim;
 import frc.robot.simulation.PneumaticsSim;
 import frc.robot.simulation.ShooterSim;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.DriverFeedback;
 import frc.robot.subsystems.Inclinator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Kicker;
@@ -85,6 +86,7 @@ public class RobotContainer {
     private Kicker kick;
     private Pneumatics aimer;
     private PneumaticHub ph;
+    private VisionSystem vision;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -111,8 +113,8 @@ public class RobotContainer {
 
         //subsystems used in all robots
         odometry = new Odometry();
-        leds = new LedSubsystem(0, 10);
-        new VisionSystem(odometry); //not making variable as we won't change this subsystem
+        leds = new LedSubsystem(0, 92);
+        vision = new VisionSystem(odometry); //not making variable as we won't change this subsystem
 
         //build the robot based on the Rio ID of the robot
         if (Robot.isSimulation() || (serNum.equals("031b525b")) || (serNum.equals("03064db7"))) {
@@ -156,6 +158,7 @@ public class RobotContainer {
             aimer = new Pneumatics(new PneumaticHW());
         }
 
+        new DriverFeedback(vision, intake, leds);
         odometry.setSwerveDrive(swerveDrive);
         odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
 
@@ -172,13 +175,14 @@ public class RobotContainer {
         SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
         SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
-        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry));
+        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("Shoot", new LightningFlash(leds, Color.kFirstRed));
-        NamedCommands.registerCommand("Intake", new LightningFlash(leds, Color.kFirstBlue));
+        NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake));
+        NamedCommands.registerCommand("Intake", new DriveIntake(intake, true));
+        NamedCommands.registerCommand("Kick", new DriveIntake(intake, false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
 
@@ -206,7 +210,10 @@ public class RobotContainer {
         // Build an auto chooser. This will use Commands.none() as the default option.
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-        
+        autoChooser.onChange(command -> {
+            //var path = "B-2";
+            //var startingPose = PathPlannerAuto.getStaringPoseFromAutoFile(path);
+        });
     }
 
     /**
@@ -236,8 +243,9 @@ public class RobotContainer {
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
-        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true).alongWith(new SetAimer(aimer, 45)));
+        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true).alongWith(new SetAimer(aimer, 45)));
+        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake));
     }
 
     public void disableBindings() {

@@ -1,5 +1,6 @@
 package frc.robot.commands;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.Pneumatics;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,14 +16,22 @@ public class Autoshot extends Command {
     Pneumatics pneumatic;
     Kicker kicker;
     Odometry odometry;
+    Intake intake;
     Double tagY;
+    int goodCounts;
 
-    public Autoshot(Shooter shooter, Pneumatics pneumatic, Kicker kicker, Odometry odometry) {
+    public Autoshot(Shooter shooter, Pneumatics pneumatic, Kicker kicker, Odometry odometry, Intake intake) {
         this.shooter = shooter;
         this.pneumatic = pneumatic;
         this.kicker = kicker;
         this.odometry = odometry;
+        this.intake = intake;
         this.tagY = 218.42 * 0.0254;
+    }
+
+    @Override
+    public void initialize() {
+        goodCounts = 0;
     }
 
     //TODO: Physics based approach TBD
@@ -44,5 +53,30 @@ public class Autoshot extends Command {
         shooter.setRPM(lookup.getShooterSpeed());
         pneumatic.goTo(lookup.getAngle());
         kicker.setRPM(lookup.getKickerSpeed());
+        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 75)
+              && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 4)
+              )
+           || goodCounts > 0
+           )
+        {
+            intake.setRpm(250);
+            goodCounts++;
+        }
+        else {
+            intake.setPower(0);
+        }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return goodCounts > 40;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        pneumatic.stop();
+        intake.setPower(0);
+        shooter.setPower(0);
+        kicker.stop();
     }
 }

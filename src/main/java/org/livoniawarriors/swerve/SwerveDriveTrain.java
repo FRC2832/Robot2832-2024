@@ -37,7 +37,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     private SwerveModulePosition[] swervePositions;
     private SwerveModuleState[] swerveTargets;
     private double gyroOffset = 0;
-    private PIDController pidZero = new PIDController(0.18, 0.002, 0);
+    private PIDController pidZero = new PIDController(0.1, 0, 0);
     private SwerveModuleState[] swerveStates;
     private boolean optimize;
     private boolean resetZeroPid;
@@ -65,6 +65,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     private DoublePublisher swerveCurrentHeading;
     private DoublePublisher swerveGyroOffset;
     private DoublePublisher swerveFieldOffset;
+    private DoublePublisher pidZeroError;
     private DoubleArrayPublisher swerveStatePub;
     private DoubleArrayPublisher swerveRequestPub;
 
@@ -76,6 +77,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         resetZeroPid = false;
         int numWheels = hardware.getCornerLocations().length;
         fieldOffset = new Rotation2d();
+        currentHeading = new Rotation2d();
 
         //initialize module names
         String[] moduleNames = hardware.getModuleNames();
@@ -118,6 +120,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveFieldOffset = UtilFunctions.getNtPub("/Swerve Drive/Field Offset", 0.);
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
+        pidZeroError = UtilFunctions.getNtPub("/Swerve Drive/Pid Zero Error", 0.);
     }
     
     @Override
@@ -154,6 +157,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveCurrentHeading.set(currentHeading.getDegrees());
         swerveGyroOffset.set(gyroOffset);
         swerveFieldOffset.set(fieldOffset.getDegrees());
+        pidZeroError.set(pidZero.getPositionError());
     }
 
     /**
@@ -172,13 +176,20 @@ public class SwerveDriveTrain extends SubsystemBase {
         //ask the kinematics to determine our swerve command
         ChassisSpeeds speeds;
 
+        //compensate when the alliance is red and direction is flipped
+        if(UtilFunctions.getAlliance() == Alliance.Red && DriverStation.isAutonomous() == false) {
+            xSpeed = -xSpeed;
+            ySpeed = -ySpeed;
+        }
+
         if (Math.abs(turn) > 0.1) {
             //if a turn is requested, reset the zero for the drivetrain
             gyroOffset = currentHeading.getDegrees();
             pidZero.reset();
         } else {
             //straighten the robot
-            turn = pidZero.calculate(currentHeading.getDegrees(),gyroOffset);
+            double normAngle = MathUtil.inputModulus(currentHeading.getDegrees(), gyroOffset-180, gyroOffset+180);
+            turn = pidZero.calculate(normAngle,gyroOffset);
         }
 
         if (fieldOriented) {
@@ -299,10 +310,20 @@ public class SwerveDriveTrain extends SubsystemBase {
     }
 
     public void resetFieldOriented() {
-        fieldOffset = odometry.getGyroRotation();
+        //make field offset 0, as odometry works out the angle with tags
+        var newHeading = new Rotation2d();
         if(UtilFunctions.getAlliance() == Alliance.Red) {
-            fieldOffset.plus(Rotation2d.fromDegrees(180));
+            newHeading = newHeading.plus(Rotation2d.fromDegrees(180));
         }
+
+        //tell odometry we are straight again
+        Pose2d newPose = new Pose2d(odometry.getPose().getTranslation(), newHeading);
+        odometry.resetPose(newPose);
+        fieldOffset = currentHeading;
+
+        //reset the zeroing pid on reset
+        pidZero.reset();
+        gyroOffset = fieldOffset.getDegrees();
     }
 
     public SwerveDriveKinematics getKinematics() {

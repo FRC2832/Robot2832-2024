@@ -18,33 +18,36 @@ public class Shooter extends SubsystemBase {
         angle = new InterpolatingDoubleTreeMap();
         kicker = new InterpolatingDoubleTreeMap();
 
-        //input: Inches from target, output: RPM of shot  
-        speed.put(125.0, 450.0);
-        speed.put(200.0, 510.0);
-        speed.put(268.0, 525.0);
-        speed.put(312.0, 550.0);
-        speed.put(326.0, 650.0);
+        //input: Meters from target, output: RPM of shot  
+        speed.put(1.3, 4000.);
+        speed.put(2., 4300.);
+        speed.put(2.39, 4300.);
+        speed.put(2.71, 4300.);
+        speed.put(3.25, 4500.);
 
-        //input: Inches from target, output: RPM of shot  
-        angle.put(125.0, 450.0);
-        angle.put(200.0, 510.0);
-        angle.put(268.0, 525.0);
-        angle.put(312.0, 550.0);
-        angle.put(326.0, 650.0);
+        //input: Meters from target, output: Degrees of shot  
+        angle.put(1.3, 53.);
+        angle.put(2., 50.);
+        angle.put(2.39, 43.);
+        angle.put(2.71, 42.);
+        angle.put(3.25, 36.);
 
-        kicker.put(125.0, 450.0);
-        kicker.put(200.0, 510.0);
-        kicker.put(268.0, 525.0);
-        kicker.put(312.0, 550.0);
-        kicker.put(326.0, 650.0);
+        //input: Meters from target, output: RPM for kicker
+        kicker.put(1.3, 4000.);
+        kicker.put(2., 4500.);
+        kicker.put(2.39, 4500.);
+        kicker.put(2.71, 4500.);
+        kicker.put(3.25, 4500.);
     }
 
     @Override
     public void periodic() {
         hw.updateInputs();
     }
-    public AutoShotLookup estimate(double d){
-        return new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
+    public AutoShotLookup estimate(double d) {
+        AutoShotLookup shot = new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
+        shot.printValues();
+        return shot;
     }
 
     public void setRPM(double RPM) {
@@ -52,7 +55,7 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getRPM() {
-        return 0.00;
+        return hw.getCurrentRPM(0);
     }
     
     public static double RPMToVelocity(double RPM) {

@@ -3,6 +3,7 @@ import org.livoniawarriors.Logger;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -34,6 +35,12 @@ public class InclinatorHw implements IInclinatorHw {
 
         Logger.RegisterTalon( "Left Climb", leftClimb);
         Logger.RegisterTalon( "Right Climb", rightClimb);
+
+        leftClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+        leftClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
+
+        rightClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+        rightClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
     }
 
     public void setPower(double power){

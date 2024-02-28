@@ -4,7 +4,7 @@ import frc.robot.interfaces.IPneumaticHW;
 
 public class Pneumatics extends SubsystemBase {
     IPneumaticHW hardware;
-    private double moe = 5.00;
+    private double moe = 4.00;
 
     public Pneumatics(IPneumaticHW hardware) {
         super();

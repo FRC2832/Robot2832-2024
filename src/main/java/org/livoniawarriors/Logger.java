@@ -61,6 +61,8 @@ public class Logger implements Runnable {
 
     private static boolean faultSet;
     private static boolean sfaultSet;
+    private static boolean flashDriveAttached;
+
     //solenoids, compressor
 
     public Logger() {
@@ -277,7 +279,7 @@ public class Logger implements Runnable {
         faultSet = false;
         for(String i: keys) {
             var faultName = faultTable.getEntry(i).getString("EROR");
-            if(!faultName.equals("Ok")) {
+            if(!faultName.equals("Ok") && !faultName.equals("Not Implemented")) {
                 faultSet = true;
             }
         }
@@ -285,12 +287,11 @@ public class Logger implements Runnable {
         sfaultSet = false;
         for(String i: stickyKeys) {
             var faultName = stickyTable.getEntry(i).getString("EROR");
-            if(!faultName.equals("Ok")) {
+            if(!faultName.equals("Ok") && !faultName.equals("Not Implemented")) {
                 sfaultSet = true;
             }
         }
 
-        boolean flashDriveAttached;
         if (Robot.isReal()) {
             flashDriveAttached = Files.exists(Paths.get("/u"));
         } else {
@@ -440,5 +441,9 @@ public class Logger implements Runnable {
 
     public static boolean StickyFaultSet() {
         return sfaultSet;
+    }
+
+    public static boolean IsFlashDriveAttached() {
+        return flashDriveAttached;
     }
 }

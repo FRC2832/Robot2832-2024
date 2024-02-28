@@ -5,6 +5,7 @@ import frc.robot.subsystems.Intake;
 import org.livoniawarriors.UtilFunctions;
 
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class DriveIntake extends Command {
@@ -34,6 +35,14 @@ public class DriveIntake extends Command {
         } else {
             intake.setRpm(dir * intakeSpeed.get());
         }
+    }
+
+    @Override
+    public boolean isFinished() {
+        if (DriverStation.isAutonomous()) {
+            return true;
+        }
+        return false;
     }
 
     @Override

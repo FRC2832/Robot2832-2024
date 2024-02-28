@@ -25,7 +25,7 @@ public class FlightDriveControls implements IDriveControls {
 
         this.driveContLeft = new T16000M(0);
         this.driveContRight = new T16000M(1);
-        deadband = UtilFunctions.getSettingSub("DriveXbox/Deadband", 0.13);
+        deadband = UtilFunctions.getSettingSub("DriveStick/Deadband", 0.02);
     }
 
 
