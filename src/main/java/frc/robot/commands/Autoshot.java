@@ -27,6 +27,7 @@ public class Autoshot extends Command {
         this.odometry = odometry;
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
+        addRequirements(shooter, pneumatic, kicker, intake);
     }
 
     @Override
@@ -76,7 +77,8 @@ public class Autoshot extends Command {
     public void end(boolean interrupted) {
         pneumatic.stop();
         intake.setPower(0);
-        shooter.setPower(0);
+        //keep shooter running in auto
+        shooter.setRPM(3000);
         kicker.stop();
     }
 }

@@ -39,7 +39,7 @@ public class DriveIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        if (DriverStation.isAutonomous()) {
+        if (DriverStation.isAutonomous() && intake.isPieceDetected()) {
             return true;
         }
         return false;
