@@ -8,18 +8,30 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.interfaces.IInclinatorHw;
 
 @SuppressWarnings("removal")
 public class InclinatorHw implements IInclinatorHw {
     private TalonFX leftClimb;
     private TalonFX rightClimb;
+    private AnalogInput leftSwitch;
+    private AnalogInput rightSwitch;
     private TalonFXConfiguration allConfigsL = new TalonFXConfiguration();
     private TalonFXConfiguration allConfigsR = new TalonFXConfiguration();
+    private boolean leftLimit;
+    private boolean rightLimit;
     
     public InclinatorHw() {
-        leftClimb = new TalonFX(61);
-        rightClimb = new TalonFX(62);
+        leftClimb = new TalonFX(62);
+        rightClimb = new TalonFX(61);
+        leftSwitch = new AnalogInput(1);
+        rightSwitch = new AnalogInput(2);
+
+        //motors MUST be reset every powerup!!!
+        leftClimb.configFactoryDefault();
+        rightClimb.configFactoryDefault();
+
         //Add Logger Data for Faults 
         leftClimb.getAllConfigs(allConfigsL);
         rightClimb.getAllConfigs(allConfigsR);
@@ -35,22 +47,44 @@ public class InclinatorHw implements IInclinatorHw {
 
         Logger.RegisterTalon( "Left Climb", leftClimb);
         Logger.RegisterTalon( "Right Climb", rightClimb);
+        Logger.RegisterSensor("Left Climb Stop", () -> leftSwitch.getVoltage());
+        Logger.RegisterSensor("Right Climb Stop", () -> rightSwitch.getVoltage());
 
         leftClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
         leftClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
 
         rightClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
         rightClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
+
+        leftLimit = false;
+        rightLimit = false;
     }
 
     public void setPower(double power){
-        leftClimb.set(ControlMode.PercentOutput, power);
-        rightClimb.set(ControlMode.PercentOutput, power);
+        setPower(power, power);
     }
 
     public void setPower(double powerLeft, double powerRight){
         leftClimb.set(ControlMode.PercentOutput, powerLeft);
         rightClimb.set(ControlMode.PercentOutput, powerRight);
+
+        if(powerLeft > 0.1) {
+            leftLimit = false;
+            leftClimb.set(ControlMode.PercentOutput, powerLeft);
+        } else if (leftLimit) {
+            leftClimb.set(ControlMode.PercentOutput, 0);
+        } else {
+            leftClimb.set(ControlMode.PercentOutput, powerLeft);
+        }
+
+        if(powerRight > 0.1) {
+            rightLimit = false;
+            rightClimb.set(ControlMode.PercentOutput, powerRight);
+        } else if (rightLimit) {
+            rightClimb.set(ControlMode.PercentOutput, 0);
+        } else {
+            rightClimb.set(ControlMode.PercentOutput, powerRight);
+        }
     }
 
     public double getLeftCurrent(){
@@ -61,8 +95,22 @@ public class InclinatorHw implements IInclinatorHw {
         return rightClimb.getSupplyCurrent();
     }
 
-    @Override
-    public void updateInputs() {
+    public boolean getLeftLimit() {
+        return leftLimit;
     }
 
+    public boolean getRightLimit() {
+        return rightLimit;
+    }
+
+    @Override
+    public void updateInputs() {
+        if (leftSwitch.getVoltage() < 0.1) {
+            leftLimit = true;
+        }
+
+        if(rightSwitch.getVoltage() < 0.1) {
+            rightLimit = true;
+        }
+    }
 }

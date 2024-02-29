@@ -52,4 +52,12 @@ public class Inclinator extends SubsystemBase {
     public double getRightCurrent(){
         return hardware.getRightCurrent();
     }
+
+    public boolean getLeftLimit() {
+        return hardware.getLeftLimit();
+    }
+
+    public boolean getRightLimit() {
+        return hardware.getRightLimit();
+    }
 }
