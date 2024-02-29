@@ -61,7 +61,10 @@ public class Autoshot extends Command {
            )
         {
             intake.setRpm(250);
-            goodCounts++;
+            //wait to start timeout until piece leaves starts leaving intake
+            if(intake.isPieceDetected() == false) {
+                goodCounts++;
+            }   
         }
         else {
             intake.setPower(0);
