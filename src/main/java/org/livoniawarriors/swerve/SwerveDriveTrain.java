@@ -125,6 +125,9 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
         pidZeroError = UtilFunctions.getNtPub("/Swerve Drive/Pid Zero Error", 0.);
+
+        minSpeed = UtilFunctions.getSetting(MIN_SPEED_KEY, 0.5);
+        maxSpeed = UtilFunctions.getSetting(MAX_SPEED_KEY, 5);
     }
     
     @Override

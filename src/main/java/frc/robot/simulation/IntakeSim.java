@@ -60,12 +60,20 @@ public class IntakeSim implements IIntakeHw {
 
     @Override
     public void setPower(double power) {
-        // TODO Auto-generated method stub
+        if (Math.abs(power) > 0.05) {
+            isRunning = true;
+        } else {
+            isRunning = false;
+        }
     }
 
     @Override
     public void setRpm(double rpm) {
-        // TODO Auto-generated method stub
+        if (Math.abs(rpm) > 20) {
+            isRunning = true;
+        } else {
+            isRunning = false;
+        }
     }
     
 }
