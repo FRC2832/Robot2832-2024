@@ -37,7 +37,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     private SwerveModulePosition[] swervePositions;
     private SwerveModuleState[] swerveTargets;
     private double gyroOffset = 0;
-    private PIDController pidZero = new PIDController(0.1, 0, 0);
+    private PIDController pidZero = new PIDController(0.08, 0, 0);
     private SwerveModuleState[] swerveStates;
     private boolean optimize;
     private boolean resetZeroPid;
@@ -175,12 +175,6 @@ public class SwerveDriveTrain extends SubsystemBase {
     public void SwerveDrive(double xSpeed, double ySpeed, double turn, boolean fieldOriented) {
         //ask the kinematics to determine our swerve command
         ChassisSpeeds speeds;
-
-        //compensate when the alliance is red and direction is flipped
-        if(UtilFunctions.getAlliance() == Alliance.Red && DriverStation.isAutonomous() == false) {
-            xSpeed = -xSpeed;
-            ySpeed = -ySpeed;
-        }
 
         if (Math.abs(turn) > 0.1) {
             //if a turn is requested, reset the zero for the drivetrain
