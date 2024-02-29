@@ -12,7 +12,7 @@
         "y": 1.9439988665997294
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "StartC"
     },
     {
       "anchor": {
@@ -45,8 +45,8 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
-    "velocity": 0
+    "rotation": -60.0,
+    "velocity": 0.0
   },
   "useDefaultConstraints": true
 }

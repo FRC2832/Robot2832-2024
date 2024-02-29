@@ -1,5 +1,6 @@
 package org.livoniawarriors.swerve;
 
+import org.livoniawarriors.ContinousAngleReading;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
 
@@ -37,7 +38,7 @@ public class SwerveDriveTrain extends SubsystemBase {
     private SwerveModulePosition[] swervePositions;
     private SwerveModuleState[] swerveTargets;
     private double gyroOffset = 0;
-    private PIDController pidZero = new PIDController(0.1, 0, 0);
+    private PIDController pidZero = new PIDController(0.08, 0, 0);
     private SwerveModuleState[] swerveStates;
     private boolean optimize;
     private boolean resetZeroPid;
@@ -47,12 +48,13 @@ public class SwerveDriveTrain extends SubsystemBase {
     private Rotation2d fieldOffset;
     private Odometry odometry;
     private boolean lastTeleop;
+    private ContinousAngleReading requestContinous[];
 
     //input settings
     private DoubleSubscriber driverMaxSpeed;
     private DoubleSubscriber driverMaxOmega;
     private DoubleSubscriber[] wheelOffsetSetting;
-
+    
     //output data
     private DoublePublisher[] wheelCalcAngle;
     private DoublePublisher[] wheelCommandAngle;
@@ -89,6 +91,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         swervePositions = new SwerveModulePosition[numWheels];
         swerveTargets = new SwerveModuleState[numWheels];
         swerveStates = new SwerveModuleState[numWheels];
+        requestContinous = new ContinousAngleReading[numWheels];
         wheelOffsetSetting = new DoubleSubscriber[numWheels];
         wheelCalcAngle = new DoublePublisher[numWheels];
         wheelCommandAngle = new DoublePublisher[numWheels];
@@ -99,6 +102,7 @@ public class SwerveDriveTrain extends SubsystemBase {
             swervePositions[wheel] = new SwerveModulePosition();
             swerveTargets[wheel] = new SwerveModuleState();
             swerveStates[wheel] = new SwerveModuleState();
+            requestContinous[wheel] = new ContinousAngleReading();
             wheelOffsetSetting[wheel] = UtilFunctions.getSettingSub("/Swerve Drive/Wheel Offset " + moduleNames[wheel] + " (deg)", 0);
             wheelCalcAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Calc Angle (deg)", 0.);
             wheelCommandAngle[wheel] = UtilFunctions.getNtPub("/Swerve Drive/Module " + moduleNames[wheel] + "/Command Angle (deg)", 0.);
@@ -111,7 +115,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         driverMaxSpeed = UtilFunctions.getSettingSub("/Swerve Drive/Max Driver Speed (mps)", 3);
         /** How fast we want the driver to turn during normal operation in deg/s */
         driverMaxOmega = UtilFunctions.getSettingSub("/Swerve Drive/Max Driver Omega (dps)", 625);   //1.8 * Pi rad/sec
-
+        
         swerveXSpeed = UtilFunctions.getNtPub("/Swerve Drive/X Speed (mps)", 0.);
         swerveYSpeed = UtilFunctions.getNtPub("/Swerve Drive/Y Speed (mps)", 0.);
         swerveOmega = UtilFunctions.getNtPub("/Swerve Drive/Omega (dps)", 0.);
@@ -121,6 +125,9 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
         pidZeroError = UtilFunctions.getNtPub("/Swerve Drive/Pid Zero Error", 0.);
+
+        minSpeed = UtilFunctions.getSetting(MIN_SPEED_KEY, 0.5);
+        maxSpeed = UtilFunctions.getSetting(MAX_SPEED_KEY, 5);
     }
     
     @Override
@@ -176,12 +183,6 @@ public class SwerveDriveTrain extends SubsystemBase {
         //ask the kinematics to determine our swerve command
         ChassisSpeeds speeds;
 
-        //compensate when the alliance is red and direction is flipped
-        if(UtilFunctions.getAlliance() == Alliance.Red && DriverStation.isAutonomous() == false) {
-            xSpeed = -xSpeed;
-            ySpeed = -ySpeed;
-        }
-
         if (Math.abs(turn) > 0.1) {
             //if a turn is requested, reset the zero for the drivetrain
             gyroOffset = currentHeading.getDegrees();
@@ -208,6 +209,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveYSpeed.set(ySpeed);
         swerveOmega.set(Math.toDegrees(turn));
         for(int i=0; i<requestStates.length; i++) {
+            requestContinous[i].update(requestStates[i].angle.getDegrees());
             wheelRequestAngle[i].set(requestStates[i].angle.getDegrees());
             wheelRequestSpeed[i].set(requestStates[i].speedMetersPerSecond);
         }
@@ -222,17 +224,22 @@ public class SwerveDriveTrain extends SubsystemBase {
     public void setWheelCommand(SwerveModuleState[] requestStates) {
         resetZeroPid = true;
 
-        //command the hardware
-        if(optimize) {
-            requestStates = optimizeSwerve(requestStates, swerveStates, false);
-        }
-        setCornerStates(requestStates);
-
         //log the request
         ChassisSpeeds speeds = kinematics.toChassisSpeeds(requestStates);
         swerveXSpeed.set(speeds.vxMetersPerSecond);
         swerveYSpeed.set(speeds.vyMetersPerSecond);
         swerveOmega.set(Math.toDegrees(speeds.omegaRadiansPerSecond));
+        for(int i=0; i<requestStates.length; i++) {
+            requestContinous[i].update(requestStates[i].angle.getDegrees());
+            wheelRequestAngle[i].set(requestStates[i].angle.getDegrees());
+            wheelRequestSpeed[i].set(requestStates[i].speedMetersPerSecond);
+        }
+
+        //command the hardware
+        if(optimize) {
+            requestStates = optimizeSwerve(requestStates, swerveStates, false);
+        }
+        setCornerStates(requestStates);
     }
 
     public SwerveModuleState[] optimizeSwerve(SwerveModuleState[] requestStates, SwerveModuleState[] currentState, boolean stopTurnAtZero) {
@@ -250,7 +257,7 @@ public class SwerveDriveTrain extends SubsystemBase {
             double angleReq = requestStates[i].angle.getDegrees();
             double curAngle = currentState[i].angle.getDegrees();
             double speedReq = requestStates[i].speedMetersPerSecond;
-            double deltaMod = MathUtil.inputModulus(angleReq - curAngle,-180,180);
+            double deltaMod = requestContinous[i].getAngle() - curAngle;
             if(Math.abs(deltaMod) > optimizeAngle) {
                 angleReq = angleReq - 180;
                 speedReq = -requestStates[i].speedMetersPerSecond;

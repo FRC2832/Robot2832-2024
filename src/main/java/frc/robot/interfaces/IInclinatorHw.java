@@ -5,5 +5,7 @@ public interface IInclinatorHw {
     void setPower(double powerLeft, double powerRight);
     double getLeftCurrent();
     double getRightCurrent();
+    boolean getLeftLimit();
+    boolean getRightLimit();
     void updateInputs();
 }
