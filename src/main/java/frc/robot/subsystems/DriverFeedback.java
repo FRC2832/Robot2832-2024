@@ -44,6 +44,8 @@ public class DriverFeedback extends SubsystemBase {
             message = "FLSH";
         } else if(Logger.FaultSet()) {
             message = " FLT";
+        } else if(!vision.isCameraPresent()) {
+            message = " PI ";
         } else if (Logger.StickyFaultSet()) {
             message = "SFLT";
         } else {

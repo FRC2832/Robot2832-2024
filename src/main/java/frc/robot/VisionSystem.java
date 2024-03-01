@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -49,6 +50,10 @@ public class VisionSystem extends SubsystemBase {
     public static final Matrix<N3, N1> kMultiTagStdDeviations = VecBuilder.fill(0.5, 0.5, 1);
     public static final double kMaxVisionDistance = 4;
     private DoubleSubscriber visionStdDev;
+
+    private IntegerSubscriber heartbeatSub;
+    private long heartbeatLast;
+    private int heartbeatMisses;
 
     public VisionSystem(Odometry odometry) {
         super();
@@ -74,10 +79,24 @@ public class VisionSystem extends SubsystemBase {
 
         visionStdDev = UtilFunctions.getSettingSub("/Odometry/VisionStdDev", 4);
         lastTimestamp = 0;
+
+        //setup heartbeat
+        heartbeatSub = frontCam.getCameraTable().getIntegerTopic("heartbeat").subscribe(0);
+        heartbeatLast = 0;
+        heartbeatMisses = 0;
     }
 
     @Override
     public void periodic() {
+        //check if camera is there
+        long heartbeat = heartbeatSub.get();
+        if(heartbeat != heartbeatLast) {
+            heartbeatMisses = 0;
+        } else {
+            heartbeatMisses++;
+        }
+        heartbeatLast = heartbeat;
+
         // Update and log inputs
         PhotonPipelineResult pipelineResult = frontCam.getLatestResult();
         //need to update our estimate every loop
@@ -180,5 +199,9 @@ public class VisionSystem extends SubsystemBase {
         }
 
         return estStdDeviations.times(1 + (avgDist * avgDist / 30));
+    }
+
+    public boolean isCameraPresent() {
+        return heartbeatMisses < 100;
     }
 }
