@@ -17,17 +17,17 @@ public class DriveClimb extends Command {
     public void execute() {
         // driving climber down
         if(controller.IsClimbDownRequested()){
-            climber.setPower(-1.0);
+            climber.setPower(-.2);
         }
         // driving climber up
         else if(controller.IsClimbUpRequested()){
-            climber.setPower(1.0);
+            climber.setPower(.2);
         }
         else if(controller.IsClimbLeftRequested()){
-            climber.setOffsetPower(0.5, true);
+            climber.setOffsetPower(0.1, true);
         }
         else if(controller.IsClimbRightRequested()){
-            climber.setOffsetPower(0.5, false);
+            climber.setOffsetPower(0.1, false);
         }
         else{
             climber.setPower(0);

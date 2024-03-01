@@ -11,7 +11,7 @@ public class HomeClimber extends Command {
     boolean isRightHomed;
     final double kCurrentLimit = 1;
     final int kTimeoutThreshold = 10;
-    final double kPower = -0.4;
+    final double kPower = -0.08;
 
     public HomeClimber(Inclinator climber) {
         this.climber = climber;
@@ -29,7 +29,6 @@ public class HomeClimber extends Command {
     @Override
     public void execute() {
         if(!isLeftHomed){
-            climber.setOffsetPower(kPower,true);
             if(climber.getLeftLimit()) {
                 leftTimer = kTimeoutThreshold;
             } else if(climber.getLeftCurrent() > kCurrentLimit){
@@ -41,10 +40,11 @@ public class HomeClimber extends Command {
             if(leftTimer >= kTimeoutThreshold){
                 isLeftHomed = true;
                 climber.setOffsetPower(0, true);
+            } else {
+                climber.setOffsetPower(kPower,true);
             }
         } 
         else if(!isRightHomed){
-            climber.setOffsetPower(kPower,false);
             if(climber.getRightLimit()) {
                 rightTimer = kTimeoutThreshold;
             } else if(climber.getRightCurrent() > kCurrentLimit){
@@ -56,6 +56,8 @@ public class HomeClimber extends Command {
             if(rightTimer >= kTimeoutThreshold){
                 isRightHomed = true;
                 climber.setOffsetPower(0, false);
+            } else {
+                climber.setOffsetPower(kPower,false);
             }
         }
         else{
