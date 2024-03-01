@@ -180,11 +180,16 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake));
         NamedCommands.registerCommand("Intake", new DriveIntake(intake, true));
         NamedCommands.registerCommand("Kick", new DriveIntake(intake, false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
+        //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
+        if(Robot.isSimulation()) {
+            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake).withTimeout(1.5));
+        } else {
+            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake));
+        }
 
         // Controller chooser Setup
         driveControllerChooser.addOption("Xbox Controller", kXbox );
