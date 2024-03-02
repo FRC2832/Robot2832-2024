@@ -8,17 +8,20 @@ import frc.robot.interfaces.IOperatorControls;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.DriverFeedback;
 import frc.robot.subsystems.Kicker;
+import frc.robot.subsystems.Pneumatics;
 
 
 public class OperatorStick extends Command {
     private Shooter shoot;
     private Kicker kick;
+    private Pneumatics aimer;
     private IOperatorControls cont;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Pneumatics aimer){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;
+        this.aimer = aimer;
         addRequirements(shoot);
         addRequirements(kick);
     }
@@ -36,6 +39,7 @@ public class OperatorStick extends Command {
             double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 4500);
             shoot.setRPM(shotRpm);
             kick.setRPM(kickRpm);
+            aimer.goTo(54);
 
             if(Math.abs(shotRpm - shoot.getRPM()) < 50) {
                 DriverFeedback.setColor(Color.kGreen);

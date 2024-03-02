@@ -241,7 +241,7 @@ public class RobotContainer {
         OperatorControls operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
         swerveDrive.resetFieldOriented();
-        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick);
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer);
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
