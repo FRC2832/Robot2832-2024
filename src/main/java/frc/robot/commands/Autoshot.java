@@ -35,12 +35,6 @@ public class Autoshot extends Command {
         goodCounts = 0;
     }
 
-    //TODO: Physics based approach TBD
-    public double[] calculate() {
-        double [] result = {0.0,0.0};
-        return result;
-    }
-    
     @Override 
     public void execute(){
         var tagX = (UtilFunctions.getAlliance() == Alliance.Red ? 652.73 : -1.5) * 0.0254;
@@ -57,7 +51,6 @@ public class Autoshot extends Command {
         if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 75)
               && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 4)
               )
-           || goodCounts > 15
            )
         {
             intake.setRpm(250);
