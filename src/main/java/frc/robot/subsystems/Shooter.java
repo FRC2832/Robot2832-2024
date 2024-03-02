@@ -19,10 +19,10 @@ public class Shooter extends SubsystemBase {
         kicker = new InterpolatingDoubleTreeMap();
 
         //input: Meters from target, output: RPM of shot  
-        speed.put(1.3, 4000.);
-        speed.put(2., 4300.);
-        speed.put(2.39, 4300.);
-        speed.put(2.71, 4300.);
+        speed.put(1.3, 4500.);
+        speed.put(2., 4500.);
+        speed.put(2.39, 4500.);
+        speed.put(2.71, 4500.);
         speed.put(3.25, 4500.);
 
         //input: Meters from target, output: Degrees of shot  
@@ -33,7 +33,7 @@ public class Shooter extends SubsystemBase {
         angle.put(3.25, 36.);
 
         //input: Meters from target, output: RPM for kicker
-        kicker.put(1.3, 4000.);
+        kicker.put(1.3, 4500.);
         kicker.put(2., 4500.);
         kicker.put(2.39, 4500.);
         kicker.put(2.71, 4500.);

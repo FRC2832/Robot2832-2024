@@ -57,7 +57,7 @@ public class Autoshot extends Command {
         if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 75)
               && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 4)
               )
-           || goodCounts > 0
+           || goodCounts > 15
            )
         {
             intake.setRpm(250);
