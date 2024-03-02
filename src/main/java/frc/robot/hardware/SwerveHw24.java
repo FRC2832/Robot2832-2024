@@ -113,12 +113,14 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
             allConfigs.slot0.integralZone = 0;
             allConfigs.slot0.allowableClosedloopError = 0;
+            allConfigs.peakOutputForward = 1;
+            allConfigs.peakOutputReverse = -1;
 
             //the maximum velocity we want the motor to go
             allConfigs.motionCruiseVelocity = maxSpeed * VELO_PER_METER;
             //the maximum acceleration we want the motor to go
             allConfigs.motionAcceleration = 5 * VELO_PER_METER;
-            allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
+            allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, .2);
             
             motor.configAllSettings(allConfigs);
             motor.setSelectedSensorPosition(0);
@@ -141,8 +143,9 @@ public class SwerveHw24 implements ISwerveDriveIo {
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
             turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
-            turnPid[wheel] = new PIDController(.6/Math.PI, .2, 0);
+            turnPid[wheel] = new PIDController(.4/Math.PI, .15, 0);
             turnMotors[wheel].setInverted(true);
+            turnMotors[wheel].setSmartCurrentLimit(40, 25);
 
             //from https://www.revrobotics.com/development-spark-max-users-manual/#section-3-3-2-1
             turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
@@ -178,7 +181,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
         return driveMotors[wheel].getSelectedSensorVelocity() / VELO_PER_METER;
     }
 
-    @Override
+  @Override
     public String[] getModuleNames() {
         return moduleNames;
     }
@@ -195,7 +198,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
         //PID control
         if(Math.abs(swerveModuleState.speedMetersPerSecond) > 0.1) {
-            driveMotors[wheel].set(TalonFXControlMode.Velocity, swerveModuleState.speedMetersPerSecond * VELO_PER_METER);
+                            driveMotors[wheel].set(TalonFXControlMode.Velocity, swerveModuleState.speedMetersPerSecond * VELO_PER_METER);
         } else {
             driveMotors[wheel].set(TalonFXControlMode.PercentOutput, 0);
         }
