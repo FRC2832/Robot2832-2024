@@ -47,7 +47,7 @@ public class Logger implements Runnable {
     private static PneumaticHub ph;
     private static String[] pneumaticNames;
     private static BasePigeon pigeon;
-    
+
     //used to stop warning about not closing motor, since we really don't...
     private static CANSparkMax spark;       
     private static CANSparkFlex sparkFlex;
@@ -186,7 +186,7 @@ public class Logger implements Runnable {
                 tempTable.getEntry(i).setDouble(spark.getMotorTemperature());
                 canStatusTable.getEntry(i).setString(spark.getLastError().name());
             } else if(item instanceof CANSparkFlex) {
-                CANSparkFlex sparkFlex = (CANSparkFlex)item;
+                sparkFlex = (CANSparkFlex)item;
 
                 commandTable.getEntry(i).setDouble(sparkFlex.getAppliedOutput()*sparkFlex.getBusVoltage());
                 currentTable.getEntry(i).setDouble(sparkFlex.getOutputCurrent());
