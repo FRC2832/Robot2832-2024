@@ -158,6 +158,9 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public double getCornerAbsAngle(int wheel) {
+        if (wheel == 1) {
+            return absoluteAngle[wheel] + 180;
+        }
         return absoluteAngle[wheel];
     }
 
@@ -198,7 +201,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
         //PID control
         if(Math.abs(swerveModuleState.speedMetersPerSecond) > 0.1) {
-                            driveMotors[wheel].set(TalonFXControlMode.Velocity, swerveModuleState.speedMetersPerSecond * VELO_PER_METER);
+            driveMotors[wheel].set(TalonFXControlMode.Velocity, swerveModuleState.speedMetersPerSecond * VELO_PER_METER);
         } else {
             driveMotors[wheel].set(TalonFXControlMode.PercentOutput, 0);
         }
