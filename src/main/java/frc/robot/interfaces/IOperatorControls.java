@@ -1,5 +1,7 @@
 package frc.robot.interfaces;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+
 public interface IOperatorControls {
     boolean AutoSubAimRequested();
     double GetManualSubAim();
@@ -12,4 +14,5 @@ public interface IOperatorControls {
     boolean IsIntakeRequested();
     boolean IsIntakeDownRequested();
     double GetTurnPct();
+    void rumbleController(RumbleType type, double value);
 }
