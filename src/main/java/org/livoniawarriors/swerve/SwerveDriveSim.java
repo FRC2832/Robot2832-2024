@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
@@ -30,10 +31,10 @@ public class SwerveDriveSim implements ISwerveDriveIo {
     private final double kNomBatVolt = 12.5;
 
     private Translation2d[] swervePositions = {
-        new Translation2d(0.291, 0.291),
-        new Translation2d(0.291, -0.291),
-        new Translation2d(-0.291, 0.291),
-        new Translation2d(-0.291, -0.291),
+        new Translation2d(Units.inchesToMeters(17.25/2), Units.inchesToMeters(22.75/2)),  //convert inches to meters. y is front to back. left front is 1st wheel
+        new Translation2d(Units.inchesToMeters(17.25/2), Units.inchesToMeters(-22.75/2)),  //front right wheel
+        new Translation2d(Units.inchesToMeters(-17.25/2), Units.inchesToMeters(22.75/2)),  // rear left
+        new Translation2d(Units.inchesToMeters(-17.25/2), Units.inchesToMeters(-22.75/2))  // rear right
     };
 
     private String[] moduleNames = {
