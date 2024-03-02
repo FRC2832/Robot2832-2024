@@ -41,6 +41,8 @@ public class KickerHw implements IKickerHw {
 
             
         }
+        Logger.RegisterCanSparkFlex("Left Kicker", kickers[0]);
+        Logger.RegisterCanSparkFlex("Right Kicker", kickers[1]);
         Logger.RegisterSensor("Left Kicker RPM", () -> getCurrentRPM(1));
         Logger.RegisterSensor("Right Kicker RPM", () -> getCurrentRPM(0));
     }
@@ -58,8 +60,8 @@ public class KickerHw implements IKickerHw {
     @Override
     public void setRpm(double rpm) {
         for (int i=0;i<pids.length; i++) {
-            //pids[i].setReference(rpm, ControlType.kVelocity);
-            kickers[i].set(rpm/6500);
+            pids[i].setReference(rpm, ControlType.kVelocity);
+            //kickers[i].set(rpm/6500);
         }
     }
     
