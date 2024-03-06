@@ -5,7 +5,6 @@ import org.livoniawarriors.UtilFunctions;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.interfaces.IOperatorControls;
 
 public class OperatorControls implements IOperatorControls{
     
