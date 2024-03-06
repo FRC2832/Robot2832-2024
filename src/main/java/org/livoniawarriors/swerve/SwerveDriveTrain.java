@@ -257,7 +257,8 @@ public class SwerveDriveTrain extends SubsystemBase {
             double angleReq = requestStates[i].angle.getDegrees();
             double curAngle = currentState[i].angle.getDegrees();
             double speedReq = requestStates[i].speedMetersPerSecond;
-            double deltaMod = requestContinous[i].getAngle() - curAngle;
+            double requestMod = MathUtil.inputModulus(requestContinous[i].getAngle(), curAngle - 180, curAngle + 180);
+            double deltaMod = requestMod - curAngle;
             if(Math.abs(deltaMod) > optimizeAngle) {
                 angleReq = angleReq - 180;
                 speedReq = -requestStates[i].speedMetersPerSecond;

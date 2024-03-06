@@ -20,6 +20,7 @@ import com.ctre.phoenix.sensors.Pigeon2_Faults;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.PigeonIMU_Faults;
 import com.ctre.phoenix6.hardware.core.CoreTalonFX;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -46,7 +47,10 @@ public class Logger implements Runnable {
     private static PneumaticHub ph;
     private static String[] pneumaticNames;
     private static BasePigeon pigeon;
-    private static CANSparkMax spark;       //used to stop warning about not closing motor, since we really don't...
+
+    //used to stop warning about not closing motor, since we really don't...
+    private static CANSparkMax spark;       
+    private static CANSparkFlex sparkFlex;
 
     private NetworkTable currentTable;
     private NetworkTable commandTable;
@@ -118,6 +122,10 @@ public class Logger implements Runnable {
         items.put(name, spark);
     }
 
+    public static void RegisterCanSparkFlex(String name, CANSparkFlex spark) {
+        items.put(name, spark);
+    }
+
     public static void RegisterCanCoder(String name, CANCoder coder) {
         items.put(name, coder);
     }
@@ -177,6 +185,15 @@ public class Logger implements Runnable {
                 stickyTable.getEntry(i).setString(readSparkFaults(spark.getStickyFaults()));
                 tempTable.getEntry(i).setDouble(spark.getMotorTemperature());
                 canStatusTable.getEntry(i).setString(spark.getLastError().name());
+            } else if(item instanceof CANSparkFlex) {
+                sparkFlex = (CANSparkFlex)item;
+
+                commandTable.getEntry(i).setDouble(sparkFlex.getAppliedOutput()*sparkFlex.getBusVoltage());
+                currentTable.getEntry(i).setDouble(sparkFlex.getOutputCurrent());
+                faultTable.getEntry(i).setString(readSparkFaults(sparkFlex.getFaults()));
+                stickyTable.getEntry(i).setString(readSparkFaults(sparkFlex.getStickyFaults()));
+                tempTable.getEntry(i).setDouble(sparkFlex.getMotorTemperature());
+                canStatusTable.getEntry(i).setString(sparkFlex.getLastError().name());
             } else {
                 //unknown table
             }

@@ -38,7 +38,10 @@ public class InclinatorHw implements IInclinatorHw {
 
         allConfigsL.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
         allConfigsR.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
-
+        allConfigsL.peakOutputForward = 1;
+        allConfigsL.peakOutputReverse = -1;
+        allConfigsR.peakOutputForward = 1;
+        allConfigsR.peakOutputReverse = -1;
         leftClimb.configAllSettings(allConfigsL);
         rightClimb.configAllSettings(allConfigsR);
 

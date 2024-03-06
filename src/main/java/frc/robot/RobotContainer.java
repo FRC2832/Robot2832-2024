@@ -148,7 +148,10 @@ public class RobotContainer {
             //competition robot
             ph = new PneumaticHub();
             ph.enableCompressorAnalog(95, 115);
+            Logger.RegisterSensor("Pressure", () -> ph.getPressure(0));
+
             Logger.RegisterPdp(new PowerDistribution(), pdpList);
+            
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterHw());
@@ -241,7 +244,7 @@ public class RobotContainer {
         OperatorControls operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
         swerveDrive.resetFieldOriented();
-        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick);
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer);
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);

@@ -3,16 +3,13 @@ package frc.robot.subsystems;
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.REVDigitBoard;
 import org.livoniawarriors.UtilFunctions;
-import org.livoniawarriors.leds.FillLeds;
 import org.livoniawarriors.leds.LedSubsystem;
 import org.livoniawarriors.leds.LightningFlash;
-import org.livoniawarriors.leds.SolidColorLeds;
 
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.VisionSystem;
 
 public class DriverFeedback extends SubsystemBase {
@@ -22,7 +19,6 @@ public class DriverFeedback extends SubsystemBase {
     private Intake intake;
     private LedSubsystem leds;
     private boolean lastPiece;
-    private Color lastColor;
     private static Color commandColor;
 
     public DriverFeedback(VisionSystem vision, Intake intake, LedSubsystem leds) {
@@ -31,7 +27,6 @@ public class DriverFeedback extends SubsystemBase {
         this.intake = intake;
         this.leds = leds;
         commandColor = Color.kBlack;
-        lastColor = Color.kBlack;
         ronyMessage = UtilFunctions.getNtPub("/DriverFeedback/RonyMessage", "RONY");
     }
 
@@ -64,7 +59,6 @@ public class DriverFeedback extends SubsystemBase {
             }
         }
         lastPiece = pieceDetected;
-        lastColor = commandColor;
     }
 
     public static void setColor(Color color) {

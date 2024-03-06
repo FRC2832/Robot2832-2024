@@ -3,6 +3,7 @@ package frc.robot.Controls;
 import org.livoniawarriors.UtilFunctions;
 
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.interfaces.IOperatorControls;
 
@@ -77,4 +78,8 @@ public class OperatorControls implements IOperatorControls{
         return cont.getLeftTriggerAxis()>.5;
     }
     
+    @Override
+    public void rumbleController(RumbleType type, double value) {
+        cont.setRumble(type, value);
+    }
 }

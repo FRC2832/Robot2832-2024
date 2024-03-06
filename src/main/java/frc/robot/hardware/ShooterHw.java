@@ -25,7 +25,7 @@ public class ShooterHw implements IShooterHw {
 
         for(TalonFX motor:shooters){
             //motors MUST be reset every powerup!!!
-            motor.configFactoryDefault();
+            //motor.configFactoryDefault();
             motor.getAllConfigs(allConfigs);
             allConfigs.slot0.kP = 0.3023;
             allConfigs.slot0.kI = 0.0006;
@@ -35,6 +35,8 @@ public class ShooterHw implements IShooterHw {
             allConfigs.slot0.allowableClosedloopError = 0;
             allConfigs.motionCruiseVelocity = 0;
             allConfigs.motionAcceleration = 0;
+            allConfigs.peakOutputForward = 1;
+            allConfigs.peakOutputReverse = -1;
             allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
             motor.configAllSettings(allConfigs);
 
