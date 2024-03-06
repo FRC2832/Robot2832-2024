@@ -174,4 +174,15 @@ public class SwerveDriveSim implements ISwerveDriveIo {
     public void resetWheelPositions() {
         //TODO Implement?
     }
+
+    @Override
+    public double getDriveVoltage(int wheel) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void setDriveVoltage(int wheel, double volts) {
+        // TODO Auto-generated method stub
+    }
 }

@@ -3,6 +3,8 @@ package frc.robot.swerve;
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.swerve.ISwerveDriveIo;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -19,6 +21,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotController;
 
 @SuppressWarnings("removal")
 public class PracticeSwerveHw implements ISwerveDriveIo {
@@ -242,5 +245,15 @@ public class PracticeSwerveHw implements ISwerveDriveIo {
         for(int wheel = 0; wheel < driveMotors.length; wheel++) {
             driveMotors[wheel].setSelectedSensorPosition(0);
         }
+    }
+
+    @Override
+    public double getDriveVoltage(int wheel) {
+        return driveMotors[wheel].getMotorOutputVoltage();
+    }
+
+    @Override
+    public void setDriveVoltage(int wheel, double volts) {
+        driveMotors[wheel].set(ControlMode.PercentOutput, volts / RobotController.getBatteryVoltage());
     }
 }

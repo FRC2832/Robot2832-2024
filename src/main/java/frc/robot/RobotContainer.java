@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -178,6 +179,10 @@ public class RobotContainer {
         SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
         SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake));
+        SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
+        SmartDashboard.putData("Swerve SysId Dynamic Backward", swerveDrive.sysIdDynamic(Direction.kReverse));
+        SmartDashboard.putData("Swerve SysId Quasistatic Forward", swerveDrive.sysIdQuasistatic(Direction.kForward));
+        SmartDashboard.putData("Swerve SysId Quasistatic Backward", swerveDrive.sysIdQuasistatic(Direction.kReverse));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));

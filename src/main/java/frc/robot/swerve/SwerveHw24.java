@@ -3,14 +3,14 @@ package frc.robot.swerve;
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.swerve.ISwerveDriveIo;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -26,12 +26,6 @@ import frc.robot.RobotContainer;
 
 @SuppressWarnings("removal")
 public class SwerveHw24 implements ISwerveDriveIo {
-
-    //measuring the robot, we got 13899 counts/rev, theoretical is 13824 counts/rev (L2 gear set at 6.75:1 ratio)
-    //needs to be scaled * 39.37 (in/m) / (4"*Pi wheel diameter) / 10 (units per 100ms) = 43311
-    //the scale factor is average of 4 wheels/measured distance
-    private final double COUNTS_PER_METER = 44677;     //distance units
-    private final double VELO_PER_METER = COUNTS_PER_METER/10;        //velocity units
 
     //Swerve corner locations for kinematics
     // 22.75"x17.25" (5.5" above center)
@@ -95,38 +89,32 @@ public class SwerveHw24 implements ISwerveDriveIo {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 100);
         }
 
-        double maxSpeed = UtilFunctions.getSetting("Swerve Drive/Max Speed", 5.0);
-        TalonFXConfiguration allConfigs = new TalonFXConfiguration();
-        for(TalonFX motor : driveMotors) {
-            //motors MUST be reset every powerup!!!
-            motor.configFactoryDefault();
-            motor.getAllConfigs(allConfigs);
-            //old software pid values are p 0.5, i 0.03, d 0
-            allConfigs.slot0.kP = 1023 / (0.5 * COUNTS_PER_METER);
-            //old value of 0.03 means if we had 1m/s error for 1 second, add 0.03V to the PID (or 1.705 counts of 1023)
-            //unknown why we need 2/3, but then the math works...
-            allConfigs.slot0.kI = 0.01 * 1023 / COUNTS_PER_METER * (2./3);
-            //allConfigs.slot0.kI = 0;
-            allConfigs.slot0.kD = 0;
-            //this works out to 1023 / Max speed in counts
-            allConfigs.slot0.kF = 1023 / (maxSpeed * VELO_PER_METER);
+        var talonFXConfigs = new TalonFXConfiguration();
+        talonFXConfigs.Slot0.kP = 0;
+        talonFXConfigs.Slot0.kI = 0;
+        talonFXConfigs.Slot0.kD = 0;
+        talonFXConfigs.Slot0.kS = 0;
+        talonFXConfigs.Slot0.kG = 0;
+        talonFXConfigs.Slot0.kV = 0;
+        talonFXConfigs.Slot0.kA = 0;
 
-            allConfigs.slot0.integralZone = 0;
-            allConfigs.slot0.allowableClosedloopError = 0;
-            allConfigs.peakOutputForward = 1;
-            allConfigs.peakOutputReverse = -1;
+        talonFXConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
+        talonFXConfigs.CurrentLimits.SupplyCurrentLimit = 40;
+        talonFXConfigs.CurrentLimits.SupplyCurrentThreshold = 50;
+        talonFXConfigs.CurrentLimits.SupplyTimeThreshold = 0.2;
 
-            //the maximum velocity we want the motor to go
-            allConfigs.motionCruiseVelocity = maxSpeed * VELO_PER_METER;
-            //the maximum acceleration we want the motor to go
-            allConfigs.motionAcceleration = 5 * VELO_PER_METER;
-            allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 40, 50, .2);
-            
-            motor.configAllSettings(allConfigs);
-            motor.setSelectedSensorPosition(0);
+        talonFXConfigs.MotorOutput.PeakForwardDutyCycle = 1;
+        talonFXConfigs.MotorOutput.PeakReverseDutyCycle = -1;
+        talonFXConfigs.Voltage.PeakForwardVoltage = 16;
+        talonFXConfigs.Voltage.PeakReverseVoltage = 16;
+
+        talonFXConfigs.MotionMagic.MotionMagicCruiseVelocity = metersToRotations(UtilFunctions.getSetting("Swerve Drive/Max Speed", 5.0));
+        talonFXConfigs.MotionMagic.MotionMagicAcceleration = metersToRotations(UtilFunctions.getSetting("Swerve Drive/Max Wheel Accel", 42.0));
+
+        for(TalonFX motor : driveMotors) {            
+            motor.getConfigurator().apply(talonFXConfigs);
+            motor.setPosition(0);
             motor.setInverted(false);
-            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
-            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
         }
 
         //register stuff for logging
@@ -138,7 +126,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
             Logger.RegisterSensor(moduleNames[wheel] + " Speed", () -> getCornerSpeed(wheelFinal));
             Logger.RegisterSensor(moduleNames[wheel] + " Turn Pos", () -> getCornerAngle(wheelFinal));
             Logger.RegisterSensor(moduleNames[wheel] + " Drive Dist", () -> getCornerDistance(wheelFinal));
-            Logger.RegisterSensor(moduleNames[wheel] + " Raw Dist Pulses", () -> driveMotors[wheelFinal].getSelectedSensorPosition());
+            Logger.RegisterSensor(moduleNames[wheel] + " Raw Rotations", () -> driveMotors[wheelFinal].getPosition().getValueAsDouble());
 
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
@@ -158,6 +146,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public double getCornerAbsAngle(int wheel) {
+        //this is a hack as the wheel encoder reports wrong
         if (wheel == 1) {
             return absoluteAngle[wheel] + 180;
         }
@@ -171,7 +160,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public double getCornerDistance(int wheel) {
-        return driveMotors[wheel].getSelectedSensorPosition() / COUNTS_PER_METER;
+        return rotationsToMeters(driveMotors[wheel].getPosition().getValueAsDouble());
     }
 
     @Override
@@ -181,7 +170,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public double getCornerSpeed(int wheel) {
-        return driveMotors[wheel].getSelectedSensorVelocity() / VELO_PER_METER;
+        return rotationsToMeters(driveMotors[wheel].getVelocity().getValueAsDouble());
     }
 
   @Override
@@ -192,19 +181,22 @@ public class SwerveHw24 implements ISwerveDriveIo {
     @Override
     public void setCornerState(int wheel, SwerveModuleState swerveModuleState) {
         //hardware test in % output mode
-        //double velPct = swerveModuleState.speedMetersPerSecond / 5;  //TODO set equal to max module speed
-        //driveMotors[wheel].set(TalonFXControlMode.PercentOutput, velPct);
+        double velPct = swerveModuleState.speedMetersPerSecond / 5;  //TODO set equal to max module speed
+        driveMotors[wheel].set(velPct);
         
         //velPct = (swerveModuleState.angle.getDegrees() - correctedAngle[wheel])*.2/90;
         //turnMotors[wheel].set(velPct);
 
 
         //PID control
-        if(Math.abs(swerveModuleState.speedMetersPerSecond) > 0.1) {
-            driveMotors[wheel].set(TalonFXControlMode.Velocity, swerveModuleState.speedMetersPerSecond * VELO_PER_METER);
-        } else {
-            driveMotors[wheel].set(TalonFXControlMode.PercentOutput, 0);
-        }
+        //TODO Implement PID control
+        //if(Math.abs(swerveModuleState.speedMetersPerSecond) > 0.1) {
+        //    driveMotors[wheel].setControl(new MotionMagicVelocityVoltage(metersToRotations(swerveModuleState.speedMetersPerSecond)));
+        //} else {
+        //    driveMotors[wheel].set(0);
+        //}
+        
+
         //set the turn command
         //we need the request to be within the boundaries, not wrap around the 180 point
         double turnRequest = MathUtil.inputModulus(swerveModuleState.angle.getDegrees(), correctedAngle[wheel]-180, correctedAngle[wheel]+180);
@@ -223,12 +215,12 @@ public class SwerveHw24 implements ISwerveDriveIo {
 
     @Override
     public void setDriveMotorBrakeMode(boolean brakeOn) {
-        NeutralMode mode;
+        NeutralModeValue mode;
 
         if(brakeOn) {
-            mode = NeutralMode.Brake;
+            mode = NeutralModeValue.Brake;
         } else {
-            mode = NeutralMode.Coast;
+            mode = NeutralModeValue.Coast;
         }
         
         for (TalonFX motor : driveMotors) {
@@ -262,7 +254,45 @@ public class SwerveHw24 implements ISwerveDriveIo {
     @Override
     public void resetWheelPositions() {
         for(int wheel = 0; wheel < driveMotors.length; wheel++) {
-            driveMotors[wheel].setSelectedSensorPosition(0);
+            driveMotors[wheel].setPosition(0);
         }
+    }
+
+
+    private final double kWheelRadiusInches = 2;    //4" wheels
+    private final double kGearRatio = 6.75;         //L2 gearing
+
+    private double rotationsToMeters(double rotations) {
+        /* Get circumference of wheel */
+        final double circumference = this.kWheelRadiusInches * 2 * Math.PI;
+        /* Every rotation of the wheel travels this many inches */
+        /* So now get the meters traveled per rotation */
+        final double metersPerWheelRotation = Units.inchesToMeters(circumference);
+        /* Now apply gear ratio to input rotations */
+        double gearedRotations = rotations / this.kGearRatio;
+        /* And multiply geared rotations by meters per rotation */
+        return gearedRotations * metersPerWheelRotation;
+    }
+
+    private double metersToRotations(double meters) {
+        /* Get circumference of wheel */
+        final double circumference = this.kWheelRadiusInches * 2 * Math.PI;
+        /* Every rotation of the wheel travels this many inches */
+        /* So now get the rotations per meter traveled */
+        final double wheelRotationsPerMeter = 1.0 / Units.inchesToMeters(circumference);
+        /* Now apply wheel rotations to input meters */
+        double wheelRotations = wheelRotationsPerMeter * meters;
+        /* And multiply by gear ratio to get rotor rotations */
+        return wheelRotations * this.kGearRatio;
+    }
+
+    @Override
+    public double getDriveVoltage(int wheel) {
+        return driveMotors[wheel].getMotorVoltage().getValueAsDouble();
+    }
+
+    @Override
+    public void setDriveVoltage(int wheel, double volts) {
+        driveMotors[wheel].setControl(new VoltageOut(volts));
     }
 }

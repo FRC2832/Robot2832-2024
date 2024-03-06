@@ -4,6 +4,10 @@ import org.livoniawarriors.ContinousAngleReading;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
 
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,10 +20,17 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class SwerveDriveTrain extends SubsystemBase {
     /** The fastest rate we want the drive wheels to change speeds in m/s */
@@ -70,6 +81,16 @@ public class SwerveDriveTrain extends SubsystemBase {
     private DoublePublisher pidZeroError;
     private DoubleArrayPublisher swerveStatePub;
     private DoubleArrayPublisher swerveRequestPub;
+
+    // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+    private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+    // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+    private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+    // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+    private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+
+    // Create a new SysId routine for characterizing the drive.
+    private final SysIdRoutine m_sysIdRoutine;
 
     public SwerveDriveTrain(ISwerveDriveIo hSwerveDriveIo, Odometry odometry) {
         super();
@@ -128,6 +149,41 @@ public class SwerveDriveTrain extends SubsystemBase {
 
         minSpeed = UtilFunctions.getSetting(MIN_SPEED_KEY, 0.5);
         maxSpeed = UtilFunctions.getSetting(MAX_SPEED_KEY, 5);
+
+
+        m_sysIdRoutine = new SysIdRoutine(
+            // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                // Tell SysId how to plumb the driving voltage to the motors.
+                (Measure<Voltage> volts) -> {
+                    for(int wheel=0; wheel<hardware.getModuleNames().length; wheel++) {
+                        hardware.setDriveVoltage(wheel, volts.in(Volts));
+                    }
+                },
+                // Tell SysId how to record a frame of data for each motor on the mechanism being
+                // characterized.
+                log -> {
+                    log.motor("drive-fl")
+                        .voltage(m_appliedVoltage.mut_replace(hardware.getDriveVoltage(0), Volts))
+                        .linearPosition(m_distance.mut_replace(hardware.getCornerDistance(0), Meters))
+                        .linearVelocity(m_velocity.mut_replace(hardware.getCornerSpeed(0), MetersPerSecond));
+                    log.motor("drive-fr")
+                        .voltage(m_appliedVoltage.mut_replace(hardware.getDriveVoltage(1), Volts))
+                        .linearPosition(m_distance.mut_replace(hardware.getCornerDistance(1), Meters))
+                        .linearVelocity(m_velocity.mut_replace(hardware.getCornerSpeed(1), MetersPerSecond));
+                    log.motor("drive-rl")
+                        .voltage(m_appliedVoltage.mut_replace(hardware.getDriveVoltage(2), Volts))
+                        .linearPosition(m_distance.mut_replace(hardware.getCornerDistance(2), Meters))
+                        .linearVelocity(m_velocity.mut_replace(hardware.getCornerSpeed(2), MetersPerSecond));
+                    log.motor("drive-rr")
+                        .voltage(m_appliedVoltage.mut_replace(hardware.getDriveVoltage(3), Volts))
+                        .linearPosition(m_distance.mut_replace(hardware.getCornerDistance(3), Meters))
+                        .linearVelocity(m_velocity.mut_replace(hardware.getCornerSpeed(3), MetersPerSecond));
+                },
+                // Tell SysId to make generated commands require this subsystem, suffix test state in
+                // WPILog with this subsystem's name ("drive")
+                this));
     }
     
     @Override
@@ -415,5 +471,23 @@ public class SwerveDriveTrain extends SubsystemBase {
         }
 
         return dist;
+    }
+
+    /**
+     * Returns a command that will execute a quasistatic test in the given direction.
+     *
+     * @param direction The direction (forward or reverse) to run the test in
+     */
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.quasistatic(direction);
+    }
+
+    /**
+     * Returns a command that will execute a dynamic test in the given direction.
+     *
+     * @param direction The direction (forward or reverse) to run the test in
+     */
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.dynamic(direction);
     }
 }

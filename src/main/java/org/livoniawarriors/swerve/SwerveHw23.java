@@ -260,4 +260,14 @@ public class SwerveHw23 implements ISwerveDriveIo {
             driveMotor[wheel].setSelectedSensorPosition(0);
         }
     }
+
+    @Override
+    public double getDriveVoltage(int wheel) {
+        return driveMotor[wheel].getMotorOutputVoltage();
+    }
+
+    @Override
+    public void setDriveVoltage(int wheel, double volts) {
+        driveMotor[wheel].set(ControlMode.PercentOutput, volts / RobotController.getBatteryVoltage());
+    }
 }
