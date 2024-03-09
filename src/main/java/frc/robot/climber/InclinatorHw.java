@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import edu.wpi.first.wpilibj.AnalogInput;
 
 @SuppressWarnings("removal")
+//1023= full motor output for power.
 public class InclinatorHw implements IInclinatorHw {
     private TalonFX leftClimb;
     private TalonFX rightClimb;
@@ -20,6 +21,11 @@ public class InclinatorHw implements IInclinatorHw {
     private TalonFXConfiguration allConfigsR = new TalonFXConfiguration();
     private boolean leftLimit;
     private boolean rightLimit;
+    private double ticks = 2048;
+    private double radius = 4;
+
+
+
     
     public InclinatorHw() {
         leftClimb = new TalonFX(62);
@@ -88,7 +94,12 @@ public class InclinatorHw implements IInclinatorHw {
             rightClimb.set(ControlMode.PercentOutput, powerRight);
         }
     }
+    public void setHeight(double target){
 
+        leftClimb.set(ControlMode.Position  , (target/ticks)*Math.PI*2*radius);
+        rightClimb.set(ControlMode.Position, (target/ticks)*Math.PI*2*radius);
+
+    }
     public double getLeftCurrent(){
         return leftClimb.getSupplyCurrent();
     }

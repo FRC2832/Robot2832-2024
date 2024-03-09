@@ -8,4 +8,5 @@ public interface IInclinatorHw {
     boolean getLeftLimit();
     boolean getRightLimit();
     void updateInputs();
+    void setHeight(double target);
 }
