@@ -16,8 +16,6 @@ public class InclinatorHw implements IInclinatorHw {
     private TalonFX rightClimb;
     private AnalogInput leftSwitch;
     private AnalogInput rightSwitch;
-    private TalonFXConfiguration allConfigsL = new TalonFXConfiguration();
-    private TalonFXConfiguration allConfigsR = new TalonFXConfiguration();
     private boolean leftLimit;
     private boolean rightLimit;
     
@@ -26,6 +24,25 @@ public class InclinatorHw implements IInclinatorHw {
         rightClimb = new TalonFX(61);
         leftSwitch = new AnalogInput(1);
         rightSwitch = new AnalogInput(2);
+
+        Logger.RegisterTalon( "Left Climb", leftClimb);
+        Logger.RegisterTalon( "Right Climb", rightClimb);
+        Logger.RegisterSensor("Left Climb Stop", () -> leftSwitch.getVoltage());
+        Logger.RegisterSensor("Right Climb Stop", () -> rightSwitch.getVoltage());
+
+        leftClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+        leftClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
+
+        rightClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+        rightClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
+
+        leftLimit = false;
+        rightLimit = false;
+    }
+
+    public void configureMotors() {
+        TalonFXConfiguration allConfigsL = new TalonFXConfiguration();
+        TalonFXConfiguration allConfigsR = new TalonFXConfiguration();
 
         //motors MUST be reset every powerup!!!
         leftClimb.configFactoryDefault();
@@ -46,20 +63,6 @@ public class InclinatorHw implements IInclinatorHw {
 
         leftClimb.setNeutralMode(NeutralMode.Brake);
         rightClimb.setNeutralMode(NeutralMode.Brake);
-
-        Logger.RegisterTalon( "Left Climb", leftClimb);
-        Logger.RegisterTalon( "Right Climb", rightClimb);
-        Logger.RegisterSensor("Left Climb Stop", () -> leftSwitch.getVoltage());
-        Logger.RegisterSensor("Right Climb Stop", () -> rightSwitch.getVoltage());
-
-        leftClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
-        leftClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
-
-        rightClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
-        rightClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
-
-        leftLimit = false;
-        rightLimit = false;
     }
 
     public void setPower(double power){

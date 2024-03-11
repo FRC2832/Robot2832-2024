@@ -25,6 +25,18 @@ public class KickerHw implements IKickerHw {
         kickers[0] = new CANSparkFlex(3, MotorType.kBrushless);
         kickers[1] = new CANSparkFlex(4, MotorType.kBrushless);
     
+        for(int i=0; i<kickers.length; i++) {
+            encoders[i] = kickers[i].getEncoder();
+            pids[i] = kickers[i].getPIDController();
+        }
+        configureMotors();
+        Logger.RegisterCanSparkFlex("Left Kicker", kickers[0]);
+        Logger.RegisterCanSparkFlex("Right Kicker", kickers[1]);
+        Logger.RegisterSensor("Left Kicker RPM", () -> getCurrentRPM(1));
+        Logger.RegisterSensor("Right Kicker RPM", () -> getCurrentRPM(0));
+    }
+
+    public void configureMotors() {
         kickers[1].setInverted(true);
         kickers[0].setInverted(false);
 
@@ -36,16 +48,11 @@ public class KickerHw implements IKickerHw {
             pids[i].setD(0);
             pids[i].setFF(1./MAX_MOTOR_RPM);
             pids[i].setIZone(100);
-            kickers[i].setIdleMode(IdleMode.kBrake);
-            encoders[i] = kickers[i].getEncoder();
-
-            
+            kickers[i].setIdleMode(IdleMode.kBrake);   
+            kickers[i].burnFlash();         
         }
-        Logger.RegisterCanSparkFlex("Left Kicker", kickers[0]);
-        Logger.RegisterCanSparkFlex("Right Kicker", kickers[1]);
-        Logger.RegisterSensor("Left Kicker RPM", () -> getCurrentRPM(1));
-        Logger.RegisterSensor("Right Kicker RPM", () -> getCurrentRPM(0));
     }
+
     @Override
     public double getCurrentRPM(int shooterID) {        
         return encoders[shooterID].getVelocity();

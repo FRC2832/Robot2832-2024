@@ -29,7 +29,20 @@ public class IntakeHw implements IIntakeHw {
         this.isRunning = false;
         this.inverted = false;
         this.interrupt = false;
+        configureMotors();
+        
+        // create a velocity closed-loop request, voltage output, slot 0 configs
+        pidRequest = new VelocityVoltage(0).withSlot(0);
 
+        //have the left motor follow the right commands but reversed
+        leftIntake.setControl(new Follower(hardware.getDeviceID(), true));
+
+        Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 0 : 1);
+        Logger.RegisterSensor("High Note", () -> highSensor.get() ? 0 : 1);
+        Logger.RegisterTalon("Intake", hardware);
+    }
+
+    public void configureMotors() {
         CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
         configs.SupplyCurrentLimitEnable = true;
         configs.SupplyCurrentLimit = 70;
@@ -46,17 +59,7 @@ public class IntakeHw implements IIntakeHw {
         slot0Configs.kI = 0.0001; // no output for integrated error
         slot0Configs.kD = 0; // no output for error derivative
         hardware.getConfigurator().apply(slot0Configs);
-
-        // create a velocity closed-loop request, voltage output, slot 0 configs
-        pidRequest = new VelocityVoltage(0).withSlot(0);
-
-        //have the left motor follow the right commands but reversed
         hardware.setInverted(false);
-        leftIntake.setControl(new Follower(hardware.getDeviceID(), true));
-
-        Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 0 : 1);
-        Logger.RegisterSensor("High Note", () -> highSensor.get() ? 0 : 1);
-        Logger.RegisterTalon("Intake", hardware);
     }
 
     public void setIntake(boolean isRunning, boolean inverted) {

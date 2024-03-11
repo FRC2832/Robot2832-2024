@@ -14,7 +14,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 @SuppressWarnings("removal")
 public class ShooterHw implements IShooterHw {
     private TalonFX[] shooters;
-    TalonFXConfiguration allConfigs = new TalonFXConfiguration();
     private final double UNITS_TO_RPM = (60. * 10.) / 2048.;
 
     public ShooterHw() {
@@ -22,9 +21,19 @@ public class ShooterHw implements IShooterHw {
         shooters[0] = new TalonFX(5, RobotContainer.kCanBusName);
         shooters[1] = new TalonFX(6, RobotContainer.kCanBusName);
 
+        configureMotors();
+        
         for(TalonFX motor:shooters){
-            //motors MUST be reset every powerup!!!
-            //motor.configFactoryDefault();
+            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
+            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
+        }
+        Logger.RegisterTalon("Left Shooter",shooters[1]);
+        Logger.RegisterTalon("Right Shooter",shooters[0]);
+    }
+
+    public void configureMotors() {
+        TalonFXConfiguration allConfigs = new TalonFXConfiguration();
+        for(TalonFX motor:shooters){
             motor.getAllConfigs(allConfigs);
             allConfigs.slot0.kP = 0.3023;
             allConfigs.slot0.kI = 0.0006;
@@ -38,13 +47,7 @@ public class ShooterHw implements IShooterHw {
             allConfigs.peakOutputReverse = -1;
             allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
             motor.configAllSettings(allConfigs);
-
-            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
-            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
         }
-        Logger.RegisterTalon("Left Shooter",shooters[1]);
-        Logger.RegisterTalon("Right Shooter",shooters[0]);
-
 
         shooters[1].setInverted(true);
         shooters[0].setInverted(false);
