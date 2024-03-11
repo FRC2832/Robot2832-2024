@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -96,7 +97,14 @@ public class Odometry extends SubsystemBase {
             SwerveModulePosition[] states = drive.getSwervePositions();
             robotPose = poseEstimator.update(heading, states);
             field.setRobotPose(robotPose);
-
+            Pose2d speaker;
+            if(UtilFunctions.getAlliance() == Alliance.Red) {
+                speaker = new Pose2d(Units.inchesToMeters(652.73), Units.inchesToMeters(218.42), new Rotation2d());
+            } else {
+                speaker = new Pose2d(Units.inchesToMeters(-1.5), Units.inchesToMeters(218.42), new Rotation2d());
+            }
+            SmartDashboard.putNumber("Robot to Speaker", UtilFunctions.getDistance(robotPose, speaker));
+            
             Pose2d[] swervePoses;
             if(plotCorners.get()) {
                 // Update the poses for the swerveModules. Note that the order of rotating the
