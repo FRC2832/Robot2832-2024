@@ -47,4 +47,7 @@ public  interface ISwerveDriveIo {
     void setCornerState(int wheel, SwerveModuleState swerveModuleState);
 
     void resetWheelPositions();
+
+    double getDriveVoltage(int wheel);
+    void setDriveVoltage(int wheel, double volts);
 }

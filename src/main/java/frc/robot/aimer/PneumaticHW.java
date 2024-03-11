@@ -1,28 +1,60 @@
 package frc.robot.aimer;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.util.WPIUtilJNI;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
+import edu.wpi.first.wpilibj.Solenoid;
 
 import org.livoniawarriors.Logger;
+import org.livoniawarriors.UtilFunctions;
 
-@SuppressWarnings("removal")
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 public class PneumaticHW implements IPneumaticHW {
-    private Pigeon2  angSensor;
-    private DoubleSolenoid solenoid;
+    private Pigeon2 angSensor;
+    private Solenoid upSolenoid, downSolenoid;
     private double currentAngle;
-    
+    private StatusSignal<Double> rollAngle;
+    BooleanLogEntry driveUp;
+    BooleanLogEntry driveDown;
+    DoubleLogEntry angleLog;
+    boolean use1msLogging = false;
+
     public PneumaticHW() {
         this.angSensor = new Pigeon2(10);
-        this.solenoid = new DoubleSolenoid(1, PneumaticsModuleType.REVPH, 15, 0);
-        
+        upSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 15);
+        downSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
+
         Logger.RegisterSensor("Shooter Angle", ()->currentAngle);
+        rollAngle = angSensor.getRoll();
+        //turn on 1ms logging
+        if(use1msLogging) {
+            rollAngle.setUpdateFrequency(1000);
+            var log = DataLogManager.getLog();
+            var timestamp = WPIUtilJNI.now();
+            driveUp = new BooleanLogEntry(log, "Aimer:DriveUp", timestamp);
+            driveDown = new BooleanLogEntry(log, "Aimer:DriveDown", timestamp);
+            angleLog = new DoubleLogEntry(log, "Aimer:Angle", timestamp);
+            UtilFunctions.addPeriodic(this::run1ms, 0.001, 0);
+        } else {
+            rollAngle.setUpdateFrequency(50);
+        }
+    }
+
+    public void run1ms() {
+        //log data
+        rollAngle.refresh();
+        currentAngle = -rollAngle.getValueAsDouble();
+        angleLog.append(currentAngle);
     }
 
     @Override
     public void updateInputs() {
-        currentAngle = -angSensor.getRoll();
+        rollAngle.refresh();
+        currentAngle = -rollAngle.getValueAsDouble();
     }
 
     @Override 
@@ -32,16 +64,29 @@ public class PneumaticHW implements IPneumaticHW {
 
     @Override
     public void driveUp() {
-        solenoid.set(kForward);
+        upSolenoid.set(true);
+        downSolenoid.set(false);
+        if(driveUp != null) {
+            driveUp.append(true);
+        }
     }
 
     @Override
     public void driveDown() {
-        solenoid.set(kReverse);
+        upSolenoid.set(false);
+        downSolenoid.set(true);
+        if(driveDown != null) {
+            driveDown.append(true);
+        }
     }
 
     @Override
     public void stop() {
-        solenoid.set(kOff);
+        upSolenoid.set(false);
+        downSolenoid.set(false);
+        if(driveDown != null) {
+            driveUp.append(false);
+            driveDown.append(false);
+        }
     }
 }

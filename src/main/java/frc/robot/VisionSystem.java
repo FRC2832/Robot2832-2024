@@ -42,7 +42,7 @@ public class VisionSystem extends SubsystemBase {
     private PhotonCamera frontCam;
     private Transform3d frontCamPos;
     private double lastTimestamp;
-    private final double APRILTAG_POSE_AMBIGUITY_THRESHOLD = 0.2;
+    private final double APRILTAG_POSE_AMBIGUITY_THRESHOLD = 0.15;
     
     // The standard deviations of our vision estimated poses, which affect correction rate
     // (Fake values. Experiment and determine estimation noise on an actual robot.)
@@ -70,8 +70,8 @@ public class VisionSystem extends SubsystemBase {
         frontCam = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
         frontCamPos = new Transform3d(
-            new Translation3d(-0.31, -0.29, 0.47), 
-            new Rotation3d(0,Math.toRadians(17.5),Math.toRadians(180))
+            new Translation3d(-0.31, -0.29, 0.45), 
+            new Rotation3d(0,-Math.toRadians(17.5),Math.toRadians(180))
         );
         //get the estimator of it
         frontCamEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCam, frontCamPos);
@@ -119,6 +119,10 @@ public class VisionSystem extends SubsystemBase {
         // Return if result is non-existent or invalid
         if (!pipelineResult.hasTargets()) return;
 
+        var target = pipelineResult.getBestTarget();
+        SmartDashboard.putNumber("Tag Number", target.getFiducialId());
+        SmartDashboard.putNumber("Tag Distance", UtilFunctions.getDistance(target.getBestCameraToTarget()));
+
         // Update pose estimate
         frontCamEstimator.update(pipelineResult).ifPresent(estimatedRobotPose -> {
             var estimatedPose = estimatedRobotPose.estimatedPose;
@@ -132,6 +136,12 @@ public class VisionSystem extends SubsystemBase {
                 Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
                 odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
                 lastTimestamp = pipelineResult.getTimestampSeconds();
+                
+                var tag = aprilTagFieldLayout.getTagPose(target.getFiducialId());
+                if(tag.isPresent()) {
+                    SmartDashboard.putNumber("Robot Target Distance", UtilFunctions.getDistance(estimatedPose.toPose2d(), tag.get().toPose2d()));
+                }
+
             }
         });
     }

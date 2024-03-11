@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -155,7 +156,8 @@ public class RobotContainer {
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
-            inclinator = new Inclinator(new InclinatorHw());
+            //inclinator = new Inclinator(new InclinatorHw());
+            inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticHW());
         }
@@ -178,6 +180,10 @@ public class RobotContainer {
         SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
         SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake));
+        SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
+        SmartDashboard.putData("Swerve SysId Dynamic Backward", swerveDrive.sysIdDynamic(Direction.kReverse));
+        SmartDashboard.putData("Swerve SysId Quasistatic Forward", swerveDrive.sysIdQuasistatic(Direction.kForward));
+        SmartDashboard.putData("Swerve SysId Quasistatic Backward", swerveDrive.sysIdQuasistatic(Direction.kReverse));
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
@@ -204,8 +210,8 @@ public class RobotContainer {
             swerveDrive::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             swerveDrive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+                new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
                 swerveDrive.getMaxSpeed(), // Max module speed, in m/s
                 swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
                 new ReplanningConfig() // Default path replanning config. See the API for the options here
