@@ -41,24 +41,24 @@ public class DriveStick extends Command {
         turnTable = new InterpolatingDoubleTreeMap();
         //Table for Smoother X Driving
         controlTableX.put(0.0,0.0);
-        controlTableX.put(0.2,0.15);
-        controlTableX.put(0.4,0.3);
-        controlTableX.put(0.6,0.6);
-        controlTableX.put(0.8,0.8);
+        controlTableX.put(0.2,0.25);
+        controlTableX.put(0.4,0.45);
+        controlTableX.put(0.6,0.7);
+        controlTableX.put(0.8,0.9);
         controlTableX.put(1.0,1.0);
         //Table for Smoother Y Driving
         controlTableY.put(0.0,0.0);
-        controlTableY.put(0.2,0.15);
-        controlTableY.put(0.4,0.30);
-        controlTableY.put(0.6,0.6);
+        controlTableY.put(0.2,0.25);
+        controlTableY.put(0.4,0.45);
+        controlTableY.put(0.6,0.7);
         controlTableY.put(0.8,0.9);
         controlTableY.put(1.0,1.0);
         //Table for Smoother turning
         turnTable.put(0.0,0.0);
-        turnTable.put(0.2,0.15);
-        turnTable.put(0.4,0.3);
-        turnTable.put(0.6,0.4);
-        turnTable.put(0.8,0.50);
+        turnTable.put(0.2,0.2);
+        turnTable.put(0.4,0.4);
+        turnTable.put(0.6,0.6);
+        turnTable.put(0.8,0.75);
         turnTable.put(1.0,1.0);
     }
 
