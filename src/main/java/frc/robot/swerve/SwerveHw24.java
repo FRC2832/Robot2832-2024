@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.RobotContainer;
 
 @SuppressWarnings("removal")
@@ -88,15 +89,42 @@ public class SwerveHw24 implements ISwerveDriveIo {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 18);
             sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 100);
         }
+        configureMotors();
 
+        //register stuff for logging
+        for(int wheel = 0; wheel<NUM_MOTORS; wheel++) {
+            final int wheelFinal = wheel;
+            Logger.RegisterCanSparkMax(moduleNames[wheel] + " Turn", turnMotors[wheel]);
+            Logger.RegisterTalon(moduleNames[wheel] + " Drive", driveMotors[wheel]);
+            Logger.RegisterCanCoder(moduleNames[wheel] + " Abs", turnSensors[wheel]);
+            Logger.RegisterSensor(moduleNames[wheel] + " Speed", () -> getCornerSpeed(wheelFinal));
+            Logger.RegisterSensor(moduleNames[wheel] + " Turn Pos", () -> getCornerAngle(wheelFinal));
+            Logger.RegisterSensor(moduleNames[wheel] + " Drive Dist", () -> getCornerDistance(wheelFinal));
+            Logger.RegisterSensor(moduleNames[wheel] + " Raw Rotations", () -> driveMotors[wheelFinal].getPosition().getValueAsDouble());
+
+            //initialize hardware
+            turnEncoder[wheel] = turnMotors[wheel].getEncoder();
+            turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
+            turnPid[wheel] = new PIDController(.6/Math.PI, .15, 0);
+
+            //from https://www.revrobotics.com/development-spark-max-users-manual/#section-3-3-2-1
+            turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+            turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
+
+        }
+        setDriveMotorBrakeMode(true);
+        setTurnMotorBrakeMode(true);
+    }
+
+    public void configureMotors() {
         var talonFXConfigs = new TalonFXConfiguration();
         talonFXConfigs.Slot0.kP = 0;
         talonFXConfigs.Slot0.kI = 0;
         talonFXConfigs.Slot0.kD = 0;
-        talonFXConfigs.Slot0.kS = 0;
+        talonFXConfigs.Slot0.kS = 0.13;
         talonFXConfigs.Slot0.kG = 0;
-        talonFXConfigs.Slot0.kV = 0;
-        talonFXConfigs.Slot0.kA = 0;
+        talonFXConfigs.Slot0.kV = 2.5;
+        talonFXConfigs.Slot0.kA = 0.215;
 
         talonFXConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
         talonFXConfigs.CurrentLimits.SupplyCurrentLimit = 40;
@@ -117,31 +145,11 @@ public class SwerveHw24 implements ISwerveDriveIo {
             motor.setInverted(false);
         }
 
-        //register stuff for logging
-        for(int wheel = 0; wheel<NUM_MOTORS; wheel++) {
-            final int wheelFinal = wheel;
-            Logger.RegisterCanSparkMax(moduleNames[wheel] + " Turn", turnMotors[wheel]);
-            Logger.RegisterTalon(moduleNames[wheel] + " Drive", driveMotors[wheel]);
-            Logger.RegisterCanCoder(moduleNames[wheel] + " Abs", turnSensors[wheel]);
-            Logger.RegisterSensor(moduleNames[wheel] + " Speed", () -> getCornerSpeed(wheelFinal));
-            Logger.RegisterSensor(moduleNames[wheel] + " Turn Pos", () -> getCornerAngle(wheelFinal));
-            Logger.RegisterSensor(moduleNames[wheel] + " Drive Dist", () -> getCornerDistance(wheelFinal));
-            Logger.RegisterSensor(moduleNames[wheel] + " Raw Rotations", () -> driveMotors[wheelFinal].getPosition().getValueAsDouble());
-
-            //initialize hardware
-            turnEncoder[wheel] = turnMotors[wheel].getEncoder();
-            turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
-            turnPid[wheel] = new PIDController(.4/Math.PI, .15, 0);
+        for(int wheel=0; wheel<swervePositions.length; wheel++) {
             turnMotors[wheel].setInverted(true);
             turnMotors[wheel].setSmartCurrentLimit(40, 25);
-
-            //from https://www.revrobotics.com/development-spark-max-users-manual/#section-3-3-2-1
-            turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
-            turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
-
+            turnMotors[wheel].burnFlash();
         }
-        setDriveMotorBrakeMode(true);
-        setTurnMotorBrakeMode(true);
     }
 
     @Override
@@ -181,20 +189,21 @@ public class SwerveHw24 implements ISwerveDriveIo {
     @Override
     public void setCornerState(int wheel, SwerveModuleState swerveModuleState) {
         //hardware test in % output mode
-        double velPct = swerveModuleState.speedMetersPerSecond / 5;  //TODO set equal to max module speed
-        driveMotors[wheel].set(velPct);
+        if(!DriverStation.isTest()) {
+            //double velPct = swerveModuleState.speedMetersPerSecond / 5;  //TODO set equal to max module speed
+            //driveMotors[wheel].set(velPct);
+        }
         
         //velPct = (swerveModuleState.angle.getDegrees() - correctedAngle[wheel])*.2/90;
         //turnMotors[wheel].set(velPct);
 
 
         //PID control
-        //TODO Implement PID control
-        //if(Math.abs(swerveModuleState.speedMetersPerSecond) > 0.1) {
-        //    driveMotors[wheel].setControl(new MotionMagicVelocityVoltage(metersToRotations(swerveModuleState.speedMetersPerSecond)));
-        //} else {
-        //    driveMotors[wheel].set(0);
-        //}
+        if(Math.abs(swerveModuleState.speedMetersPerSecond) > 0.1) {
+            driveMotors[wheel].setControl(new MotionMagicVelocityVoltage(swerveModuleState.speedMetersPerSecond));
+        } else {
+            driveMotors[wheel].set(0);
+        }
         
 
         //set the turn command

@@ -26,7 +26,6 @@ import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -157,8 +156,10 @@ public class SwerveDriveTrain extends SubsystemBase {
             new SysIdRoutine.Mechanism(
                 // Tell SysId how to plumb the driving voltage to the motors.
                 (Measure<Voltage> volts) -> {
+                    SwerveModuleState newState = new SwerveModuleState(0, new Rotation2d());
                     for(int wheel=0; wheel<hardware.getModuleNames().length; wheel++) {
                         hardware.setDriveVoltage(wheel, volts.in(Volts));
+                        hardware.setCornerState(wheel, newState);
                     }
                 },
                 // Tell SysId how to record a frame of data for each motor on the mechanism being
@@ -302,8 +303,6 @@ public class SwerveDriveTrain extends SubsystemBase {
         SwerveModuleState[] outputStates = new SwerveModuleState[requestStates.length];
         //we use a little larger optimize angle since drivers turning 90* is a pretty common operation
         double optimizeAngle = UtilFunctions.getSetting(OPTIMIZE_ANGLE_KEY, 120);
-        double maxAccel = UtilFunctions.getSetting(MAX_ACCEL_KEY, 42);
-        double maxOmega = UtilFunctions.getSetting(MAX_OMEGA_KEY, 3000);
 
         // command each swerve module
         for (int i = 0; i < requestStates.length; i++) {
@@ -320,36 +319,16 @@ public class SwerveDriveTrain extends SubsystemBase {
                 speedReq = -requestStates[i].speedMetersPerSecond;
             }
 
-            //smooth out drive command
-            double maxSpeedDelta = maxAccel * TimedRobot.kDefaultPeriod;           //acceleration * loop time
-            //whatever value is bigger flips when forwards vs backwards
-            double value1 = currentState[i].speedMetersPerSecond - maxSpeedDelta;
-            double value2 = currentState[i].speedMetersPerSecond + maxSpeedDelta;
-            outputStates[i].speedMetersPerSecond = MathUtil.clamp(
-                speedReq,                  //current request
-                Math.min(value1, value2),                               //last request minimum
-                Math.max(value1, value2));                              //last request maximum
-
-            //smooth out turn command
-            double maxAngleDelta = maxOmega * TimedRobot.kDefaultPeriod;           //acceleration * loop time
-            angleReq = MathUtil.inputModulus(angleReq, curAngle - 180, curAngle + 180);
-            double delta = angleReq - curAngle;
-            if(delta > maxAngleDelta) {
-                angleReq = curAngle + maxAngleDelta;
-            } else if (delta < -maxAngleDelta) {
-                angleReq = curAngle - maxAngleDelta;
-            } else {
-                //angle request if fine
-            }
-            //make it back into a Rotation2d
-            outputStates[i].angle = Rotation2d.fromDegrees(angleReq);
-
             //check to see if the robot request is moving
             if (stopTurnAtZero && Math.abs(speedReq) < minSpeed) {
                 //stop the requests if there is no movement
                 outputStates[i].angle = currentState[i].angle;
                 //take out minimal speed so that the motors don't jitter
                 outputStates[i].speedMetersPerSecond = 0;
+            } else {
+                //copy the request over
+                outputStates[i].angle = Rotation2d.fromDegrees(requestMod);
+                outputStates[i].speedMetersPerSecond = requestStates[i].speedMetersPerSecond;
             }
         }
         return outputStates;
