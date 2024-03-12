@@ -123,7 +123,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
         talonFXConfigs.Slot0.kD = 0;
         talonFXConfigs.Slot0.kS = 0.13;
         talonFXConfigs.Slot0.kG = 0;
-        talonFXConfigs.Slot0.kV = 2.5;
+        talonFXConfigs.Slot0.kV = 2.8;
         talonFXConfigs.Slot0.kA = 0.215;
 
         talonFXConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
