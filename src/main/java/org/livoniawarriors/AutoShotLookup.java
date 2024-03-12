@@ -1,5 +1,6 @@
 package org.livoniawarriors;
 
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutoShotLookup {
@@ -29,6 +30,12 @@ public class AutoShotLookup {
 
     public double getShooterSpeed() {
         return shooterSpeed;
+    }
+
+    public void getPrefs(boolean isCenterFieldShot) {
+        this.shooterSpeed = isCenterFieldShot ? Preferences.getDouble("", 4300) : Preferences.getDouble("", 4500); //TODO: Fill these out
+        this.kickerSpeed = isCenterFieldShot ? Preferences.getDouble("", 4500) : Preferences.getDouble("", 4500);
+        this.angle = isCenterFieldShot ? Preferences.getDouble("", 51) : Preferences.getDouble("", 40);
     }
 
     public void printValues() {

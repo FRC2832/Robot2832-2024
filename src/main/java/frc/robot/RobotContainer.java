@@ -58,9 +58,11 @@ import frc.robot.intake.PitIntake;
 import frc.robot.kicker.Kicker;
 import frc.robot.kicker.KickerHw;
 import frc.robot.kicker.KickerSim;
+import frc.robot.shooter.ShootFrom;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
+import frc.robot.shooter.ShootFrom;
 import frc.robot.aimer.PneumaticsSim;
 import frc.robot.swerve.DriveStick;
 import frc.robot.swerve.PracticeSwerveHw;
@@ -259,6 +261,8 @@ public class RobotContainer {
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true).alongWith(new SetAimer(aimer, 45)));
         new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake));
+        new Trigger(driveControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
+        new Trigger(driveControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
     }
 
     public void disableBindings() {

@@ -7,4 +7,6 @@ public interface IDriveControls {
     boolean IsFieldOrientedResetRequested();
     boolean IsIntakeRequested();
     boolean IsMaxSpeedRequested();
+    boolean IsCenterFieldShotRequested();
+    boolean IsPillarShotRequested();
 }

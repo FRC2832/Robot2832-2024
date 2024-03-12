@@ -62,4 +62,15 @@ public class XboxDriveControls implements IDriveControls {
     public boolean IsMaxSpeedRequested() {
         return cont.getRightTriggerAxis()>0;
     }
+
+    @Override
+    public boolean IsCenterFieldShotRequested() {
+        return cont.getBButtonPressed();
+    }
+
+    @Override
+    public boolean IsPillarShotRequested() {
+        return cont.getXButtonPressed();
+    }
+    
 }
