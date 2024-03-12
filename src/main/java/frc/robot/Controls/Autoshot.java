@@ -3,6 +3,7 @@ import frc.robot.intake.Intake;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
 import frc.robot.aimer.Pneumatics;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,6 +22,7 @@ public class Autoshot extends Command {
     Double tagY;
     int goodCounts;
     SwerveDriveTrain swerveDrive;
+    PIDController pid;
     public Autoshot(Shooter shooter, Pneumatics pneumatic, Kicker kicker, Odometry odometry, Intake intake, SwerveDriveTrain  swerveDrive) {
         this.shooter = shooter;
         this.pneumatic = pneumatic;
@@ -29,6 +31,7 @@ public class Autoshot extends Command {
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
         this.swerveDrive = swerveDrive;
+        this.pid = new PIDController(.6/Math.PI, .15, 0); //DID NOT THINK ABOUT SETTINGS!!!
         addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
 
     }
@@ -46,10 +49,11 @@ public class Autoshot extends Command {
         var speakerPose = new Pose2d(tagX, tagY, null);
         var distance = UtilFunctions.getDistance(speakerPose, robotPose); //TODO: Need to handle rotation
         var angleDiff = UtilFunctions.getAngle(speakerPose, robotPose) - odometry.getHeading().getRadians();
+        
         if(UtilFunctions.getAlliance() == Alliance.Blue){
             angleDiff = Math.PI-angleDiff;
         }
-
+        angleDiff = pid.calculate(odometry.getHeading().getRadians(), angleDiff);
         swerveDrive.SwerveDrive(0,0,angleDiff);
 
         AutoShotLookup lookup = shooter.estimate(distance);
