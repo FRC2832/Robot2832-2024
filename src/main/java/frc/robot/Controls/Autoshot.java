@@ -6,10 +6,11 @@ import frc.robot.aimer.Pneumatics;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import org.livoniawarriors.swerve.SwerveDriveTrain;
 import org.livoniawarriors.AutoShotLookup;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 public class Autoshot extends Command {
     Shooter shooter;
@@ -19,15 +20,17 @@ public class Autoshot extends Command {
     Intake intake;
     Double tagY;
     int goodCounts;
-
-    public Autoshot(Shooter shooter, Pneumatics pneumatic, Kicker kicker, Odometry odometry, Intake intake) {
+    SwerveDriveTrain swerveDrive;
+    public Autoshot(Shooter shooter, Pneumatics pneumatic, Kicker kicker, Odometry odometry, Intake intake, SwerveDriveTrain  swerveDrive) {
         this.shooter = shooter;
         this.pneumatic = pneumatic;
         this.kicker = kicker;
         this.odometry = odometry;
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
-        addRequirements(shooter, pneumatic, kicker, intake);
+        this.swerveDrive = swerveDrive;
+        addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
+
     }
 
     @Override
@@ -40,8 +43,14 @@ public class Autoshot extends Command {
         var tagX = (UtilFunctions.getAlliance() == Alliance.Red ? 652.73 : -1.5) * 0.0254;
 
         var robotPose = odometry.getPose();
-        
-        var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose); //TODO: Need to handle rotation
+        var speakerPose = new Pose2d(tagX, tagY, null);
+        var distance = UtilFunctions.getDistance(speakerPose, robotPose); //TODO: Need to handle rotation
+        var angleDiff = UtilFunctions.getAngle(speakerPose, robotPose) - odometry.getHeading().getRadians();
+        if(UtilFunctions.getAlliance() == Alliance.Blue){
+            angleDiff = Math.PI-angleDiff;
+        }
+
+        swerveDrive.SwerveDrive(0,0,angleDiff);
 
         AutoShotLookup lookup = shooter.estimate(distance);
 
