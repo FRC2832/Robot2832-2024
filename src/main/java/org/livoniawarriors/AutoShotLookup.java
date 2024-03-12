@@ -33,7 +33,7 @@ public class AutoShotLookup {
     }
 
     public void getPrefs(boolean isCenterFieldShot) {
-        this.shooterSpeed = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldShooterSpeed", 4300) : Preferences.getDouble("/Preferences/Shooting/PillarShooterSpeed", 4500); //TODO: Fill these out
+        this.shooterSpeed = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldShooterSpeed", 4300) : Preferences.getDouble("/Preferences/Shooting/PillarShooterSpeed", 4500);
         this.kickerSpeed = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldKickerSpeed", 4500) : Preferences.getDouble("/Preferences/Shooting/PillarKickerSpeed", 4500);
         this.angle = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldShooterAngle", 51) : Preferences.getDouble("/Preferences/Shooting/PillarShooterAngle", 40);
     }
