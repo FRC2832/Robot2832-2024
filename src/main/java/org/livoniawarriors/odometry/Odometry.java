@@ -42,6 +42,7 @@ public class Odometry extends SubsystemBase {
     private DoublePublisher visionOffset;
     private IntegerPublisher visionFrameCount;
     private long frameCount;
+    private boolean startPosReceived;
 
     public Odometry() {
         super();
@@ -51,6 +52,7 @@ public class Odometry extends SubsystemBase {
         lastVisionTime = 0;
         frameCount = 0;
         loopsTagsSeen = 0;
+        startPosReceived = false;
 
         field = new Field2d();
         resetPos = UtilFunctions.getNtSub("/Odometry/Reset Position", false);
@@ -162,7 +164,17 @@ public class Odometry extends SubsystemBase {
     }
 
     public void setStartingPose(Pose2d pose) {
+        startPose = pose;
         resetPose(startPose);
+        startPosReceived = true;
+    }
+
+    public Pose2d getStartingPose() {
+        return startPose;
+    }
+
+    public boolean IsStartSet() {
+        return startPosReceived;
     }
 
     public void resetPose(Pose2d pose) {
