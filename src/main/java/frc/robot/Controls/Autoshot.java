@@ -63,6 +63,7 @@ public class Autoshot extends Command {
         kicker.setRPM(lookup.getKickerSpeed());
         if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 75)
               && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 4)
+              && (Math.abs(kicker.getRPM()-lookup.getKickerSpeed())<75)
               )
            )
         {
