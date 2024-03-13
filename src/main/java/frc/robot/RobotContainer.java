@@ -19,6 +19,7 @@ import org.livoniawarriors.swerve.SwerveDriveTrain;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -224,8 +225,14 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.onChange(command -> {
-            //var path = "B-2";
-            //var startingPose = PathPlannerAuto.getStaringPoseFromAutoFile(path);
+            var path = command.getName();
+            try {
+                Pose2d startingPose = PathPlannerAuto.getStaringPoseFromAutoFile(path);
+                odometry.setStartingPose(startingPose);
+            } catch (RuntimeException e) {
+                //if the path doesn't exist, don't change the starting position
+                //this is common if the drivers select "None" (which would come as InstantCommand)
+            }
         });
     }
 
@@ -257,7 +264,7 @@ public class RobotContainer {
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
-        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true).alongWith(new SetAimer(aimer, 45)));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
         new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake));
     }
 
