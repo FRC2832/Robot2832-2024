@@ -26,13 +26,14 @@ public class Shooter extends SubsystemBase {
 
         //input: Meters from target, output: Degrees of shot  
         angle.put(1.3, 53.);
-        angle.put(2., 50.);
-        angle.put(2.39, 43.);
-        angle.put(2.71, 42.);
-        angle.put(3.25, 36.);
+        angle.put(1.95, 49.);
+        angle.put(2.26, 42.);
+        angle.put(2.9, 38.);
+        angle.put(3.13, 37.);
+        angle.put(3.5, 35.);
 
         //input: Meters from target, output: RPM for kicker
-        kicker.put(1.3, 4500.);
+        kicker.put(1.3, 4300.);
         kicker.put(2., 4500.);
         kicker.put(2.39, 4500.);
         kicker.put(2.71, 4500.);
