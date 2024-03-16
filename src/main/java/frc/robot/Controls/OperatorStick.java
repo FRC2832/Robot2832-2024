@@ -8,6 +8,7 @@ import frc.robot.DriverFeedback;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
 import frc.robot.aimer.Pneumatics;
+import frc.robot.intake.Intake;
 
 
 public class OperatorStick extends Command {
@@ -15,12 +16,15 @@ public class OperatorStick extends Command {
     private Kicker kick;
     private Pneumatics aimer;
     private IOperatorControls cont;
+    private Intake intake;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Pneumatics aimer){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Pneumatics aimer, Intake intake){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;
         this.aimer = aimer;
+        this.intake = intake;
+
         addRequirements(shoot);
         addRequirements(kick);
 
@@ -54,7 +58,12 @@ public class OperatorStick extends Command {
         }
         else{
             shoot.setRPM(3500);
-            kick.setRPM(0);
+            if(intake.isPieceDetected()){
+                kick.setRPM(3500);
+            }
+            else{
+                kick.setRPM(0);
+            }
             DriverFeedback.setColor(Color.kBlack);
             cont.rumbleController(RumbleType.kBothRumble, 0);
         }
