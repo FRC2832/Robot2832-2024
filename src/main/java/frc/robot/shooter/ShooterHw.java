@@ -1,38 +1,31 @@
 package frc.robot.shooter;
 
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.RobotContainer;
 
 import org.livoniawarriors.Logger;
 
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-
-
-@SuppressWarnings("removal")
 public class ShooterHw implements IShooterHw {
     private TalonFX[] shooters;
     private TalonFX driveShooter;
     private TalonFX followShooter;
-    private final double UNITS_TO_RPM = (60. * 10.) / 2048.;
     private VelocityVoltage pidRequest;
+
     public ShooterHw() {
         driveShooter = new TalonFX(5);
         followShooter = new TalonFX(6);
         shooters[0] = driveShooter;
         shooters[1]  = followShooter;
 
-
+        configureMotors();
+        
         followShooter.setControl(new Follower(driveShooter.getDeviceID(), true));
         pidRequest = new VelocityVoltage(0).withSlot(0);
-
-        configureMotors();
         
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
@@ -65,26 +58,20 @@ public class ShooterHw implements IShooterHw {
 
     @Override
     public void setRpm(double rpm) {
-            driveShooter.setControl(pidRequest.withVelocity(rpm));
-        
+        driveShooter.setControl(pidRequest.withVelocity(rpm));
     }
 
     public void setPower(double power) {
-
         driveShooter.set(power);
     }
     
     @Override
     public double getCurrentRPM(int shooterID) {        
-        return shooters[shooterID].getVelocity().getValue() * UNITS_TO_RPM;
+        return shooters[shooterID].getVelocity().getValue();
     }
-
 
     @Override
     public void updateInputs() {
-        SmartDashboard.putNumber("Shooter0 Speed", shooters[0].getVelocity().getValue()*UNITS_TO_RPM);
-        SmartDashboard.putNumber("Shooter1 Speed", shooters[1].getVelocity().getValue()*UNITS_TO_RPM);
+        SmartDashboard.putNumber("Shooter Speed", shooters[0].getVelocity().getValue());
     }
-
-
 }

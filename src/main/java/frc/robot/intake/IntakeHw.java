@@ -4,14 +4,13 @@ import org.livoniawarriors.Logger;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class IntakeHw implements IIntakeHw {
-    private TalonFX hardware;
+    private TalonFX rightIntake;
     private TalonFX leftIntake;
     private DigitalInput enterSensor;
     private DigitalInput highSensor;
@@ -20,8 +19,9 @@ public class IntakeHw implements IIntakeHw {
     private boolean interrupt;
     private VelocityVoltage pidRequest;
     private double ratio = 32/50;
+
     public IntakeHw() {
-        this.hardware = new TalonFX(50); //WITHOUT RATO
+        this.rightIntake = new TalonFX(50); //WITH RATIO
         this.leftIntake = new TalonFX(51); //WITH RATIO
         this.enterSensor = new DigitalInput(0);
         this.highSensor = new DigitalInput(1);
@@ -37,7 +37,8 @@ public class IntakeHw implements IIntakeHw {
 
         Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 0 : 1);
         Logger.RegisterSensor("High Note", () -> highSensor.get() ? 0 : 1);
-        Logger.RegisterTalon("Intake", hardware);
+        Logger.RegisterTalon("Left Intake", leftIntake);
+        Logger.RegisterTalon("Right Intake", rightIntake);
     }
 
     public void configureMotors() {
@@ -56,9 +57,9 @@ public class IntakeHw implements IIntakeHw {
         slot0Configs.kI = 0.0001; // no output for integrated error
         slot0Configs.kD = 0; // no output for error derivative
         
-        hardware.getConfigurator().apply(configs);
-        hardware.getConfigurator().apply(slot0Configs);
-        hardware.setInverted(false);
+        rightIntake.getConfigurator().apply(configs);
+        rightIntake.getConfigurator().apply(slot0Configs);
+        rightIntake.setInverted(false);
 
         leftIntake.getConfigurator().apply(configs);
         leftIntake.getConfigurator().apply(slot0Configs);
@@ -70,13 +71,13 @@ public class IntakeHw implements IIntakeHw {
         var power = isRunning ? (inverted ? -0.25 : 0.25) : 0.0;
         this.isRunning = isRunning;
         this.inverted = inverted;
-        hardware.set(power);
-        leftIntake.set(power*ratio);
+        rightIntake.set(power*ratio);
+        leftIntake.set(power);
 
     }
 
     public double getPercentOutput() {
-        return hardware.get();
+        return rightIntake.get();
     }
 
     public boolean isRunning() {
@@ -109,15 +110,15 @@ public class IntakeHw implements IIntakeHw {
 
     @Override
     public void setPower(double power) {
-        hardware.set(power);
-        leftIntake.set(power*ratio);
+        rightIntake.set(power*ratio);
+        leftIntake.set(power);
 
     }
 
     @Override
     public void setRpm(double rpm) {
-        hardware.setControl(pidRequest.withVelocity(rpm));
-        leftIntake.setControl(pidRequest.withVelocity(rpm*ratio));
+        rightIntake.setControl(pidRequest.withVelocity(rpm*ratio));
+        leftIntake.setControl(pidRequest.withVelocity(rpm));
 
     }
 }
