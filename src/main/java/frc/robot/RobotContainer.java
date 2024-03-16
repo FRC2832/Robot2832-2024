@@ -19,6 +19,7 @@ import org.livoniawarriors.swerve.SwerveDriveTrain;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -58,6 +59,7 @@ import frc.robot.intake.PitIntake;
 import frc.robot.kicker.Kicker;
 import frc.robot.kicker.KickerHw;
 import frc.robot.kicker.KickerSim;
+import frc.robot.shooter.ShootFrom;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
@@ -224,8 +226,14 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.onChange(command -> {
-            //var path = "B-2";
-            //var startingPose = PathPlannerAuto.getStaringPoseFromAutoFile(path);
+            var path = command.getName();
+            try {
+                Pose2d startingPose = PathPlannerAuto.getStaringPoseFromAutoFile(path);
+                odometry.setStartingPose(startingPose);
+            } catch (RuntimeException e) {
+                //if the path doesn't exist, don't change the starting position
+                //this is common if the drivers select "None" (which would come as InstantCommand)
+            }
         });
     }
 
@@ -249,7 +257,7 @@ public class RobotContainer {
         OperatorControls operatorControls = new OperatorControls();
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
         swerveDrive.resetFieldOriented();
-        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer);
+        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer, intake);
         leds.setDefaultCommand(new RainbowLeds(leds));
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
@@ -257,8 +265,10 @@ public class RobotContainer {
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
-        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true).alongWith(new SetAimer(aimer, 45)));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
         new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
+        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
+        new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
     }
 
     public void disableBindings() {

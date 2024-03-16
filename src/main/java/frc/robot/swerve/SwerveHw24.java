@@ -105,7 +105,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
             //initialize hardware
             turnEncoder[wheel] = turnMotors[wheel].getEncoder();
             turnEncoder[wheel].setPositionConversionFactor(176.31/10.4752);
-            turnPid[wheel] = new PIDController(.6/Math.PI, .15, 0);
+            turnPid[wheel] = new PIDController(.7/Math.PI, .2, 0);
 
             //from https://www.revrobotics.com/development-spark-max-users-manual/#section-3-3-2-1
             turnMotors[wheel].setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
@@ -123,7 +123,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
         talonFXConfigs.Slot0.kD = 0;
         talonFXConfigs.Slot0.kS = 0.13;
         talonFXConfigs.Slot0.kG = 0;
-        talonFXConfigs.Slot0.kV = 2.5;
+        talonFXConfigs.Slot0.kV = 2.8;
         talonFXConfigs.Slot0.kA = 0.215;
 
         talonFXConfigs.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -267,8 +267,9 @@ public class SwerveHw24 implements ISwerveDriveIo {
         }
     }
 
-
-    private final double kWheelRadiusInches = 2;    //4" wheels
+    //to get this number, walk the robot a known distance
+    //then kWheelRadiusInches (new) = (kWheelRadiusInches (old) * actual walked distance)/measured distance
+    private final double kWheelRadiusInches = 1.91;    //4" wheels
     private final double kGearRatio = 6.75;         //L2 gearing
 
     private double rotationsToMeters(double rotations) {
