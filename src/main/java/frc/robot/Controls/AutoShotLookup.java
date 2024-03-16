@@ -1,6 +1,7 @@
-package org.livoniawarriors;
+package frc.robot.Controls;
 
-import edu.wpi.first.wpilibj.Preferences;
+import org.livoniawarriors.UtilFunctions;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutoShotLookup {
@@ -33,9 +34,15 @@ public class AutoShotLookup {
     }
 
     public void getPrefs(boolean isCenterFieldShot) {
-        this.shooterSpeed = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldShooterSpeed", 4300) : Preferences.getDouble("/Preferences/Shooting/PillarShooterSpeed", 4500);
-        this.kickerSpeed = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldKickerSpeed", 4500) : Preferences.getDouble("/Preferences/Shooting/PillarKickerSpeed", 4500);
-        this.angle = isCenterFieldShot ? Preferences.getDouble("/Preferences/Shooting/CenterFieldShooterAngle", 51) : Preferences.getDouble("/Preferences/Shooting/PillarShooterAngle", 40);
+        if(isCenterFieldShot) {
+            this.shooterSpeed = UtilFunctions.getSetting("/Shooting/CenterFieldShooterSpeed", 4300.);
+            this.kickerSpeed = UtilFunctions.getSetting("/Shooting/CenterFieldKickerSpeed", 4500.);
+            this.angle = UtilFunctions.getSetting("/Shooting/CenterFieldShooterAngle", 51.);
+        } else {
+            this.shooterSpeed = UtilFunctions.getSetting("/Shooting/PillarShooterSpeed", 4500.);
+            this.kickerSpeed = UtilFunctions.getSetting("/Shooting/PillarKickerSpeed", 4500.);
+            this.angle = UtilFunctions.getSetting("/Shooting/PillarShooterAngle", 40.);
+        }
     }
 
     public void printValues() {

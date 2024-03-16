@@ -6,6 +6,8 @@ public interface IOperatorControls {
     boolean AutoSubAimRequested();
     double GetManualSubAim();
     boolean IsSubShotRequested();
+    boolean IsCenterFieldShotRequested();
+    boolean IsPillarShotRequested();
     boolean IsClimbLeftRequested();
     boolean IsClimbRightRequested();
     boolean IsClimbUpRequested();

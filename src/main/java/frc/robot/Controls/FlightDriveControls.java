@@ -62,14 +62,4 @@ public class FlightDriveControls implements IDriveControls {
     public boolean IsMaxSpeedRequested() {
         return driveContRight.getTrigger();
     }
-
-    @Override
-    public boolean IsCenterFieldShotRequested() {
-        return driveContLeft.getLeftSideDownRightPressed(); //TODO: Change this if it matters
-    }
-
-    @Override
-    public boolean IsPillarShotRequested() {
-        return driveContLeft.getLeftSideDownLeftPressed(); //TODO: Change this if it matters
-    }
 }
