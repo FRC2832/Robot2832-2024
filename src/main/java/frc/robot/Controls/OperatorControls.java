@@ -81,4 +81,14 @@ public class OperatorControls implements IOperatorControls{
     public void rumbleController(RumbleType type, double value) {
         cont.setRumble(type, value);
     }
+
+    @Override
+    public boolean IsCenterFieldShotRequested() {
+        return cont.getBButtonPressed();
+    }
+
+    @Override
+    public boolean IsPillarShotRequested() {
+        return cont.getXButtonPressed();
+    }
 }

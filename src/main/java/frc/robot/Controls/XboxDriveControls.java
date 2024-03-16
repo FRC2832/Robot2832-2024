@@ -61,5 +61,5 @@ public class XboxDriveControls implements IDriveControls {
     @Override
     public boolean IsMaxSpeedRequested() {
         return cont.getRightTriggerAxis()>0;
-    }
+    }    
 }

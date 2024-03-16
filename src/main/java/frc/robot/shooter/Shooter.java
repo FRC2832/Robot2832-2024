@@ -1,9 +1,8 @@
 package frc.robot.shooter;
-import org.livoniawarriors.AutoShotLookup;
-
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Controls.AutoShotLookup;
 
 public class Shooter extends SubsystemBase {
     private IShooterHw hw;

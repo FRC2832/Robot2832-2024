@@ -1,4 +1,6 @@
-package org.livoniawarriors;
+package frc.robot.Controls;
+
+import org.livoniawarriors.UtilFunctions;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,6 +31,18 @@ public class AutoShotLookup {
 
     public double getShooterSpeed() {
         return shooterSpeed;
+    }
+
+    public void getPrefs(boolean isCenterFieldShot) {
+        if(isCenterFieldShot) {
+            this.shooterSpeed = UtilFunctions.getSetting("/Shooting/CenterFieldShooterSpeed", 4300.);
+            this.kickerSpeed = UtilFunctions.getSetting("/Shooting/CenterFieldKickerSpeed", 4500.);
+            this.angle = UtilFunctions.getSetting("/Shooting/CenterFieldShooterAngle", 51.);
+        } else {
+            this.shooterSpeed = UtilFunctions.getSetting("/Shooting/PillarShooterSpeed", 4500.);
+            this.kickerSpeed = UtilFunctions.getSetting("/Shooting/PillarKickerSpeed", 4500.);
+            this.angle = UtilFunctions.getSetting("/Shooting/PillarShooterAngle", 40.);
+        }
     }
 
     public void printValues() {
