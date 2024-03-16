@@ -42,14 +42,6 @@ public class ShooterSim implements IShooterHw {
         }
     }
 
-    @Override
-    public void setIndividualPower(int shooterID, double newPower) {
-        if(shooterID % 2 == 0) {
-            leftTarget = newPower * 6450.;
-        } else {
-            rightTarget = newPower * 6450.;
-        }
-    }
 
     @Override
     public void updateInputs() {

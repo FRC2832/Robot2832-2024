@@ -1,6 +1,6 @@
 package frc.robot.shooter;
+
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Controls.AutoShotLookup;
 
@@ -72,29 +72,6 @@ public class Shooter extends SubsystemBase {
 
     public void shoot() {
         // if shooter is at x speed and note is detected?
-    }
-
-    /** @param speedDiff percent difference between -1 to 1 */
-    public void spinShot(double speedDiff, boolean spinRight) {
-        // taking in two parameters to determine difference in speed rotation and direction.
-        var currentSpeed = SmartDashboard.getNumber("Shooter Command", 0); 
-        if(spinRight) {
-            currentSpeed -= speedDiff; // changing the speed
-            for(int i = 1; i < 3; i++){ 
-                if(i % 2 != 0) { //setting speed to even motors
-                    hw.setIndividualPower(i, currentSpeed);
-                }            
-            }
-        } else {
-            currentSpeed -= speedDiff; // changing the speed
-            for(int i = 1; i < 3; i++){
-                if(i % 2 == 0) { //setting speed to even motors
-                    hw.setIndividualPower(i, currentSpeed); 
-                }            
-            }
-        }
-
-        //Eventually use shoot function
     }
 
     public boolean canMakeShot() {
