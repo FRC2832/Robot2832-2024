@@ -1,53 +1,63 @@
 package frc.robot.shooter;
 
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotContainer;
 
 import org.livoniawarriors.Logger;
 
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+
 
 @SuppressWarnings("removal")
 public class ShooterHw implements IShooterHw {
     private TalonFX[] shooters;
+    private TalonFX driveShooter;
+    private TalonFX followShooter;
     private final double UNITS_TO_RPM = (60. * 10.) / 2048.;
-
+    private VelocityVoltage pidRequest;
     public ShooterHw() {
-        shooters = new TalonFX[2];
-        shooters[0] = new TalonFX(5, RobotContainer.kCanBusName);
-        shooters[1] = new TalonFX(6, RobotContainer.kCanBusName);
+        driveShooter = new TalonFX(5);
+        followShooter = new TalonFX(6);
+        shooters[0] = driveShooter;
+        shooters[1]  = followShooter;
+
+
+        followShooter.setControl(new Follower(driveShooter.getDeviceID(), true));
+        pidRequest = new VelocityVoltage(0).withSlot(0);
 
         configureMotors();
         
-        for(TalonFX motor:shooters){
-            motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
-            motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
-        }
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
     }
 
     public void configureMotors() {
-        TalonFXConfiguration allConfigs = new TalonFXConfiguration();
+        CurrentLimitsConfigs configs = new CurrentLimitsConfigs();
+        configs.SupplyCurrentLimitEnable = true;
+        configs.SupplyCurrentLimit = 70;
+        configs.SupplyCurrentThreshold = 90;
+        configs.SupplyTimeThreshold = 0.2;
+
+        // in init function, set slot 0 gains
+        var slot0Configs = new Slot0Configs();
+
+        slot0Configs.kS = 0.0; // no output overcome static friction
+        slot0Configs.kV = 12./6000.; // 6000 RPM over 12V
+        slot0Configs.kP = 0.011; // An error of 1 rpm results in 0.011 V output
+        slot0Configs.kI = 0.0001; // no output for integrated error
+        slot0Configs.kD = 0; // no output for error derivative
+
         for(TalonFX motor:shooters){
-            motor.getAllConfigs(allConfigs);
-            allConfigs.slot0.kP = 0.3023;
-            allConfigs.slot0.kI = 0.0006;
-            allConfigs.slot0.kD = 0;
-            allConfigs.slot0.kF = 0.05522;
-            allConfigs.slot0.integralZone = 150;
-            allConfigs.slot0.allowableClosedloopError = 0;
-            allConfigs.motionCruiseVelocity = 0;
-            allConfigs.motionAcceleration = 0;
-            allConfigs.peakOutputForward = 1;
-            allConfigs.peakOutputReverse = -1;
-            allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
-            motor.configAllSettings(allConfigs);
-        }
+        motor.getConfigurator().apply(configs);
+        motor.getConfigurator().apply(slot0Configs);
+        motor.setInverted(false);}
 
         shooters[1].setInverted(true);
         shooters[0].setInverted(false);
@@ -55,32 +65,25 @@ public class ShooterHw implements IShooterHw {
 
     @Override
     public void setRpm(double rpm) {
-        for (TalonFX shooter : shooters) {
-            shooter.set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
-        }
+            driveShooter.setControl(pidRequest.withVelocity(rpm));
+        
     }
 
     public void setPower(double power) {
-        for (TalonFX shooter : shooters) {
-            shooter.set(TalonFXControlMode.PercentOutput, power);
-        }
+
+        driveShooter.set(power);
     }
     
     @Override
     public double getCurrentRPM(int shooterID) {        
-        return shooters[shooterID].getSelectedSensorVelocity() * UNITS_TO_RPM;
+        return shooters[shooterID].getVelocity().getValue() * UNITS_TO_RPM;
     }
 
-    /** @param shooterID should be less than length of shooters array */
-    public void setIndividualPower(int shooterID, double newPower) {
-        TalonFX shooter = shooters[shooterID - 1];
-        shooter.set(TalonFXControlMode.PercentOutput, newPower);
-    }
 
     @Override
     public void updateInputs() {
-        SmartDashboard.putNumber("Shooter0 Speed", shooters[0].getSelectedSensorVelocity() * UNITS_TO_RPM);
-        SmartDashboard.putNumber("Shooter1 Speed", shooters[1].getSelectedSensorVelocity() * UNITS_TO_RPM);
+        SmartDashboard.putNumber("Shooter0 Speed", shooters[0].getVelocity().getValue()*UNITS_TO_RPM);
+        SmartDashboard.putNumber("Shooter1 Speed", shooters[1].getVelocity().getValue()*UNITS_TO_RPM);
     }
 
 
