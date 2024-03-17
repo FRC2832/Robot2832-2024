@@ -70,7 +70,7 @@ public class VisionSystem extends SubsystemBase {
         frontCam = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
         frontCamPos = new Transform3d(
-            new Translation3d(-0.31, -0.29, 0.45), 
+            new Translation3d(-0.27, -0.29, 0.45), 
             new Rotation3d(0,-Math.toRadians(17.5),Math.toRadians(180))
         );
         //get the estimator of it
