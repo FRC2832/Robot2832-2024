@@ -30,10 +30,10 @@ public class KickerHw implements IKickerHw {
             pids[i] = kickers[i].getPIDController();
         }
         configureMotors();
-        Logger.RegisterCanSparkFlex("Left Kicker", kickers[0]);
-        Logger.RegisterCanSparkFlex("Right Kicker", kickers[1]);
-        Logger.RegisterSensor("Left Kicker RPM", () -> getCurrentRPM(1));
-        Logger.RegisterSensor("Right Kicker RPM", () -> getCurrentRPM(0));
+        Logger.RegisterCanSparkFlex("Top Kicker", kickers[0]);
+        Logger.RegisterCanSparkFlex("Bottom Kicker", kickers[1]);
+        Logger.RegisterSensor("Top Kicker RPM", () -> getCurrentRPM(0));
+        Logger.RegisterSensor("Bottom Kicker RPM", () -> getCurrentRPM(1));
     }
 
     public void configureMotors() {
@@ -76,8 +76,8 @@ public class KickerHw implements IKickerHw {
 
     @Override
     public void updateInputs() {
-        SmartDashboard.putNumber("Kicker0 Speed", kickers[0].getEncoder().getVelocity());
-        SmartDashboard.putNumber("Kicker1 Speed", kickers[1].getEncoder().getVelocity());
+        SmartDashboard.putNumber("Top Kicker Speed", kickers[0].getEncoder().getVelocity());
+        SmartDashboard.putNumber("Bottom Kicker Speed", kickers[1].getEncoder().getVelocity());
     }
 
 

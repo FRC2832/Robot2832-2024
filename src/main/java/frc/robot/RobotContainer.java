@@ -158,8 +158,7 @@ public class RobotContainer {
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
-            //inclinator = new Inclinator(new InclinatorHw());
-            inclinator = new Inclinator(new InclinatorSim());
+            inclinator = new Inclinator(new InclinatorHw());
             kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticHW());
         }

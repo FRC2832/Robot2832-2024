@@ -47,14 +47,14 @@ public class PneumaticHW implements IPneumaticHW {
     public void run1ms() {
         //log data
         rollAngle.refresh();
-        currentAngle = -rollAngle.getValueAsDouble();
+        currentAngle = rollAngle.getValueAsDouble();
         angleLog.append(currentAngle);
     }
 
     @Override
     public void updateInputs() {
         rollAngle.refresh();
-        currentAngle = -rollAngle.getValueAsDouble();
+        currentAngle = rollAngle.getValueAsDouble();
     }
 
     @Override 

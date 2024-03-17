@@ -18,7 +18,7 @@ public class IntakeHw implements IIntakeHw {
     private boolean inverted;
     private boolean interrupt;
     private VelocityVoltage pidRequest;
-    private double ratio = 32/50;
+    private double ratio = 32./50.;
 
     public IntakeHw() {
         this.rightIntake = new TalonFX(50); //WITH RATIO
@@ -68,7 +68,7 @@ public class IntakeHw implements IIntakeHw {
     }
 
     public void setIntake(boolean isRunning, boolean inverted) {
-        var power = isRunning ? (inverted ? -0.25 : 0.25) : 0.0;
+        var power = isRunning ? (inverted ? -0.5 : 0.5) : 0.0;
         this.isRunning = isRunning;
         this.inverted = inverted;
         rightIntake.set(power*ratio);
@@ -110,15 +110,15 @@ public class IntakeHw implements IIntakeHw {
 
     @Override
     public void setPower(double power) {
-        rightIntake.set(power*ratio);
-        leftIntake.set(power);
+        rightIntake.set(2*power*ratio);
+        leftIntake.set(2*power);
 
     }
 
     @Override
     public void setRpm(double rpm) {
-        rightIntake.setControl(pidRequest.withVelocity(rpm*ratio));
-        leftIntake.setControl(pidRequest.withVelocity(rpm));
+        rightIntake.setControl(pidRequest.withVelocity(2*rpm*ratio));
+        leftIntake.setControl(pidRequest.withVelocity(2*rpm));
 
     }
 }
