@@ -318,12 +318,119 @@ public class Logger implements Runnable {
     }
 
     private void readTalon(String name, CoreTalonFX talon) {
+        var current = talon.getSupplyCurrent();
         commandTable.getEntry(name).setDouble(talon.getMotorVoltage().getValueAsDouble());
-        currentTable.getEntry(name).setDouble(talon.getSupplyCurrent().getValueAsDouble());
-        faultTable.getEntry(name).setString("Not Implemented");
-        stickyTable.getEntry(name).setString("Not Implemented");
+        currentTable.getEntry(name).setDouble(current.getValueAsDouble());
+        faultTable.getEntry(name).setString(readTalonFaults(talon));
+        stickyTable.getEntry(name).setString(readStickyTalonFaults(talon));
         tempTable.getEntry(name).setDouble(talon.getDeviceTemp().getValueAsDouble());
-        //canStatusTable.getEntry(name).setString(talon.can);
+        canStatusTable.getEntry(name).setString(current.getStatus().getName());
+    }
+
+    private String readTalonFaults(CoreTalonFX talon) {
+        String msg = "";
+        if(talon.getFault_BootDuringEnable().getValue())
+            msg += "BootDuringEnable ";
+        if(talon.getFault_BridgeBrownout().getValue())
+            msg += "BridgeBrownout ";
+        if(talon.getFault_DeviceTemp().getValue())
+            msg += "DeviceTemp ";
+        if(talon.getFault_ForwardHardLimit().getValue())
+            msg += "ForwardHardLimit ";
+        if(talon.getFault_ForwardSoftLimit().getValue())
+            msg += "ForwardSoftLimit ";
+        if(talon.getFault_FusedSensorOutOfSync().getValue())
+            msg += "FusedSensorOutOfSync ";
+        if(talon.getFault_Hardware().getValue())
+            msg += "Hardware ";
+
+        if(talon.getFault_MissingDifferentialFX().getValue())
+            msg += "MissingDifferentialFX ";
+        if(talon.getFault_OverSupplyV().getValue())
+            msg += "OverSupplyV ";
+        if(talon.getFault_ProcTemp().getValue())
+            msg += "ProcTemp ";
+        if(talon.getFault_RemoteSensorDataInvalid().getValue())
+            msg += "RemoteSensorDataInvalid ";
+        if(talon.getFault_RemoteSensorPosOverflow().getValue())
+            msg += "RemoteSensorPosOverflow ";
+        if(talon.getFault_RemoteSensorReset().getValue())
+            msg += "RemoteSensorReset ";
+        if(talon.getFault_ReverseHardLimit().getValue())
+            msg += "ReverseHardLimit ";
+
+        if(talon.getFault_ReverseSoftLimit().getValue())
+            msg += "ReverseSoftLimit ";
+        if(talon.getFault_StatorCurrLimit().getValue())
+            msg += "StatorCurrLimit ";
+        if(talon.getFault_SupplyCurrLimit().getValue())
+            msg += "SupplyCurrLimit ";
+        if(talon.getFault_Undervoltage().getValue())
+            msg += "Undervoltage ";
+        if(talon.getFault_UnlicensedFeatureInUse().getValue())
+            msg += "UnlicensedFeatureInUse ";
+        if(talon.getFault_UnstableSupplyV().getValue())
+            msg += "UnstableSupplyV ";
+        if(talon.getFault_UsingFusedCANcoderWhileUnlicensed().getValue())
+            msg += "UsingFusedCANcoderWhileUnlicensed ";
+        
+        if(msg == "") {
+            msg = "Ok";
+        }
+        return msg;
+    }
+
+    private String readStickyTalonFaults(CoreTalonFX talon) {
+        String msg = "";
+        if(talon.getStickyFault_BootDuringEnable().getValue())
+            msg += "BootDuringEnable ";
+        if(talon.getStickyFault_BridgeBrownout().getValue())
+            msg += "BridgeBrownout ";
+        if(talon.getStickyFault_DeviceTemp().getValue())
+            msg += "DeviceTemp ";
+        if(talon.getStickyFault_ForwardHardLimit().getValue())
+            msg += "ForwardHardLimit ";
+        if(talon.getStickyFault_ForwardSoftLimit().getValue())
+            msg += "ForwardSoftLimit ";
+        if(talon.getStickyFault_FusedSensorOutOfSync().getValue())
+            msg += "FusedSensorOutOfSync ";
+        if(talon.getStickyFault_Hardware().getValue())
+            msg += "Hardware ";
+
+        if(talon.getStickyFault_MissingDifferentialFX().getValue())
+            msg += "MissingDifferentialFX ";
+        if(talon.getStickyFault_OverSupplyV().getValue())
+            msg += "OverSupplyV ";
+        if(talon.getStickyFault_ProcTemp().getValue())
+            msg += "ProcTemp ";
+        if(talon.getStickyFault_RemoteSensorDataInvalid().getValue())
+            msg += "RemoteSensorDataInvalid ";
+        if(talon.getStickyFault_RemoteSensorPosOverflow().getValue())
+            msg += "RemoteSensorPosOverflow ";
+        if(talon.getStickyFault_RemoteSensorReset().getValue())
+            msg += "RemoteSensorReset ";
+        if(talon.getStickyFault_ReverseHardLimit().getValue())
+            msg += "ReverseHardLimit ";
+
+        if(talon.getStickyFault_ReverseSoftLimit().getValue())
+            msg += "ReverseSoftLimit ";
+        if(talon.getStickyFault_StatorCurrLimit().getValue())
+            msg += "StatorCurrLimit ";
+        if(talon.getStickyFault_SupplyCurrLimit().getValue())
+            msg += "SupplyCurrLimit ";
+        if(talon.getStickyFault_Undervoltage().getValue())
+            msg += "Undervoltage ";
+        if(talon.getStickyFault_UnlicensedFeatureInUse().getValue())
+            msg += "UnlicensedFeatureInUse ";
+        if(talon.getStickyFault_UnstableSupplyV().getValue())
+            msg += "UnstableSupplyV ";
+        if(talon.getStickyFault_UsingFusedCANcoderWhileUnlicensed().getValue())
+            msg += "UsingFusedCANcoderWhileUnlicensed ";
+        
+        if(msg == "") {
+            msg = "Ok";
+        }
+        return msg;
     }
 
     private void readTalon(String name, BaseTalon talon) {
