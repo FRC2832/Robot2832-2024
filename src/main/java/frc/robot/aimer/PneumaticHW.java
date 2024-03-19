@@ -87,4 +87,17 @@ public class PneumaticHW implements IPneumaticHW {
             driveDown.append(false);
         }
     }
+    
+    public void startPulse(double time, boolean goingUp){
+        if(goingUp){
+            upSolenoid.setPulseDuration(time);
+            downSolenoid.set(false);
+        }
+        else{
+            upSolenoid.set(false);
+            downSolenoid.setPulseDuration(time);
+        }
+    }
+
+
 }

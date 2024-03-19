@@ -56,5 +56,11 @@ public class PneumaticsSim implements IPneumaticHW {
     public void stop() {
         direction = Value.kOff;
     }
+
+    @Override
+    public void startPulse(double time, boolean goingUp) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'startPulse'");
+    }
     
 }

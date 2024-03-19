@@ -12,14 +12,20 @@ import java.io.IOException;
 public class Pneumatics extends SubsystemBase {
     IPneumaticHW hardware;
     private double moe = 4.00;
+    private double timeToStartUp = 0.18;
+    private double timeToStartDown = 0.8825;
+    private double timeToStopUp = 0.232;
+    private double timeToStopDown = 0.2818;
     private BufferedReader reader = null;
     private InterpolatingDoubleTreeMap upTable;
+    private InterpolatingDoubleTreeMap downTable;
 
     public Pneumatics(IPneumaticHW hardware) {
         super();
         this.hardware = hardware;
         upTable = new InterpolatingDoubleTreeMap();
-        readShooterTable("/Aimer_calibration_up.csv",upTable);
+        readShooterTable("/Aimer_Cal2_Up.csv",upTable);
+        readShooterTable("/Aimer_Cal2_Down.csv",downTable);
     }
 
     public void goTo(double target) {
@@ -34,6 +40,22 @@ public class Pneumatics extends SubsystemBase {
                 hardware.driveDown();
             }
         }
+    }
+
+    public void goToSmooth(double target){
+        double currentAngle = hardware.getAngle();
+        boolean goingUp = target >= currentAngle;
+        double time;
+        if(goingUp){
+            time = timeToStartUp + upTable.get(target)-timeToStopUp;
+        }
+        else{
+            time = timeToStartDown + downTable.get(target)-timeToStopDown;
+        }
+        if(time<0){
+            time = 0;
+        }
+        hardware.startPulse(time, goingUp);
     }
 
     public void driveUp() {
