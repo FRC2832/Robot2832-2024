@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj.Solenoid;
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;
 
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 
+@SuppressWarnings("removal")
 public class PneumaticHW implements IPneumaticHW {
     private Pigeon2 angSensor;
     private Solenoid upSolenoid, downSolenoid;
     private double currentAngle;
-    private StatusSignal<Double> rollAngle;
     BooleanLogEntry driveUp;
     BooleanLogEntry driveDown;
     DoubleLogEntry angleLog;
@@ -29,32 +29,30 @@ public class PneumaticHW implements IPneumaticHW {
         downSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
 
         Logger.RegisterSensor("Shooter Angle", ()->currentAngle);
-        rollAngle = angSensor.getRoll();
+
         //turn on 1ms logging
         if(use1msLogging) {
-            rollAngle.setUpdateFrequency(1000);
+            angSensor.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_9_SixDeg_YPR,5);
             var log = DataLogManager.getLog();
             var timestamp = WPIUtilJNI.now();
             driveUp = new BooleanLogEntry(log, "Aimer:DriveUp", timestamp);
             driveDown = new BooleanLogEntry(log, "Aimer:DriveDown", timestamp);
             angleLog = new DoubleLogEntry(log, "Aimer:Angle", timestamp);
-            UtilFunctions.addPeriodic(this::run1ms, 0.001, 0);
+            UtilFunctions.addPeriodic(this::run1ms, 0.005, 0);
         } else {
-            rollAngle.setUpdateFrequency(50);
+            angSensor.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_9_SixDeg_YPR,18);
         }
     }
 
     public void run1ms() {
         //log data
-        rollAngle.refresh();
-        currentAngle = rollAngle.getValueAsDouble();
+        currentAngle = angSensor.getRoll();
         angleLog.append(currentAngle);
     }
 
     @Override
     public void updateInputs() {
-        rollAngle.refresh();
-        currentAngle = rollAngle.getValueAsDouble();
+        currentAngle = angSensor.getRoll();
     }
 
     @Override 
