@@ -10,13 +10,13 @@ import frc.robot.shooter.Shooter;
 import frc.robot.aimer.Pneumatics;
 import frc.robot.intake.Intake;
 
-
 public class OperatorStick extends Command {
     private Shooter shoot;
     private Kicker kick;
     private Pneumatics aimer;
     private IOperatorControls cont;
     private Intake intake;
+    private int kickerTimer;
 
     public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Pneumatics aimer, Intake intake){
         this.shoot = shoot;
@@ -28,21 +28,21 @@ public class OperatorStick extends Command {
         addRequirements(shoot);
         addRequirements(kick);
 
-        SmartDashboard.putNumber("Shooter RPM Command",4500);
-        SmartDashboard.putNumber("Kicker RPM Command",4500);
+        SmartDashboard.putNumber("Shooter RPM Command",3500);
+        SmartDashboard.putNumber("Kicker RPM Command",5000);
     }
 
     @Override
     public void initialize() {
-        
+        kickerTimer = 0;
     }
 
     @Override
     public void execute() {
         if(cont.IsSubShotRequested()){
-            double shotRpm = SmartDashboard.getNumber("Shooter RPM Command", 4500);
+            double shotRpm = SmartDashboard.getNumber("Shooter RPM Command", 3500);
             double shotAngle = SmartDashboard.getNumber("Shooter Angle Command", 51);
-            double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 4500);
+            double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 5000);
             shoot.setRPM(shotRpm);
             kick.setRPM(kickRpm);
             aimer.goTo(shotAngle);
@@ -56,13 +56,20 @@ public class OperatorStick extends Command {
                 cont.rumbleController(RumbleType.kBothRumble, 0);
             }
         }
-        else{
-            shoot.setRPM(3500);
+        else {
             if(intake.isPieceDetected()){
-                kick.setRPM(3500);
+                shoot.setRPM(3000);
+                if(kickerTimer > 25) { //loops
+                    kick.setRPM(3000);
+                } else {
+                    kick.setPower(0);
+                    kickerTimer++;
+                }
             }
             else{
-                kick.setRPM(0);
+                shoot.setRPM(500);
+                kick.setPower(0);
+                kickerTimer = 0;
             }
             DriverFeedback.setColor(Color.kBlack);
             cont.rumbleController(RumbleType.kBothRumble, 0);
