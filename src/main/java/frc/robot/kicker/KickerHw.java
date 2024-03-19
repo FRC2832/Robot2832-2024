@@ -43,11 +43,11 @@ public class KickerHw implements IKickerHw {
         final double MAX_MOTOR_RPM = 6450;
         for(int i=0; i<kickers.length; i++) {
             pids[i] = kickers[i].getPIDController();
-            pids[i].setP(1./MAX_MOTOR_RPM);
+            pids[i].setP(1/MAX_MOTOR_RPM);
             pids[i].setI(0.01/MAX_MOTOR_RPM);
-            pids[i].setD(0);
+            pids[i].setD(0.3/MAX_MOTOR_RPM);
             pids[i].setFF(1./MAX_MOTOR_RPM);
-            pids[i].setIZone(100);
+            pids[i].setIZone(500);
             kickers[i].setIdleMode(IdleMode.kBrake);   
             kickers[i].burnFlash();         
         }
@@ -64,6 +64,7 @@ public class KickerHw implements IKickerHw {
             kicker.set(power);
         }
     }
+
     @Override
     public void setRpm(double rpm) {
         for (int i=0;i<pids.length; i++) {
@@ -71,14 +72,10 @@ public class KickerHw implements IKickerHw {
             //kickers[i].set(rpm/6500);
         }
     }
-    
-
 
     @Override
     public void updateInputs() {
         SmartDashboard.putNumber("Top Kicker Speed", kickers[0].getEncoder().getVelocity());
         SmartDashboard.putNumber("Bottom Kicker Speed", kickers[1].getEncoder().getVelocity());
     }
-
-
 }
