@@ -15,6 +15,7 @@ public interface IOperatorControls {
     boolean IsClimbRequested();
     boolean IsIntakeRequested();
     boolean IsIntakeDownRequested();
+    boolean IsAmpToggled();
     double GetTurnPct();
     void rumbleController(RumbleType type, double value);
 }
