@@ -5,6 +5,7 @@ import frc.robot.RobotContainer;
 
 import org.livoniawarriors.Logger;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -27,6 +28,8 @@ public class ShooterHw implements IShooterHw {
             motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
             motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
         }
+
+        shooters[1].follow(shooters[0]);
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
     }
@@ -35,7 +38,7 @@ public class ShooterHw implements IShooterHw {
         TalonFXConfiguration allConfigs = new TalonFXConfiguration();
         for(TalonFX motor:shooters){
             motor.getAllConfigs(allConfigs);
-            allConfigs.slot0.kP = 0.4023;
+            allConfigs.slot0.kP = 0.2023;
             allConfigs.slot0.kI = 0.0016;
             allConfigs.slot0.kD = 0.01;
             allConfigs.slot0.kF = 0.05522;
@@ -47,6 +50,7 @@ public class ShooterHw implements IShooterHw {
             allConfigs.peakOutputReverse = -1;
             allConfigs.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 70, 90, .2);
             motor.configAllSettings(allConfigs);
+            motor.setNeutralMode(NeutralMode.Coast);
         }
 
         shooters[1].setInverted(false);
@@ -55,15 +59,11 @@ public class ShooterHw implements IShooterHw {
 
     @Override
     public void setRpm(double rpm) {
-        for (TalonFX shooter : shooters) {
-            shooter.set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
-        }
+        shooters[0].set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
     }
 
     public void setPower(double power) {
-        for (TalonFX shooter : shooters) {
-            shooter.set(TalonFXControlMode.PercentOutput, power);
-        }
+        shooters[0].set(TalonFXControlMode.PercentOutput, power);
     }
     
     @Override
