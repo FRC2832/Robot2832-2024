@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 2.3,
-        "y": 5.5
+        "x": 1.9455461987847067,
+        "y": 5.476153259998827
       },
       "prevControl": {
-        "x": 2.2765783269084365,
-        "y": 5.515804013063089
+        "x": 1.9221245256931434,
+        "y": 5.491957273061916
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Shoot2"
     }
   ],
   "rotationTargets": [
