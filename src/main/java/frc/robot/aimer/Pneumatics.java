@@ -24,6 +24,7 @@ public class Pneumatics extends SubsystemBase {
         super();
         this.hardware = hardware;
         upTable = new InterpolatingDoubleTreeMap();
+        downTable = new InterpolatingDoubleTreeMap();
         readShooterTable("/Aimer_Cal2_Up.csv",upTable);
         readShooterTable("/Aimer_Cal2_Down.csv",downTable);
     }
