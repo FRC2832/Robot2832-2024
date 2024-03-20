@@ -514,7 +514,7 @@ public class Logger implements Runnable {
         }
         StringBuilder work = new StringBuilder();
         for(var i=0; i<15; i++) {
-            if((faults & (1 << i)) == 1) {
+            if((faults & (1 << i)) == (1 << i)) {
                 var fault = CANSparkMax.FaultID.fromId(i);
                 work.append(fault.name()).append(" ");
             }
