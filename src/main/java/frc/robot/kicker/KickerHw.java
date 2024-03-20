@@ -46,7 +46,7 @@ public class KickerHw implements IKickerHw {
             pids[i].setP(1/MAX_MOTOR_RPM);
             pids[i].setI(0.01/MAX_MOTOR_RPM);
             pids[i].setD(0.3/MAX_MOTOR_RPM);
-            pids[i].setFF(1./MAX_MOTOR_RPM);
+            pids[i].setFF(1.2/MAX_MOTOR_RPM);
             pids[i].setIZone(500);
             kickers[i].setIdleMode(IdleMode.kBrake);   
             kickers[i].burnFlash();         

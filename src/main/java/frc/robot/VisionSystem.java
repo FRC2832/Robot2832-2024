@@ -29,6 +29,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -213,5 +214,10 @@ public class VisionSystem extends SubsystemBase {
 
     public boolean isCameraPresent() {
         return heartbeatMisses < 100;
+    }
+
+    public boolean seesTarget() {
+        //returns if the last time we have seen a target is <1 sec
+        return (Timer.getFPGATimestamp() - lastTimestamp) < 1;
     }
 }

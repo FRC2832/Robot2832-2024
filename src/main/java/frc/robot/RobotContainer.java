@@ -5,6 +5,7 @@
 package frc.robot;
 
 import org.livoniawarriors.Logger;
+import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.leds.LedSubsystem;
 import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Controls.AmpScore;
 import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -46,6 +48,9 @@ import frc.robot.Controls.XboxDriveControls;
 import frc.robot.aimer.DriveAimer;
 import frc.robot.aimer.PneumaticHW;
 import frc.robot.aimer.SetAimer;
+import frc.robot.amp.Amp;
+import frc.robot.amp.AmpHw;
+import frc.robot.amp.AmpSim;
 import frc.robot.climber.DriveClimb;
 import frc.robot.climber.HomeClimber;
 import frc.robot.climber.Inclinator;
@@ -89,6 +94,7 @@ public class RobotContainer {
     private Pneumatics aimer;
     private PneumaticHub ph;
     private VisionSystem vision;
+    private Amp amp;
     private SendableChooser<Command> autoChooser;
 
     // Controller Options
@@ -128,6 +134,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
             aimer = new Pneumatics(new PneumaticsSim());
+            amp = new Amp(new AmpSim());
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -137,6 +144,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
             aimer = new Pneumatics(new PneumaticsSim());
+            amp = new Amp(new AmpSim());
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
@@ -146,6 +154,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticsSim());
+            amp = new Amp(new AmpSim());
         } else {
             //competition robot
             ph = new PneumaticHub();
@@ -161,6 +170,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorHw());
             kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticHW());
+            amp = new Amp(new AmpHw());
         }
 
         new DriverFeedback(vision, intake, leds);
@@ -204,24 +214,9 @@ public class RobotContainer {
         driveControllerChooser.addOption("Xbox Controller", kXbox );
         driveControllerChooser.setDefaultOption("Fight Sticks", kFlight);
         SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
-        // Configure the AutoBuilder
-        AutoBuilder.configureHolonomic(
-            odometry::getPose, // Robot pose supplier
-            odometry::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            swerveDrive::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            swerveDrive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                new PIDConstants(0.0, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(0.0, 0.0, 0.0), // Rotation PID constants
-                swerveDrive.getMaxSpeed(), // Max module speed, in m/s
-                swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
-                new ReplanningConfig() // Default path replanning config. See the API for the options here
-            ),
-            odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
-            swerveDrive // Reference to this subsystem to set requirements
-        );
 
         // Build an auto chooser. This will use Commands.none() as the default option.
+        configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.onChange(command -> {
@@ -268,6 +263,7 @@ public class RobotContainer {
         new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake));
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
+        new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
     }
 
     public void disableBindings() {
@@ -283,6 +279,32 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
+        configureAutoBuilder();
         return autoChooser.getSelected();
+    }
+
+    private void configureAutoBuilder() {
+        // Configure the AutoBuilder
+        AutoBuilder.configureHolonomic(
+            odometry::getPose, // Robot pose supplier
+            odometry::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            swerveDrive::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            swerveDrive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                new PIDConstants(
+                    UtilFunctions.getSetting("/PathPlanner/DriveP", 5), 
+                    UtilFunctions.getSetting("/PathPlanner/DriveI", 0), 
+                    UtilFunctions.getSetting("/PathPlanner/DriveD", 0)), // Translation PID constants
+                new PIDConstants(
+                    UtilFunctions.getSetting("/PathPlanner/TurnP", 5), 
+                    UtilFunctions.getSetting("/PathPlanner/TurnI", 0), 
+                    UtilFunctions.getSetting("/PathPlanner/TurnD", 0)), // Rotation PID constants
+                3, // Max module speed, in m/s
+                swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
+                new ReplanningConfig() // Default path replanning config. See the API for the options here
+            ),
+            odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
+            swerveDrive // Reference to this subsystem to set requirements
+        );
     }
 }

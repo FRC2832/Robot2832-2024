@@ -41,8 +41,8 @@ public class DriverFeedback extends SubsystemBase {
             message = " FLT";
         } else if(!vision.isCameraPresent()) {
             message = " PI ";
-        } else if (Logger.StickyFaultSet()) {
-            message = "SFLT";
+        } else if(!vision.seesTarget()) {
+            message = " TAG";
         } else {
             message = "RONY";
         }

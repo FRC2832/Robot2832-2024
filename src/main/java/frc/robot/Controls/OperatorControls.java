@@ -91,4 +91,9 @@ public class OperatorControls implements IOperatorControls{
     public boolean IsPillarShotRequested() {
         return cont.getXButtonPressed();
     }
+
+    @Override
+    public boolean IsAmpToggled() {
+        return cont.getRightBumper();
+    }
 }
