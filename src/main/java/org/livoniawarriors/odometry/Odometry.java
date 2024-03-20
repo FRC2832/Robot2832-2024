@@ -4,6 +4,7 @@ import org.livoniawarriors.Logger;
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.swerve.SwerveDriveTrain;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -39,7 +41,8 @@ public class Odometry extends SubsystemBase {
     private BooleanSubscriber resetPos;
     private BooleanSubscriber plotCorners;
     private BooleanSubscriber useVision;
-    private DoublePublisher visionOffset;
+    private DoublePublisher visionOffset, pathRotOffset;
+    private DoubleArraySubscriber pathTarget, pathCurrent;
     private IntegerPublisher visionFrameCount;
     private long frameCount;
     private boolean startPosReceived;
@@ -60,6 +63,9 @@ public class Odometry extends SubsystemBase {
         useVision = UtilFunctions.getSettingSub("/Odometry/Use Vision", false);
         visionOffset = UtilFunctions.getNtPub("/Odometry/Vision Error", 0.);
         visionFrameCount = UtilFunctions.getNtPub("/Odometry/VisionFrames", 0);
+        pathCurrent = UtilFunctions.getNtSub("/PathPlanner/currentPose", new double[3]);
+        pathTarget = UtilFunctions.getNtSub("/PathPlanner/targetPose", new double[3]);
+        pathRotOffset = UtilFunctions.getNtPub("/PathPlanner/rotInaccuracy", 0.);
 
         SmartDashboard.putData("Field", field);
         Logger.RegisterSensor("Gyro Yaw", this::getGyroAngle);
@@ -94,6 +100,11 @@ public class Odometry extends SubsystemBase {
     public void periodic() {
         hardware.updateHardware();
         Rotation2d heading = getGyroRotation();
+
+        //fill out the rotation error for pathplanner
+        var current = pathCurrent.get();
+        var target = pathTarget.get();
+        pathRotOffset.set(MathUtil.inputModulus(current[2] - target[2],-Math.PI, Math.PI));
 
         if(drive != null) {
             SwerveModulePosition[] states = drive.getSwervePositions();

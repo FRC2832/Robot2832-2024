@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleArrayTopic;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
@@ -143,6 +144,23 @@ public class UtilFunctions {
         BooleanPublisher pub = topic.publish();
         pub.setDefault(backup);
         BooleanSubscriber sub = topic.subscribe(backup);
+        if(!sub.exists()) {
+            pub.set(backup);
+        }
+        return sub;
+    }
+
+    /**
+     * This creates a NT subscriber so we don't have to keep querying the key in the table to get the value.
+     * @param key The parameter you want to get (slashes are allowed)
+     * @param backup The value to use if the key is missing
+     * @return The subscriber to get values from
+     */
+    public static DoubleArraySubscriber getNtSub(String key, double[] backup) {
+        DoubleArrayTopic topic = NetworkTableInstance.getDefault().getDoubleArrayTopic(checkKey(key));
+        DoubleArrayPublisher pub = topic.publish();
+        pub.setDefault(backup);
+        DoubleArraySubscriber sub = topic.subscribe(backup);
         if(!sub.exists()) {
             pub.set(backup);
         }
