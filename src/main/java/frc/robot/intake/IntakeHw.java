@@ -33,8 +33,6 @@ public class IntakeHw implements IIntakeHw {
         // create a velocity closed-loop request, voltage output, slot 0 configs
         pidRequest = new VelocityVoltage(0).withSlot(0);
 
-        //have the left motor follow the right commands but reversed
-
         Logger.RegisterSensor("Low Note", () -> enterSensor.get() ? 0 : 1);
         Logger.RegisterSensor("High Note", () -> highSensor.get() ? 0 : 1);
         Logger.RegisterTalon("Left Intake", leftIntake);
@@ -54,7 +52,7 @@ public class IntakeHw implements IIntakeHw {
         slot0Configs.kS = 0.0; // no output overcome static friction
         slot0Configs.kV = 12./6000.; // 6000 RPM over 12V
         slot0Configs.kP = 0.011; // An error of 1 rpm results in 0.011 V output
-        slot0Configs.kI = 0.0001; // no output for integrated error
+        slot0Configs.kI = 0.006; // no output for integrated error
         slot0Configs.kD = 0; // no output for error derivative
         
         rightIntake.getConfigurator().apply(configs);
