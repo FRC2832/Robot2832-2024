@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 @SuppressWarnings("removal")
 public class InclinatorHw implements IInclinatorHw {
@@ -18,7 +19,9 @@ public class InclinatorHw implements IInclinatorHw {
     private AnalogInput rightSwitch;
     private boolean leftLimit;
     private boolean rightLimit;
-    
+    private double leftHeight, rightHeight;
+    private final double COUNTS_PER_INCH = 90601./9.25;
+
     public InclinatorHw() {
         leftClimb = new TalonFX(62);
         rightClimb = new TalonFX(61);
@@ -111,11 +114,37 @@ public class InclinatorHw implements IInclinatorHw {
     @Override
     public void updateInputs() {
         if (leftSwitch.getVoltage() < 0.1) {
+            //set only on transition to homed
+            if(leftLimit == false) {
+                leftClimb.setSelectedSensorPosition(0);
+            }
             leftLimit = true;
+        } else {
+            leftLimit = false;
         }
+        leftHeight = 20.75 + (leftClimb.getSelectedSensorPosition() / COUNTS_PER_INCH);
+        SmartDashboard.putNumber("Left Climber Height", leftHeight);
 
         if(rightSwitch.getVoltage() < 0.1) {
+            //set only on transition to homed
+            if(rightLimit == false) {
+                rightClimb.setSelectedSensorPosition(0);
+            }
             rightLimit = true;
+        } else {
+            rightLimit = false;
         }
+        rightHeight = 20 + (rightClimb.getSelectedSensorPosition() / COUNTS_PER_INCH);
+        SmartDashboard.putNumber("Right Climber Height", rightHeight);
+    }
+
+    @Override
+    public double getLeftHeight() {
+        return leftHeight;
+    }
+
+    @Override
+    public double getRightHeight() {
+        return rightHeight;
     }
 }

@@ -28,7 +28,7 @@ public class IntakeHw implements IIntakeHw {
         this.isRunning = false;
         this.inverted = false;
         this.interrupt = false;
-        configureMotors();
+        //configureMotors();
         
         // create a velocity closed-loop request, voltage output, slot 0 configs
         pidRequest = new VelocityVoltage(0).withSlot(0);

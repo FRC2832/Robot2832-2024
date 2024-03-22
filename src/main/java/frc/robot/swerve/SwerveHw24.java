@@ -89,7 +89,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 18);
             sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 100);
         }
-        configureMotors();
+        //configureMotors();
 
         //register stuff for logging
         for(int wheel = 0; wheel<NUM_MOTORS; wheel++) {

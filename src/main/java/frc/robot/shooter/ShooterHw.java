@@ -1,5 +1,6 @@
 package frc.robot.shooter;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.RobotContainer;
 
@@ -16,22 +17,28 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 public class ShooterHw implements IShooterHw {
     private TalonFX[] shooters;
     private final double UNITS_TO_RPM = (60. * 10.) / 2048.;
+    private PIDController pidController;
 
     public ShooterHw() {
         shooters = new TalonFX[2];
         shooters[0] = new TalonFX(5, RobotContainer.kCanBusName);  //right
         shooters[1] = new TalonFX(6, RobotContainer.kCanBusName);  //left
 
-        configureMotors();
+        //configureMotors();
         
+        shooters[1].setInverted(false);
+        shooters[0].setInverted(true);
+                
         for(TalonFX motor:shooters){
             motor.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
             motor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
         }
 
-        shooters[1].follow(shooters[0]);
+        //shooters[1].follow(shooters[0]);
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
+
+        pidController = new PIDController(0, 0, 0);
     }
 
     public void configureMotors() {
@@ -52,18 +59,19 @@ public class ShooterHw implements IShooterHw {
             motor.configAllSettings(allConfigs);
             motor.setNeutralMode(NeutralMode.Coast);
         }
-
-        shooters[1].setInverted(false);
-        shooters[0].setInverted(true);
     }
 
     @Override
     public void setRpm(double rpm) {
-        shooters[0].set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
+        //shooters[0].set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
+        double ff = rpm / 6000;
+        double correction = pidController.calculate(getCurrentRPM(0), rpm);
+        setPower(ff + correction);
     }
 
     public void setPower(double power) {
         shooters[0].set(TalonFXControlMode.PercentOutput, power);
+        shooters[1].set(TalonFXControlMode.PercentOutput, power);
     }
     
     @Override

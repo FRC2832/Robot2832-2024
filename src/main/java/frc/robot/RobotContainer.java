@@ -158,7 +158,7 @@ public class RobotContainer {
         } else {
             //competition robot
             ph = new PneumaticHub();
-            ph.enableCompressorAnalog(95, 115);
+            ph.enableCompressorAnalog(85, 115);
             Logger.RegisterSensor("Pressure", () -> ph.getPressure(0));
 
             Logger.RegisterPdp(new PowerDistribution(), pdpList);
@@ -176,6 +176,7 @@ public class RobotContainer {
         new DriverFeedback(vision, intake, leds);
         odometry.setSwerveDrive(swerveDrive);
         odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
+        new RobotArbitrator(amp, inclinator, aimer);
 
         //add some buttons to press for development
         SmartDashboard.putData("Wheels Straight", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
@@ -264,6 +265,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
+        new HomeClimber(inclinator).schedule();
     }
 
     public void disableBindings() {

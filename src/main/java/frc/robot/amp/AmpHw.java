@@ -26,4 +26,8 @@ public class AmpHw implements IAmpHw {
             amp.set(Value.kReverse);
         }
     }
+
+    public Value getDirection() {
+        return amp.get();
+    }
 }

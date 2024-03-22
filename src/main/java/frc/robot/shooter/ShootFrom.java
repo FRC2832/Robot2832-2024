@@ -53,7 +53,7 @@ public class ShootFrom extends Command {
 
     @Override
     public boolean isFinished() {
-        return goodCounts > 40;
+        return false;
     }
 
     @Override

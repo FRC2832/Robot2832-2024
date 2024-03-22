@@ -7,5 +7,7 @@ public interface IInclinatorHw {
     double getRightCurrent();
     boolean getLeftLimit();
     boolean getRightLimit();
+    double getLeftHeight();
+    double getRightHeight();
     void updateInputs();
 }
