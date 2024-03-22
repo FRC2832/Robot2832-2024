@@ -9,7 +9,7 @@ public class RobotArbitrator extends SubsystemBase {
     private Amp amp;
     private Inclinator climber;
     private Pneumatics aimer;
-    private final double MIN_CLIMBER_HEIGHT = 24.5;
+    private final double MIN_CLIMBER_HEIGHT = 25.5;
     private final double MOVE_AIMER_HEIGHT = 37; 
     private final double STOW_AIMER_ANGLE = 35;
 
@@ -37,7 +37,7 @@ public class RobotArbitrator extends SubsystemBase {
         }
         
         if(climbLeft < -0.1 && !isHoming) {
-            double height = climber.getRightHeight();
+            double height = climber.getLeftHeight();
             if (height < MOVE_AIMER_HEIGHT) {
                 aimer.goTo(STOW_AIMER_ANGLE);
             }
