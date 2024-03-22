@@ -28,8 +28,8 @@ public class OperatorStick extends Command {
         addRequirements(shoot);
         addRequirements(kick);
 
-        SmartDashboard.putNumber("Shooter RPM Command",4500);
-        SmartDashboard.putNumber("Kicker RPM Command",6000);
+        SmartDashboard.putNumber("Shooter RPM Command",6000);
+        SmartDashboard.putNumber("Kicker RPM Command",6500);
     }
 
     @Override
@@ -40,8 +40,8 @@ public class OperatorStick extends Command {
     @Override
     public void execute() {
         if(cont.IsSubShotRequested()){
-            double shotRpm = SmartDashboard.getNumber("Shooter RPM Command", 4500);
-            double shotAngle = SmartDashboard.getNumber("Shooter Angle Command", 51);
+            double shotRpm = SmartDashboard.getNumber("Shooter RPM Command", 6000);
+            double shotAngle = SmartDashboard.getNumber("Shooter Angle Command", 54);
             double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 6500);
             shoot.setRPM(shotRpm);
             kick.setRPM(kickRpm);
