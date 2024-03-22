@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Controls.AmpScore;
+import frc.robot.Controls.AutoFixedShot;
 import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -68,6 +69,7 @@ import frc.robot.shooter.ShootFrom;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
+import frc.robot.shooter.StartShooter;
 import frc.robot.aimer.PneumaticsSim;
 import frc.robot.swerve.DriveStick;
 import frc.robot.swerve.PracticeSwerveHw;
@@ -191,7 +193,7 @@ public class RobotContainer {
         SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
         SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
-        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake));
+        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
         SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
         SmartDashboard.putData("Swerve SysId Dynamic Backward", swerveDrive.sysIdDynamic(Direction.kReverse));
         SmartDashboard.putData("Swerve SysId Quasistatic Forward", swerveDrive.sysIdQuasistatic(Direction.kForward));
@@ -204,11 +206,12 @@ public class RobotContainer {
         NamedCommands.registerCommand("Kick", new DriveIntake(intake, false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
+        NamedCommands.registerCommand("StartShooter", new StartShooter(shooter));
         //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
         if(Robot.isSimulation()) {
-            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake).withTimeout(1.5));
+            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive).withTimeout(1.5));
         } else {
-            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake));
+            NamedCommands.registerCommand("Shoot", new AutoFixedShot(intake, shooter, kick, aimer));
         }
 
         // Controller chooser Setup
@@ -261,7 +264,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
-        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake));
+        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
@@ -294,12 +297,12 @@ public class RobotContainer {
             swerveDrive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                 new PIDConstants(
-                    UtilFunctions.getSetting("/PathPlanner/DriveP", 5), 
-                    UtilFunctions.getSetting("/PathPlanner/DriveI", 0), 
+                    UtilFunctions.getSetting("/PathPlanner/DriveP", 2), 
+                    UtilFunctions.getSetting("/PathPlanner/DriveI", 0.5), 
                     UtilFunctions.getSetting("/PathPlanner/DriveD", 0)), // Translation PID constants
                 new PIDConstants(
-                    UtilFunctions.getSetting("/PathPlanner/TurnP", 5), 
-                    UtilFunctions.getSetting("/PathPlanner/TurnI", 0), 
+                    UtilFunctions.getSetting("/PathPlanner/TurnP", 1.5), 
+                    UtilFunctions.getSetting("/PathPlanner/TurnI", 0.5), 
                     UtilFunctions.getSetting("/PathPlanner/TurnD", 0)), // Rotation PID constants
                 3, // Max module speed, in m/s
                 swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
