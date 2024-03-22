@@ -4,7 +4,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Inclinator extends SubsystemBase {
     private IInclinatorHw hardware;
-    
+    private double leftRequest, rightRequest;
+
     public Inclinator(IInclinatorHw hardware){
         this.hardware = hardware;
     }
@@ -32,15 +33,16 @@ public class Inclinator extends SubsystemBase {
     }
 
     public void setPower(double power) {
-        hardware.setPower(power);
+        leftRequest = power;
+        rightRequest = power;
     }
 
     public void setOffsetPower(double power, boolean left){
         if(left){
-            hardware.setPower(power, 0);
+            leftRequest = power;
         } 
         else{
-            hardware.setPower(0, power);
+            rightRequest = power;
         }
     }
 
@@ -58,5 +60,25 @@ public class Inclinator extends SubsystemBase {
 
     public boolean getRightLimit() {
         return hardware.getRightLimit();
+    }
+
+    public double getLeftRequest() {
+        return leftRequest;
+    }
+
+    public double getRightRequest() {
+        return rightRequest;
+    }
+
+    public void setArbRequest(double left, double right) {
+        hardware.setPower(left, right);
+    }
+
+    public double getLeftHeight() {
+        return hardware.getLeftHeight();
+    }
+
+    public double getRightHeight() {
+        return hardware.getRightHeight();
     }
 }

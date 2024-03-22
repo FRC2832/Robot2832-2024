@@ -8,9 +8,9 @@ public class HomeClimber extends Command {
     int rightTimer;
     boolean isLeftHomed;
     boolean isRightHomed;
-    final double kCurrentLimit = 1;
+    final double kCurrentLimit = 7;
     final int kTimeoutThreshold = 10;
-    final double kPower = -0.08;
+    final double kPower = -0.2;
 
     public HomeClimber(Inclinator climber) {
         this.climber = climber;
@@ -67,5 +67,10 @@ public class HomeClimber extends Command {
     @Override
     public boolean isFinished() {
         return isLeftHomed && isRightHomed;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        climber.setPower(0);
     }
 }

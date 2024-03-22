@@ -68,5 +68,15 @@ public class InclinatorSim implements IInclinatorHw {
     public boolean getRightLimit() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public double getLeftHeight() {
+        return leftPos;
+    }
+
+    @Override
+    public double getRightHeight() {
+        return rightPos;
     } 
 }
