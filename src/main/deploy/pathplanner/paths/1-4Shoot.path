@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3374413054104268,
-        "y": 6.686887667641241
+        "x": 1.1068560598659674,
+        "y": 6.887126081944472
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.641168356626191,
-        "y": 7.347360890126148
+        "x": 3.410583111081732,
+        "y": 7.5475993044293785
       },
       "isLocked": false,
       "linkedName": "ShootA"
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 1.3374413054104268,
-        "y": 6.686887667641241
+        "x": 1.1068560598659674,
+        "y": 6.887126081944472
       },
       "prevControl": {
-        "x": 3.1381913208161683,
-        "y": 7.293606856055373
+        "x": 2.9076060752717092,
+        "y": 7.493845270358603
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,10 +59,10 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0
+    "maxVelocity": 1.5,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 360.0
   },
   "goalEndState": {
     "velocity": 0.0,

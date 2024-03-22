@@ -6,12 +6,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "BShoot"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Shoot"

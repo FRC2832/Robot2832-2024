@@ -331,6 +331,13 @@ public class UtilFunctions {
         double zDist = pose.getZ();
         return Math.sqrt((xDist * xDist) + (yDist * yDist) + (zDist * zDist));
     }
+
+    public static double getAngle(Pose2d pose1, Pose2d pose2) {
+        double xDist = pose1.getX() - pose2.getX();
+        double yDist = pose1.getY() - pose2.getY();
+        double angle = Math.atan(yDist/xDist);
+        return angle;
+    }
     
     public static double LimitChange(double current, double target, double maxChangePerLoop) {
         double delta = target - current;

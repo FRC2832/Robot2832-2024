@@ -2,6 +2,7 @@ package frc.robot.aimer;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ public class Pneumatics extends SubsystemBase {
     private BufferedReader reader = null;
     private InterpolatingDoubleTreeMap upTable;
     private InterpolatingDoubleTreeMap downTable;
+    private double stopAimTime;
 
     public Pneumatics(IPneumaticHW hardware) {
         super();
@@ -44,6 +46,10 @@ public class Pneumatics extends SubsystemBase {
     }
 
     public void goToSmooth(double target){
+        //don't allow a command if one is already running
+        if (Timer.getFPGATimestamp() < stopAimTime) {
+            return;
+        }
         double currentAngle = hardware.getAngle();
         boolean goingUp = target >= currentAngle;
         double time;
@@ -55,8 +61,11 @@ public class Pneumatics extends SubsystemBase {
         }
         if(time<0){
             time = 0;
+        } else {
+            hardware.startPulse(time, goingUp);
+            stopAimTime = Timer.getFPGATimestamp() + time;
         }
-        hardware.startPulse(time, goingUp);
+        
     }
 
     public void driveUp() {
