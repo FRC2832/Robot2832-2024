@@ -29,7 +29,7 @@ public class KickerHw implements IKickerHw {
             encoders[i] = kickers[i].getEncoder();
             pids[i] = kickers[i].getPIDController();
         }
-        configureMotors();
+        //configureMotors();
         Logger.RegisterCanSparkFlex("Top Kicker", kickers[0]);
         Logger.RegisterCanSparkFlex("Bottom Kicker", kickers[1]);
         Logger.RegisterSensor("Top Kicker RPM", () -> getCurrentRPM(0));
