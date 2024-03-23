@@ -29,7 +29,7 @@ public class Autoshot extends Command {
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
         this.swerveDrive = swerveDrive;
-        this.pid = new PIDController(.6/Math.PI, .15, 0); //DID NOT THINK ABOUT SETTINGS!!!
+        this.pid = new PIDController(.6/Math.PI, .1, 0); //DID NOT THINK ABOUT SETTINGS!!!
         addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
 
     }
@@ -45,14 +45,19 @@ public class Autoshot extends Command {
 
         var robotPose = odometry.getPose();
         var speakerPose = new Pose2d(tagX, tagY, null);
+        //double inverse = 1;
+        double inverse = ((robotPose.getX()-speakerPose.getX())>0)?-1.0 : 1.0;
         var distance = UtilFunctions.getDistance(speakerPose, robotPose); //TODO: Need to handle rotation
         var angleDiff = UtilFunctions.getAngle(speakerPose, robotPose) - odometry.getHeading().getRadians();
-        
+        System.out.println("HI");
+
+        System.out.println(angleDiff);
         if(UtilFunctions.getAlliance() == Alliance.Blue){
             angleDiff = Math.PI-angleDiff;
         }
-        angleDiff = pid.calculate(odometry.getHeading().getRadians(), angleDiff);
+        angleDiff = pid.calculate(odometry.getHeading().getRadians(), UtilFunctions.getAngle(speakerPose, robotPose));
         swerveDrive.SwerveDrive(0,0,angleDiff);
+        
 
         AutoShotLookup lookup = shooter.estimate(distance);
 
