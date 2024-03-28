@@ -39,8 +39,15 @@ public class InclinatorHw implements IInclinatorHw {
         rightClimb.setStatusFramePeriod(StatusFrame.Status_1_General, 100);
         rightClimb.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 100);
 
+        leftClimb.setInverted(false);
+        rightClimb.setInverted(true);
         leftLimit = false;
         rightLimit = false;
+
+        leftClimb.setNeutralMode(NeutralMode.Brake);
+        rightClimb.setNeutralMode(NeutralMode.Brake);
+        leftHeight = 25;
+        rightHeight = 25;
     }
 
     public void configureMotors() {
