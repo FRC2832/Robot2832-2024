@@ -65,6 +65,7 @@ import frc.robot.intake.PitIntake;
 import frc.robot.kicker.Kicker;
 import frc.robot.kicker.KickerHw;
 import frc.robot.kicker.KickerSim;
+import frc.robot.shooter.ReverseShooter;
 import frc.robot.shooter.ShootFrom;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
@@ -268,6 +269,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
+        new Trigger(operatorControls::ReverseShooterRequested).whileTrue(new ReverseShooter(shooter));
         //new HomeClimber(inclinator).schedule();
     }
 

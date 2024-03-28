@@ -78,6 +78,7 @@ public class OperatorStick extends Command {
             DriverFeedback.setColor(Color.kBlack);
             cont.rumbleController(RumbleType.kBothRumble, 0);
         }
+        
     }
     
     @Override

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public interface IOperatorControls {
     boolean AutoSubAimRequested();
+    boolean ReverseShooterRequested();
     double GetManualSubAim();
     boolean IsSubShotRequested();
     boolean IsCenterFieldShotRequested();
