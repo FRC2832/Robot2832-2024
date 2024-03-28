@@ -36,7 +36,7 @@ public class AutoFixedShot extends Command {
         aimer.goTo(AIMER_ANGLE);
 
         if((  shooter.getRPM() > 4800
-          && Math.abs(aimer.getAngle() - AIMER_ANGLE) < 3)
+          && Math.abs(aimer.getAngle() - AIMER_ANGLE) < 5)
           || goodCounts > 6
           )
         {
