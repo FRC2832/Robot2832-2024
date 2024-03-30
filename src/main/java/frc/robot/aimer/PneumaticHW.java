@@ -21,7 +21,7 @@ public class PneumaticHW implements IPneumaticHW {
     BooleanLogEntry driveUp;
     BooleanLogEntry driveDown;
     DoubleLogEntry angleLog;
-    boolean use1msLogging = false;
+    boolean use1msLogging = true;
 
     public PneumaticHW() {
         this.angSensor = new Pigeon2(10);
@@ -91,11 +91,13 @@ public class PneumaticHW implements IPneumaticHW {
     public void startPulse(double time, boolean goingUp){
         if(goingUp){
             upSolenoid.setPulseDuration(time);
+            upSolenoid.startPulse();
             downSolenoid.set(false);
         }
         else{
             upSolenoid.set(false);
             downSolenoid.setPulseDuration(time);
+            downSolenoid.startPulse();
         }
     }
 

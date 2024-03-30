@@ -30,6 +30,7 @@ public class OperatorStick extends Command {
 
         SmartDashboard.putNumber("Shooter RPM Command",6000);
         SmartDashboard.putNumber("Kicker RPM Command",6500);
+        SmartDashboard.putNumber("Shooter Angle Command", 54);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class OperatorStick extends Command {
             double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 6500);
             shoot.setRPM(shotRpm);
             kick.setRPM(kickRpm);
-            aimer.goTo(shotAngle);
+            aimer.goToSmooth(shotAngle);
 
             if (  (Math.abs(shotRpm - shoot.getRPM()) < 75) 
                && (Math.abs(shotAngle - aimer.getAngle()) < 4)
