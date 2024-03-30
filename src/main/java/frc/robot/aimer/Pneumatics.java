@@ -3,6 +3,7 @@ package frc.robot.aimer;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.io.BufferedReader;
@@ -13,14 +14,14 @@ import java.io.IOException;
 public class Pneumatics extends SubsystemBase {
     IPneumaticHW hardware;
     private double moe = 4.00;
-    private double timeToStartUp = 0.18;
-    private double timeToStartDown = 0.8825;
-    private double timeToStopUp = 0.232;
-    private double timeToStopDown = 0.2818;
+    private double timeToStartUp = 0.09;
+    private double timeToStartDown = 0.0825;
+    private double timeToStopUp = 0.19;
+    private double timeToStopDown = 0.16;
     private BufferedReader reader = null;
     private InterpolatingDoubleTreeMap upTable;
     private InterpolatingDoubleTreeMap downTable;
-    private double stopAimTime;
+    private double stopAimTime = 0;
 
     public Pneumatics(IPneumaticHW hardware) {
         super();
@@ -54,18 +55,22 @@ public class Pneumatics extends SubsystemBase {
         boolean goingUp = target >= currentAngle;
         double time;
         if(goingUp){
-            time = timeToStartUp + upTable.get(target)-timeToStopUp;
+            var curTime = upTable.get(currentAngle);
+            var tarTime = upTable.get(target);
+            time = timeToStartUp + (tarTime - curTime) - timeToStopUp;
         }
         else{
-            time = timeToStartDown + downTable.get(target)-timeToStopDown;
+            var curTime = downTable.get(currentAngle);
+            var tarTime = downTable.get(target);
+            time = timeToStartDown + (tarTime - curTime) - timeToStopDown;
         }
+        SmartDashboard.putNumber("Smooth Aimer Timer", time);
         if(time<0){
             time = 0;
         } else {
             hardware.startPulse(time, goingUp);
             stopAimTime = Timer.getFPGATimestamp() + time;
         }
-        
     }
 
     public void driveUp() {
