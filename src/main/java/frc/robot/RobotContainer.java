@@ -169,7 +169,7 @@ public class RobotContainer {
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new Shooter(new ShooterHw());
             intake = new Intake(new IntakeHw());
-            inclinator = new Inclinator(new InclinatorSim());
+            inclinator = new Inclinator(new InclinatorHw());
             kick = new Kicker(new KickerHw());
             aimer = new Pneumatics(new PneumaticHW());
             amp = new Amp(new AmpHw());
@@ -268,7 +268,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
-        //new HomeClimber(inclinator).schedule();
+        new HomeClimber(inclinator).schedule();
     }
 
     public void disableBindings() {
