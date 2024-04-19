@@ -48,7 +48,7 @@ public class OperatorStick extends Command {
             kick.setRPM(kickRpm);
             aimer.goToSmooth(shotAngle);
 
-            if (  (Math.abs(shotRpm - shoot.getRPM()) < 75) 
+            if (  (Math.abs(shotRpm - shoot.getRPM()) < 125) 
                && (Math.abs(shotAngle - aimer.getAngle()) < 4)
                )
             {

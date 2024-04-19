@@ -32,7 +32,7 @@ public class Autoshot extends Command {
         this.tagY = 218.42 * 0.0254;
         this.swerveDrive = swerveDrive;
         this.pid = new PIDController(.6/Math.PI, .15, 0); //DID NOT THINK ABOUT SETTINGS!!!
-        addRequirements(shooter, pneumatic, kicker, intake);
+        addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
     }
 
     @Override
@@ -59,10 +59,10 @@ public class Autoshot extends Command {
         AutoShotLookup lookup = shooter.estimate(distance);
 
         shooter.setRPM(lookup.getShooterSpeed());
-        pneumatic.goTo(lookup.getAngle());
+        pneumatic.goToSmooth(lookup.getAngle());
         kicker.setRPM(lookup.getKickerSpeed());
-        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 75)
-              && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 4)
+        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 125)
+              && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 2)
               )
            )
         {

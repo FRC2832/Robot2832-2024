@@ -327,8 +327,8 @@ public class SwerveDriveTrain extends SubsystemBase {
                 outputStates[i].speedMetersPerSecond = 0;
             } else {
                 //copy the request over
-                outputStates[i].angle = Rotation2d.fromDegrees(requestMod);
-                outputStates[i].speedMetersPerSecond = requestStates[i].speedMetersPerSecond;
+                outputStates[i].angle = Rotation2d.fromDegrees(angleReq);
+                outputStates[i].speedMetersPerSecond = speedReq;
             }
         }
         return outputStates;

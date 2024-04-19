@@ -60,7 +60,6 @@ public class PneumaticsSim implements IPneumaticHW {
     @Override
     public void startPulse(double time, boolean goingUp) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'startPulse'");
     }
     
 }
