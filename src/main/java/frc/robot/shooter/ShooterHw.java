@@ -38,7 +38,7 @@ public class ShooterHw implements IShooterHw {
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
 
-        pidController = new PIDController(0, 0, 0);
+        pidController = new PIDController(0.05/100, 0.007/100, 0);
     }
 
     public void configureMotors() {
@@ -64,6 +64,10 @@ public class ShooterHw implements IShooterHw {
     @Override
     public void setRpm(double rpm) {
         //shooters[0].set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
+        if(Math.abs(rpm - getCurrentRPM(0)) > 3000) {
+            //this is effectively an Izone
+            pidController.reset();
+        }
         double ff = rpm / 6000;
         double correction = pidController.calculate(getCurrentRPM(0), rpm);
         setPower(ff + correction);

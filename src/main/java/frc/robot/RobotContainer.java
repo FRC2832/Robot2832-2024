@@ -270,7 +270,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
         new Trigger(operatorControls::ReverseShooterRequested).whileTrue(new ReverseShooter(shooter));
-        //new HomeClimber(inclinator).schedule();
+        new HomeClimber(inclinator).schedule();
     }
 
     public void disableBindings() {
