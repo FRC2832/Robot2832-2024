@@ -96,4 +96,10 @@ public class OperatorControls implements IOperatorControls{
     public boolean IsAmpToggled() {
         return cont.getRightBumper();
     }
+
+
+    @Override
+    public boolean ReverseShooterRequested() {
+        return cont.getLeftBumper();
+    }
 }
