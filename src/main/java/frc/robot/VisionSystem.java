@@ -67,6 +67,8 @@ public class VisionSystem extends SubsystemBase {
         }
         aprilTagFieldLayout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
+        //stop code from crashing on version mismatch
+        PhotonCamera.setVersionCheckEnabled(false);
         //get camera by name
         frontCam = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
