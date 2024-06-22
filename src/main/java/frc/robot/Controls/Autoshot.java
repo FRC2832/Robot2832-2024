@@ -61,8 +61,8 @@ public class Autoshot extends Command {
         shooter.setRPM(lookup.getShooterSpeed());
         pneumatic.goToSmooth(lookup.getAngle());
         kicker.setRPM(lookup.getKickerSpeed());
-        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 125)
-              && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 2)
+        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 300)
+              && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 3)
               )
            )
         {

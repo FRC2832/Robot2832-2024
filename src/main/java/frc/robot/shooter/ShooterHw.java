@@ -38,7 +38,7 @@ public class ShooterHw implements IShooterHw {
         Logger.RegisterTalon("Left Shooter",shooters[1]);
         Logger.RegisterTalon("Right Shooter",shooters[0]);
 
-        pidController = new PIDController(0.05/100, 0.007/100, 0);
+        pidController = new PIDController(0.02/100, 0.003/100, 0);
     }
 
     public void configureMotors() {
