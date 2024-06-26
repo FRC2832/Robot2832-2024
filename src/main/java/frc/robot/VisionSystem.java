@@ -42,8 +42,8 @@ public class VisionSystem extends SubsystemBase {
 
     private PhotonCamera frontCam;
     private Transform3d frontCamPos;
-    private double lastTimestamp;
-    private final double APRILTAG_POSE_AMBIGUITY_THRESHOLD = 0.15;
+    private double lastTargetTimestamp;
+    private static final double APRILTAG_POSE_AMBIGUITY_THRESHOLD = 0.25;
     
     // The standard deviations of our vision estimated poses, which affect correction rate
     // (Fake values. Experiment and determine estimation noise on an actual robot.)
@@ -55,6 +55,7 @@ public class VisionSystem extends SubsystemBase {
     private IntegerSubscriber heartbeatSub;
     private long heartbeatLast;
     private int heartbeatMisses;
+    private CameraData cameras[];
 
     public VisionSystem(Odometry odometry) {
         super();
@@ -69,21 +70,36 @@ public class VisionSystem extends SubsystemBase {
 
         //stop code from crashing on version mismatch
         PhotonCamera.setVersionCheckEnabled(false);
-        //get camera by name
-        frontCam = new PhotonCamera("Shooter_Camera");
+
+        cameras = new CameraData[2];
+
+        cameras[0] = new CameraData();
+        cameras[0].camera = new PhotonCamera("Shooter_Camera");
         //get the offsets where the camera is mounted
         frontCamPos = new Transform3d(
-            new Translation3d(-0.27, -0.29, 0.45), 
-            new Rotation3d(0,-Math.toRadians(17.5),Math.toRadians(180))
+            new Translation3d(-0.27, -0.3, 0.45), 
+            new Rotation3d(Math.PI+Math.toRadians(4),-Math.toRadians(17.5),Math.toRadians(180))
         );
         //get the estimator of it
-        frontCamEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, frontCam, frontCamPos);
-        frontCamEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        cameras[0].poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameras[0].camera, frontCamPos);
+        cameras[0].poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+
+        cameras[1] = new CameraData();
+        cameras[1].camera = new PhotonCamera("Left_Camera");
+        //get the offsets where the camera is mounted
+        var leftCamPos = new Transform3d(
+            new Translation3d(-0.27, 0.3, 0.45), 
+            new Rotation3d(Math.PI-Math.toRadians(5),-Math.toRadians(22),Math.toRadians(180))
+        );
+        //get the estimator of it
+        cameras[1].poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameras[1].camera, leftCamPos);
+        cameras[1].poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
         visionStdDev = UtilFunctions.getSettingSub("/Odometry/VisionStdDev", 4);
-        lastTimestamp = 0;
+        lastTargetTimestamp = 0;
 
         //setup heartbeat
+        frontCam = cameras[0].camera;
         heartbeatSub = frontCam.getCameraTable().getIntegerTopic("heartbeat").subscribe(0);
         heartbeatLast = 0;
         heartbeatMisses = 0;
@@ -100,13 +116,26 @@ public class VisionSystem extends SubsystemBase {
         }
         heartbeatLast = heartbeat;
 
+        for(var camera : cameras) {
+            processCamera(camera);
+        }
+    }
+
+    private class CameraData {
+        PhotonCamera camera;
+        PhotonPoseEstimator poseEstimator;
+        double lastTimestamp;
+    }
+
+    public void processCamera(CameraData data) {
+        String name = data.camera.getName();
         // Update and log inputs
-        PhotonPipelineResult pipelineResult = frontCam.getLatestResult();
+        PhotonPipelineResult pipelineResult = data.camera.getLatestResult();
         //need to update our estimate every loop
-        frontCamEstimator.setReferencePose(odometry.getPose());
+        data.poseEstimator.setReferencePose(odometry.getPose());
 
         //return if we don't have a new packet
-        if(lastTimestamp == pipelineResult.getLatencyMillis()) return;
+        if(data.lastTimestamp == pipelineResult.getLatencyMillis()) return;
 
         //remove targets too inaccurate to be used
         //have to use a list as .remove() will mess up the for loop as i will increment and skip over records
@@ -123,28 +152,28 @@ public class VisionSystem extends SubsystemBase {
         if (!pipelineResult.hasTargets()) return;
 
         var target = pipelineResult.getBestTarget();
-        SmartDashboard.putNumber("Tag Number", target.getFiducialId());
-        SmartDashboard.putNumber("Tag Distance", UtilFunctions.getDistance(target.getBestCameraToTarget()));
+        SmartDashboard.putNumber(name + " Tag Number", target.getFiducialId());
+        SmartDashboard.putNumber(name + " Tag Distance", UtilFunctions.getDistance(target.getBestCameraToTarget()));
 
         // Update pose estimate
-        frontCamEstimator.update(pipelineResult).ifPresent(estimatedRobotPose -> {
+        data.poseEstimator.update(pipelineResult).ifPresent(estimatedRobotPose -> {
             var estimatedPose = estimatedRobotPose.estimatedPose;
             // Make sure the measurement is on the field
             if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Odometry.FIELD_LENGTH_METERS
                 && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Odometry.FIELD_WIDTH_METERS) {
-                SmartDashboard.putNumber("Pose Data X", estimatedPose.getX());
-                SmartDashboard.putNumber("Pose Data Y", estimatedPose.getY());
-                SmartDashboard.putNumber("Pose Data Z", estimatedPose.getZ());
+                SmartDashboard.putNumber(name + " Pose Data X", estimatedPose.getX());
+                SmartDashboard.putNumber(name + " Pose Data Y", estimatedPose.getY());
+                SmartDashboard.putNumber(name + " Pose Data Z", estimatedPose.getZ());
                 double stdDiv = visionStdDev.get();
                 Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
                 odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
-                lastTimestamp = pipelineResult.getTimestampSeconds();
+                data.lastTimestamp = pipelineResult.getTimestampSeconds();
+                lastTargetTimestamp = data.lastTimestamp;
                 
                 var tag = aprilTagFieldLayout.getTagPose(target.getFiducialId());
                 if(tag.isPresent()) {
-                    SmartDashboard.putNumber("Robot Target Distance", UtilFunctions.getDistance(estimatedPose.toPose2d(), tag.get().toPose2d()));
+                    SmartDashboard.putNumber(name + " Robot Target Distance", UtilFunctions.getDistance(estimatedPose.toPose2d(), tag.get().toPose2d()));
                 }
-
             }
         });
     }
@@ -220,6 +249,6 @@ public class VisionSystem extends SubsystemBase {
 
     public boolean seesTarget() {
         //returns if the last time we have seen a target is <1 sec
-        return (Timer.getFPGATimestamp() - lastTimestamp) < 1;
+        return (Timer.getFPGATimestamp() - lastTargetTimestamp) < 1;
     }
 }
