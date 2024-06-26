@@ -14,10 +14,10 @@ import java.io.IOException;
 public class Pneumatics extends SubsystemBase {
     IPneumaticHW hardware;
     private double moe = 4.00;
-    private double timeToStartUp = 0.09;
+    private double timeToStartUp = 0.07;
     private double timeToStartDown = 0.0825;
-    private double timeToStopUp = 0.19;
-    private double timeToStopDown = 0.16;
+    private double timeToStopUp = 0.161;
+    private double timeToStopDown = 0.15;
     private BufferedReader reader = null;
     private InterpolatingDoubleTreeMap upTable;
     private InterpolatingDoubleTreeMap downTable;
