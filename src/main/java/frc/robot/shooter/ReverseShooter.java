@@ -1,12 +1,15 @@
 package frc.robot.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.kicker.Kicker;
 
 public class ReverseShooter extends Command {
     Shooter shooter;
-    public ReverseShooter(Shooter shooter){
+    Kicker kicker;
+    
+    public ReverseShooter(Kicker kicker, Shooter shooter){
         this.shooter = shooter;
-        addRequirements(shooter);
+        addRequirements(shooter, kicker);
     }
 
     @Override
@@ -21,7 +24,7 @@ public class ReverseShooter extends Command {
     
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
     }
 
     @Override

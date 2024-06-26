@@ -21,7 +21,7 @@ public class PneumaticHW implements IPneumaticHW {
     BooleanLogEntry driveUp;
     BooleanLogEntry driveDown;
     DoubleLogEntry angleLog;
-    boolean use1msLogging = true;
+    boolean use1msLogging = false;
 
     public PneumaticHW() {
         this.angSensor = new Pigeon2(10);

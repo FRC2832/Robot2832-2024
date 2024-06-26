@@ -3,9 +3,12 @@ import frc.robot.intake.Intake;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
 import frc.robot.aimer.Pneumatics;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import org.livoniawarriors.UtilFunctions;
@@ -31,7 +34,7 @@ public class Autoshot extends Command {
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
         this.swerveDrive = swerveDrive;
-        this.pid = new PIDController(.6/Math.PI, .15, 0); //DID NOT THINK ABOUT SETTINGS!!!
+        this.pid = new PIDController(.35/Math.PI, .45, 0); //DID NOT THINK ABOUT SETTINGS!!!
         addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
     }
 
@@ -42,27 +45,46 @@ public class Autoshot extends Command {
 
     @Override 
     public void execute(){
-        var tagX = (UtilFunctions.getAlliance() == Alliance.Red ? 652.73 : -1.5) * 0.0254;
+        var alliColor = UtilFunctions.getAlliance();
+        var tagX = (alliColor == Alliance.Red ? 652.73 : -1.5) * 0.0254;
 
         var robotPose = odometry.getPose();
-        var speakerPose = new Pose2d(tagX, tagY, null);
-        var angleDiff = UtilFunctions.getAngle(speakerPose, robotPose) - odometry.getHeading().getRadians();
+        var speakerPose = new Pose2d(tagX, tagY, new Rotation2d());
+        double angleToSpeakerRad = UtilFunctions.getAngle(speakerPose, robotPose);
+        double targetAngleRad;
 
-        if(UtilFunctions.getAlliance() == Alliance.Blue){
-            angleDiff = Math.PI-angleDiff;
+        if(alliColor == Alliance.Blue){
+            targetAngleRad = angleToSpeakerRad;
+        } else {
+            targetAngleRad = Math.PI + angleToSpeakerRad;
         }
-        angleDiff = pid.calculate(odometry.getHeading().getRadians(), angleDiff);
-        swerveDrive.SwerveDrive(0,0,0);
-        
-        var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose); //TODO: Need to handle rotation
 
+        //put robot angle in reference to target angle
+        double robotAngleRad = robotPose.getRotation().getRadians();
+        robotAngleRad = MathUtil.inputModulus(robotAngleRad, targetAngleRad - Math.PI, targetAngleRad + Math.PI);
+        
+        double angleCommand = pid.calculate(robotAngleRad, targetAngleRad);
+        angleCommand = Math.toDegrees(angleCommand);
+        SmartDashboard.putNumber("Aim Command", angleCommand);
+        swerveDrive.SwerveDrive(0,0,angleCommand);
+        //swerveDrive.SwerveDrive(0,0,-0);
+        
+        //calculate robot distance
+        var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose);
         AutoShotLookup lookup = shooter.estimate(distance);
 
         shooter.setRPM(lookup.getShooterSpeed());
         pneumatic.goToSmooth(lookup.getAngle());
         kicker.setRPM(lookup.getKickerSpeed());
-        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 125)
-              && (Math.abs(pneumatic.getAngle() - lookup.getAngle()) < 2)
+
+        var shooterError = Math.abs(robotAngleRad - targetAngleRad);
+        if (shooterError > 0.4) {
+            //if off by more than ~22*, reset the error
+            pid.reset();
+        }
+        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 300)
+              && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 4)
+              && (shooterError < 0.16)
               )
            )
         {
