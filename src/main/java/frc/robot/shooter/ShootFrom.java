@@ -14,7 +14,6 @@ public class ShootFrom extends Command {
     private AutoShotLookup shootData;
     private boolean shotCalled;
     private boolean IsCenterFieldShot;
-    private int goodCounts;
 
     public ShootFrom(Shooter shooter, Pneumatics pneumatics, Kicker kicker, Intake intake, boolean IsCenterFieldShot) {
         this.shooter = shooter;
@@ -28,7 +27,6 @@ public class ShootFrom extends Command {
     @Override
     public void initialize() {
         shootData = new AutoShotLookup(0, 0, 0);
-        goodCounts = 0;
         shotCalled = false;
     }
     
@@ -39,13 +37,10 @@ public class ShootFrom extends Command {
             handleShot(shootData);
             shotCalled = true;
         }
-        if (shotCalled && !intake.isPieceDetected()) {
-            goodCounts++;
-        }
     }
 
     public void handleShot(AutoShotLookup data) {
-        shooter.setRPM(data.getShooterSpeed());
+        shooter.setRpm(data.getShooterSpeed());
         kicker.setRPM(data.getKickerSpeed());
         //pneumatics.goTo(data.getAngle());
         pneumatics.goToSmooth(data.getAngle());
@@ -62,7 +57,7 @@ public class ShootFrom extends Command {
         pneumatics.stop();
         intake.setPower(0);
         //keep shooter running in auto
-        shooter.setRPM(3000);
+        shooter.setRpm(3000);
         kicker.stop();
     }
 }

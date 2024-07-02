@@ -34,7 +34,7 @@ public class AmpScore extends Command {
     public void execute() {
         amp.SetAmpDirection(true);
         kicker.setRPM(kickRpm.get());
-        shooter.setRPM(shotRpm.get());
+        shooter.setRpm(shotRpm.get());
         aimer.goTo(aimAngle.get());
     }
 

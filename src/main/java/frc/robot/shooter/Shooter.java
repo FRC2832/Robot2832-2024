@@ -1,16 +1,20 @@
 package frc.robot.shooter;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Controls.AutoShotLookup;
 
-public class Shooter extends SubsystemBase {
-    private IShooterHw hw;
+public abstract class Shooter extends SubsystemBase {
     private InterpolatingDoubleTreeMap speed, angle, kicker;
 
-    public Shooter(IShooterHw hardware) {
+    public abstract void updateInputs();
+    public abstract void setPower(double power);
+    public abstract void setRpm(double rpm);
+    public abstract double getCurrentRPM(int shooterID);
+
+    public Shooter() {
         super();
-        hw = hardware;
         
         speed = new InterpolatingDoubleTreeMap();
         angle = new InterpolatingDoubleTreeMap();
@@ -46,20 +50,17 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        hw.updateInputs();
+        updateInputs();
     }
+
+    public double getRpm() {
+        return getCurrentRPM(0);
+    }
+    
     public AutoShotLookup estimate(double d) {
         AutoShotLookup shot = new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
         shot.printValues();
         return shot;
-    }
-
-    public void setRPM(double RPM) {
-        hw.setRpm(RPM);
-    }
-
-    public double getRPM() {
-        return hw.getCurrentRPM(0);
     }
     
     public static double RPMToVelocity(double RPM) {
@@ -68,11 +69,6 @@ public class Shooter extends SubsystemBase {
 
     public boolean isAtSpeed() {
         return false;
-    }
-    
-    /**@param power percent -1 to 1 */
-    public void setPower (double power) {
-        hw.setPower(power);
     }
 
     public void shoot() {
@@ -86,5 +82,33 @@ public class Shooter extends SubsystemBase {
 
     public void autoShoot() {
         // Handle auto calculations and then shoot
+    }
+
+    /** 
+     * Starts the shooter and keeps the rpm on exit 
+     * @return Command
+    */
+    public Command startShooter() {
+        return startShooter(6000);
+    }
+
+    /** 
+     * Starts the shooter and keeps the rpm on exit 
+     * @param rpm RPM to run at
+     * @return Command
+    */
+    public Command startShooter(double rpm) {
+        return runOnce(() -> setRpm(rpm))
+            .withName("startShooter");
+    }
+
+    /**
+     * Runs the shooter in reverse
+     * @return Command
+     */
+    public Command reverseShooter() {
+        return run(() -> setRpm(-3000))
+            .finallyDo(interupt -> setPower(0))
+            .withName("reverseShooter");
     }
 }

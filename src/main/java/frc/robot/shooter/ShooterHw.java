@@ -14,7 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
 @SuppressWarnings("removal")
-public class ShooterHw implements IShooterHw {
+public class ShooterHw extends Shooter {
     private TalonFX[] shooters;
     private final double UNITS_TO_RPM = (60. * 10.) / 2048.;
     private PIDController pidController;

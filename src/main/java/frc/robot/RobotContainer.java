@@ -65,12 +65,10 @@ import frc.robot.intake.PitIntake;
 import frc.robot.kicker.Kicker;
 import frc.robot.kicker.KickerHw;
 import frc.robot.kicker.KickerSim;
-import frc.robot.shooter.ReverseShooter;
 import frc.robot.shooter.ShootFrom;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
-import frc.robot.shooter.StartShooter;
 import frc.robot.aimer.PneumaticsSim;
 import frc.robot.swerve.DriveStick;
 import frc.robot.swerve.PracticeSwerveHw;
@@ -132,7 +130,7 @@ public class RobotContainer {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
-            shooter = new Shooter(new ShooterSim());
+            shooter = new ShooterSim();
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
@@ -142,7 +140,7 @@ public class RobotContainer {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
-            shooter = new Shooter(new ShooterSim());
+            shooter = new ShooterSim();
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerSim());
@@ -152,7 +150,7 @@ public class RobotContainer {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
-            shooter = new Shooter(new ShooterHw());
+            shooter = new ShooterHw();
             intake = new Intake(new IntakeHw());
             inclinator = new Inclinator(new InclinatorSim());
             kick = new Kicker(new KickerHw());
@@ -168,7 +166,7 @@ public class RobotContainer {
             
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
-            shooter = new Shooter(new ShooterHw());
+            shooter = new ShooterHw();
             intake = new Intake(new IntakeHw());
             inclinator = new Inclinator(new InclinatorHw());
             kick = new Kicker(new KickerHw());
@@ -207,7 +205,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Kick", new DriveIntake(intake, false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
-        NamedCommands.registerCommand("StartShooter", new StartShooter(shooter));
+        NamedCommands.registerCommand("StartShooter", shooter.startShooter());
         //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
         if(Robot.isSimulation()) {
             NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive).withTimeout(1.5));
@@ -269,7 +267,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
-        new Trigger(operatorControls::ReverseShooterRequested).whileTrue(new ReverseShooter(kick, shooter));
+        new Trigger(operatorControls::ReverseShooterRequested).whileTrue(shooter.reverseShooter());
         new HomeClimber(inclinator).schedule();
     }
 

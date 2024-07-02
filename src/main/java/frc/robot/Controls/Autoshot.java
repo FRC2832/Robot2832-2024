@@ -73,7 +73,7 @@ public class Autoshot extends Command {
         var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose);
         AutoShotLookup lookup = shooter.estimate(distance);
 
-        shooter.setRPM(lookup.getShooterSpeed());
+        shooter.setRpm(lookup.getShooterSpeed());
         pneumatic.goToSmooth(lookup.getAngle());
         kicker.setRPM(lookup.getKickerSpeed());
 
@@ -82,7 +82,7 @@ public class Autoshot extends Command {
             //if off by more than ~22*, reset the error
             pid.reset();
         }
-        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 300)
+        if (  (  (Math.abs(shooter.getRpm() - lookup.getShooterSpeed()) < 300)
               && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 4)
               && (shooterError < 0.16)
               )
@@ -111,7 +111,7 @@ public class Autoshot extends Command {
         pneumatic.stop();
         intake.setPower(0);
         //keep shooter running in auto
-        shooter.setRPM(3000);
+        shooter.setRpm(3000);
         kicker.stop();
     }
 }

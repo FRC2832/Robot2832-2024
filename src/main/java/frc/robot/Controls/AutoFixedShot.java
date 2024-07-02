@@ -31,11 +31,11 @@ public class AutoFixedShot extends Command {
 
     @Override 
     public void execute() {
-        shooter.setRPM(SHOT_RPM);
+        shooter.setRpm(SHOT_RPM);
         kicker.setPower(1);
         aimer.goTo(AIMER_ANGLE);
 
-        if((  shooter.getRPM() > 4800
+        if((  shooter.getRpm() > 4800
           && Math.abs(aimer.getAngle() - AIMER_ANGLE) < 5)
           || goodCounts > 6
           )
@@ -60,7 +60,7 @@ public class AutoFixedShot extends Command {
         aimer.stop();
         intake.setPower(0);
         //keep shooter running in auto
-        shooter.setRPM(6000);
+        shooter.setRpm(6000);
         kicker.stop();
     }
 }
