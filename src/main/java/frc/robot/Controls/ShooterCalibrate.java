@@ -28,7 +28,7 @@ public class ShooterCalibrate extends Command{
     @Override
     public void execute() {
         shooter.setRpm(shooterRpm.get());
-        kicker.setRPM(kickRpm.get());
+        kicker.setRpm(kickRpm.get());
         aimer.goTo(shooterAngle.get());
     }
 }

@@ -1,23 +1,27 @@
 package frc.robot.kicker;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-public class Kicker extends SubsystemBase {
-    private IKickerHw hw;
 
-    public Kicker(IKickerHw hardware) {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public abstract class Kicker extends SubsystemBase {
+    public abstract void setPower(double power);
+    public abstract void setRpm(double rpm);
+    public abstract void updateInputs();
+    public abstract double getCurrentRPM(int shooterID);
+
+    public Kicker() {
         super();
-        hw = hardware;
     }
     
     @Override
     public void periodic() {
-        hw.updateInputs();
+        updateInputs();
     }
     
     public void kick(double ShooterRPM) {
-        hw.setRpm(ShooterRPM*24/18);
+        setRpm(ShooterRPM*24/18);
     }
     public void stop() {
-        hw.setRpm(-10);
+        setRpm(-10);
     }
 
     public double getRPM() {
@@ -30,14 +34,5 @@ public class Kicker extends SubsystemBase {
 
     public boolean isAtSpeed() {
         return false;
-    }
-    
-    /**@param power percent -1 to 1 */
-    public void setPower (double power) {
-        hw.setPower(power);
-    }
-
-    public void setRPM(double rpm) {
-        hw.setRpm(rpm);
     }
    }

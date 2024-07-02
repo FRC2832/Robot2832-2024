@@ -33,7 +33,7 @@ public class AmpScore extends Command {
     @Override
     public void execute() {
         amp.SetAmpDirection(true);
-        kicker.setRPM(kickRpm.get());
+        kicker.setRpm(kickRpm.get());
         shooter.setRpm(shotRpm.get());
         aimer.goTo(aimAngle.get());
     }

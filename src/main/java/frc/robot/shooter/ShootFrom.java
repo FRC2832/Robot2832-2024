@@ -41,7 +41,7 @@ public class ShootFrom extends Command {
 
     public void handleShot(AutoShotLookup data) {
         shooter.setRpm(data.getShooterSpeed());
-        kicker.setRPM(data.getKickerSpeed());
+        kicker.setRpm(data.getKickerSpeed());
         //pneumatics.goTo(data.getAngle());
         pneumatics.goToSmooth(data.getAngle());
         intake.setRpm(250);

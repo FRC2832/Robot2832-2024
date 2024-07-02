@@ -11,13 +11,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.livoniawarriors.Logger;
 
-public class KickerHw implements IKickerHw {
-//
+public class KickerHw extends Kicker {
     private CANSparkFlex[] kickers;
     private SparkPIDController[] pids;
     private RelativeEncoder[] encoders;
     
-
     public KickerHw() {
         kickers = new CANSparkFlex[2];
         pids = new SparkPIDController[2];

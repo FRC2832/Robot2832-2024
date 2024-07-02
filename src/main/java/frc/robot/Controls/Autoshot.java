@@ -75,7 +75,7 @@ public class Autoshot extends Command {
 
         shooter.setRpm(lookup.getShooterSpeed());
         pneumatic.goToSmooth(lookup.getAngle());
-        kicker.setRPM(lookup.getKickerSpeed());
+        kicker.setRpm(lookup.getKickerSpeed());
 
         var shooterError = Math.abs(robotAngleRad - targetAngleRad);
         if (shooterError > 0.4) {

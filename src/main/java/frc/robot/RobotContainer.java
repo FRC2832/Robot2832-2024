@@ -133,7 +133,7 @@ public class RobotContainer {
             shooter = new ShooterSim();
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerSim());
+            kick = new KickerSim();
             aimer = new Pneumatics(new PneumaticsSim());
             amp = new Amp(new AmpSim());
         } else if (serNum.equals("031e3219")) {
@@ -143,7 +143,7 @@ public class RobotContainer {
             shooter = new ShooterSim();
             intake = new Intake(new IntakeSim());
             inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerSim());
+            kick = new KickerSim();
             aimer = new Pneumatics(new PneumaticsSim());
             amp = new Amp(new AmpSim());
         } else if (serNum.equals("03134cef")) {
@@ -153,7 +153,7 @@ public class RobotContainer {
             shooter = new ShooterHw();
             intake = new Intake(new IntakeHw());
             inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerHw());
+            kick = new KickerHw();
             aimer = new Pneumatics(new PneumaticsSim());
             amp = new Amp(new AmpSim());
         } else {
@@ -169,7 +169,7 @@ public class RobotContainer {
             shooter = new ShooterHw();
             intake = new Intake(new IntakeHw());
             inclinator = new Inclinator(new InclinatorHw());
-            kick = new Kicker(new KickerHw());
+            kick = new KickerHw();
             aimer = new Pneumatics(new PneumaticHW());
             amp = new Amp(new AmpHw());
         }
