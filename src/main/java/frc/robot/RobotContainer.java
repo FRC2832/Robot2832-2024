@@ -133,7 +133,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerSim();
             aimer = new Pneumatics(new PneumaticsSim());
-            amp = new Amp(new AmpSim());
+            amp = new AmpSim();
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
@@ -143,7 +143,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerSim();
             aimer = new Pneumatics(new PneumaticsSim());
-            amp = new Amp(new AmpSim());
+            amp = new AmpSim();
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
@@ -153,7 +153,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerHw();
             aimer = new Pneumatics(new PneumaticsSim());
-            amp = new Amp(new AmpSim());
+            amp = new AmpSim();
         } else {
             //competition robot
             ph = new PneumaticHub();
@@ -169,7 +169,7 @@ public class RobotContainer {
             inclinator = new Inclinator(new InclinatorHw());
             kick = new KickerHw();
             aimer = new Pneumatics(new PneumaticHW());
-            amp = new Amp(new AmpHw());
+            amp = new AmpHw();
         }
 
         new DriverFeedback(vision, intake, leds);
