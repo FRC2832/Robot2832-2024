@@ -57,11 +57,9 @@ import frc.robot.climber.HomeClimber;
 import frc.robot.climber.Inclinator;
 import frc.robot.climber.InclinatorHw;
 import frc.robot.climber.InclinatorSim;
-import frc.robot.intake.DriveIntake;
 import frc.robot.intake.Intake;
 import frc.robot.intake.IntakeHw;
 import frc.robot.intake.IntakeSim;
-import frc.robot.intake.PitIntake;
 import frc.robot.kicker.Kicker;
 import frc.robot.kicker.KickerHw;
 import frc.robot.kicker.KickerSim;
@@ -131,7 +129,7 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new ShooterSim();
-            intake = new Intake(new IntakeSim());
+            intake = new IntakeSim();
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerSim();
             aimer = new Pneumatics(new PneumaticsSim());
@@ -141,7 +139,7 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
             shooter = new ShooterSim();
-            intake = new Intake(new IntakeSim());
+            intake = new IntakeSim();
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerSim();
             aimer = new Pneumatics(new PneumaticsSim());
@@ -151,7 +149,7 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
             shooter = new ShooterHw();
-            intake = new Intake(new IntakeHw());
+            intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerHw();
             aimer = new Pneumatics(new PneumaticsSim());
@@ -167,7 +165,7 @@ public class RobotContainer {
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
             shooter = new ShooterHw();
-            intake = new Intake(new IntakeHw());
+            intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorHw());
             kick = new KickerHw();
             aimer = new Pneumatics(new PneumaticHW());
@@ -187,7 +185,7 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Wheels Diamond", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsDiamond()));
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
-        SmartDashboard.putData("Pit Intake", new PitIntake(intake));
+        SmartDashboard.putData("Pit Intake", intake.drive(() -> Intake.PIT_INTAKE_SPEED, false));
         SmartDashboard.putData("Home Climber", new HomeClimber(inclinator));
         SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
         SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
@@ -201,8 +199,8 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("Intake", new DriveIntake(intake, true));
-        NamedCommands.registerCommand("Kick", new DriveIntake(intake, false).withTimeout(0.75));
+        NamedCommands.registerCommand("Intake", intake.drive(true));
+        NamedCommands.registerCommand("Kick", intake.drive(false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
         NamedCommands.registerCommand("StartShooter", shooter.startShooter());
@@ -260,9 +258,9 @@ public class RobotContainer {
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
         new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
-        new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
-        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
-        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
+        new Trigger(operatorControls::IsIntakeRequested).whileTrue(intake.drive(false));
+        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(intake.drive(false, true));
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(intake.drive(true));
         new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));

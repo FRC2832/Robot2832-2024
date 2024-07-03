@@ -4,7 +4,7 @@ import edu.wpi.first.hal.SimBoolean;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
 
-public class IntakeSim implements IIntakeHw {
+public class IntakeSim extends Intake {
     private SimDevice shooterDevice;
     private SimBoolean isRunningDev;
     private SimBoolean invertedDev;
