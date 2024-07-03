@@ -56,7 +56,7 @@ public abstract class Shooter extends SubsystemBase {
     public double getRpm() {
         return getCurrentRPM(0);
     }
-    
+
     public AutoShotLookup estimate(double d) {
         AutoShotLookup shot = new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
         shot.printValues();
@@ -99,7 +99,7 @@ public abstract class Shooter extends SubsystemBase {
     */
     public Command startShooter(double rpm) {
         return runOnce(() -> setRpm(rpm))
-            .withName("startShooter");
+            .withName("ShooterStart");
     }
 
     /**
@@ -109,6 +109,6 @@ public abstract class Shooter extends SubsystemBase {
     public Command reverseShooter() {
         return run(() -> setRpm(-3000))
             .finallyDo(interupt -> setPower(0))
-            .withName("reverseShooter");
+            .withName("ShooterReverse");
     }
 }

@@ -1,10 +1,10 @@
-package frc.robot.shooter;
+package frc.robot.Controls;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Controls.AutoShotLookup;
 import frc.robot.aimer.Pneumatics;
 import frc.robot.intake.Intake;
 import frc.robot.kicker.Kicker;
+import frc.robot.shooter.Shooter;
 
 public class ShootFrom extends Command {
     private Shooter shooter;
