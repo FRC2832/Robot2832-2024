@@ -47,9 +47,9 @@ import frc.robot.Controls.OperatorStick;
 import frc.robot.Controls.ShootFrom;
 import frc.robot.Controls.ShooterCalibrate;
 import frc.robot.Controls.XboxDriveControls;
-import frc.robot.aimer.DriveAimer;
-import frc.robot.aimer.PneumaticHW;
-import frc.robot.aimer.SetAimer;
+import frc.robot.aimer.Aimer;
+import frc.robot.aimer.AimerHw;
+import frc.robot.aimer.AimerSim;
 import frc.robot.amp.Amp;
 import frc.robot.amp.AmpHw;
 import frc.robot.amp.AmpSim;
@@ -67,12 +67,10 @@ import frc.robot.kicker.KickerSim;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
-import frc.robot.aimer.PneumaticsSim;
 import frc.robot.swerve.DriveStick;
 import frc.robot.swerve.PracticeSwerveHw;
 import frc.robot.swerve.ResetWheelPosition;
 import frc.robot.swerve.SwerveHw24;
-import frc.robot.aimer.Pneumatics;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -90,7 +88,7 @@ public class RobotContainer {
     private Inclinator inclinator;
     private Intake intake;
     private Kicker kick;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private PneumaticHub ph;
     private VisionSystem vision;
     private Amp amp;
@@ -132,7 +130,7 @@ public class RobotContainer {
             intake = new IntakeSim();
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerSim();
-            aimer = new Pneumatics(new PneumaticsSim());
+            aimer = new AimerSim();
             amp = new AmpSim();
         } else if (serNum.equals("031e3219")) {
             //practice robot
@@ -142,7 +140,7 @@ public class RobotContainer {
             intake = new IntakeSim();
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerSim();
-            aimer = new Pneumatics(new PneumaticsSim());
+            aimer = new AimerSim();
             amp = new AmpSim();
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
@@ -152,7 +150,7 @@ public class RobotContainer {
             intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorSim());
             kick = new KickerHw();
-            aimer = new Pneumatics(new PneumaticsSim());
+            aimer = new AimerSim();
             amp = new AmpSim();
         } else {
             //competition robot
@@ -168,7 +166,7 @@ public class RobotContainer {
             intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorHw());
             kick = new KickerHw();
-            aimer = new Pneumatics(new PneumaticHW());
+            aimer = new AimerHw();
             amp = new AmpHw();
         }
 
@@ -187,8 +185,8 @@ public class RobotContainer {
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
         SmartDashboard.putData("Pit Intake", intake.drive(() -> Intake.PIT_INTAKE_SPEED, false));
         SmartDashboard.putData("Home Climber", new HomeClimber(inclinator));
-        SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
-        SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
+        SmartDashboard.putData("Test Aimer Low", aimer.setAimer(() -> 35));
+        SmartDashboard.putData("Test Aimer High", aimer.setAimer(() -> 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
         SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
         SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
@@ -257,7 +255,7 @@ public class RobotContainer {
         shooter.setDefaultCommand(operatorStick);
         kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
-        new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
+        aimer.setDefaultCommand(aimer.driveAimer(operatorControls::GetManualSubAim));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(intake.drive(false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(intake.drive(false, true));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(intake.drive(true));

@@ -7,18 +7,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.DriverFeedback;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import frc.robot.intake.Intake;
 
 public class OperatorStick extends Command {
     private Shooter shoot;
     private Kicker kick;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private IOperatorControls cont;
     private Intake intake;
     private int kickerTimer;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Pneumatics aimer, Intake intake){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Aimer aimer, Intake intake){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;

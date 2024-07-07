@@ -4,7 +4,7 @@ import org.livoniawarriors.UtilFunctions;
 
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import frc.robot.amp.Amp;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
@@ -13,12 +13,12 @@ public class AmpScore extends Command {
     Kicker kicker;
     Shooter shooter;
     Amp amp;
-    Pneumatics aimer;
+    Aimer aimer;
     DoubleSubscriber kickRpm;
     DoubleSubscriber shotRpm;
     DoubleSubscriber aimAngle;
 
-    public AmpScore(Kicker kicker, Shooter shooter, Amp amp, Pneumatics aimer) {
+    public AmpScore(Kicker kicker, Shooter shooter, Amp amp, Aimer aimer) {
         this.kicker = kicker;
         this.amp = amp;
         this.shooter = shooter;

@@ -2,7 +2,7 @@ package frc.robot.Controls;
 import frc.robot.intake.Intake;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,7 +17,7 @@ import org.livoniawarriors.swerve.SwerveDriveTrain;
 
 public class Autoshot extends Command {
     Shooter shooter;
-    Pneumatics pneumatic;
+    Aimer aimer;
     Kicker kicker;
     Odometry odometry;
     Intake intake;
@@ -26,16 +26,16 @@ public class Autoshot extends Command {
     PIDController pid;
     int goodCounts;
 
-    public Autoshot(Shooter shooter, Pneumatics pneumatic, Kicker kicker, Odometry odometry, Intake intake, SwerveDriveTrain swerveDrive) {
+    public Autoshot(Shooter shooter, Aimer aimer, Kicker kicker, Odometry odometry, Intake intake, SwerveDriveTrain swerveDrive) {
         this.shooter = shooter;
-        this.pneumatic = pneumatic;
+        this.aimer = aimer;
         this.kicker = kicker;
         this.odometry = odometry;
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
         this.swerveDrive = swerveDrive;
         this.pid = new PIDController(.35/Math.PI, .45, 0); //DID NOT THINK ABOUT SETTINGS!!!
-        addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
+        addRequirements(shooter, aimer, kicker, intake, swerveDrive);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class Autoshot extends Command {
         AutoShotLookup lookup = shooter.estimate(distance);
 
         shooter.setRpm(lookup.getShooterSpeed());
-        pneumatic.goToSmooth(lookup.getAngle());
+        aimer.goToSmooth(lookup.getAngle());
         kicker.setRpm(lookup.getKickerSpeed());
 
         var shooterError = Math.abs(robotAngleRad - targetAngleRad);
@@ -83,7 +83,7 @@ public class Autoshot extends Command {
             pid.reset();
         }
         if (  (  (Math.abs(shooter.getRpm() - lookup.getShooterSpeed()) < 300)
-              && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 4)
+              && (Math.abs(aimer.getAngle() - (lookup.getAngle())) < 4)
               && (shooterError < 0.16)
               )
            )
@@ -108,7 +108,7 @@ public class Autoshot extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        pneumatic.stop();
+        aimer.stop();
         intake.setPower(0);
         //keep shooter running in auto
         shooter.setRpm(3000);

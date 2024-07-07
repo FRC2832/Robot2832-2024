@@ -6,14 +6,14 @@ import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
-public class PneumaticsSim implements IPneumaticHW {
+public class AimerSim extends Aimer {
     private DoubleSolenoid.Value direction;
     private double angle;
     private SimDevice aimerDevice;
     private SimDouble aimerAngle;
     private final double kAnglePerStep = 2;
 
-    public PneumaticsSim() {
+    public AimerSim() {
         direction = Value.kOff;
         angle = 37;
         aimerDevice = SimDevice.create("Jukebox:Aimer");

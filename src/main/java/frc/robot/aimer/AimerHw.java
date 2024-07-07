@@ -14,7 +14,7 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 
 @SuppressWarnings("removal")
-public class PneumaticHW implements IPneumaticHW {
+public class AimerHw extends Aimer {
     private Pigeon2 angSensor;
     private Solenoid upSolenoid, downSolenoid;
     private double currentAngle;
@@ -23,7 +23,7 @@ public class PneumaticHW implements IPneumaticHW {
     DoubleLogEntry angleLog;
     boolean use1msLogging = false;
 
-    public PneumaticHW() {
+    public AimerHw() {
         this.angSensor = new Pigeon2(10);
         upSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 15);
         downSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);

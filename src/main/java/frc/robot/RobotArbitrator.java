@@ -1,19 +1,19 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import frc.robot.amp.Amp;
 import frc.robot.climber.Inclinator;
 
 public class RobotArbitrator extends SubsystemBase {
     private Amp amp;
     private Inclinator climber;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private final double MIN_CLIMBER_HEIGHT = 26.5;
     private final double MOVE_AIMER_HEIGHT = 37; 
     private final double STOW_AIMER_ANGLE = 35;
 
-    public RobotArbitrator(Amp amp, Inclinator climber, Pneumatics aimer) {
+    public RobotArbitrator(Amp amp, Inclinator climber, Aimer aimer) {
         super();
         this.amp = amp;
         this.climber = climber;
