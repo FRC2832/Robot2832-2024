@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.function.Supplier;
 
 import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.odometry.Odometry;
@@ -56,6 +57,11 @@ public class VisionSystem extends SubsystemBase {
     private long heartbeatLast;
     private int heartbeatMisses;
     private CameraData cameras[];
+
+    public static enum FieldLocation {
+        Speaker,
+        Amp
+    }
 
     public VisionSystem(Odometry odometry) {
         super();
@@ -250,5 +256,21 @@ public class VisionSystem extends SubsystemBase {
     public boolean seesTarget() {
         //returns if the last time we have seen a target is <1 sec
         return (Timer.getFPGATimestamp() - lastTargetTimestamp) < 1;
+    }
+
+    public static Supplier<Pose2d> getLocation(FieldLocation location) {
+        switch (location) {
+            case Amp:
+                return () -> Odometry.mirrorAlliance(new Pose2d(1.8415, 8.2042, Rotation2d.fromDegrees(270)));
+            case Speaker:
+            default:
+                return () -> Odometry.mirrorAlliance(new Pose2d(-0.038099999999999995, 5.547867999999999, Rotation2d.fromDegrees(0)));
+        }
+    }
+
+    public static double getDistanceToTarget(FieldLocation location) {
+        Pose2d pose = Odometry.getInstance().getPose();
+        Pose2d target = VisionSystem.getLocation(location).get();
+        return UtilFunctions.getDistance(pose, target);
     }
 }

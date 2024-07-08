@@ -71,7 +71,7 @@ public class Autoshot extends Command {
         
         //calculate robot distance
         var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose);
-        AutoShotLookup lookup = shooter.estimate(distance);
+        AutoShotLookup lookup = new AutoShotLookup(distance);
 
         shooter.setRpm(lookup.getShooterSpeed());
         aimer.goToSmooth(lookup.getAngle());

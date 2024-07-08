@@ -49,6 +49,7 @@ public class Odometry extends SubsystemBase {
 
     public Odometry() {
         super();
+        instance = this;
         hardware = new BlankGyro();
         robotPose = new Pose2d(FIELD_LENGTH_METERS / 2, FIELD_WIDTH_METERS / 2, new Rotation2d());
         startPose = new Pose2d(FIELD_LENGTH_METERS / 2, FIELD_WIDTH_METERS / 2, new Rotation2d());
@@ -74,6 +75,19 @@ public class Odometry extends SubsystemBase {
         Logger.RegisterSensor("Gyro X Accel", hardware::getXAccel);
         Logger.RegisterSensor("Gyro Y Accel", hardware::getYAccel);
         Logger.RegisterSensor("Gyro Z Accel", hardware::getZAccel);
+    }
+
+    /**
+     * Returns the Scheduler instance.
+     *
+     * @return the instance
+     */
+    private static Odometry instance;
+    public static synchronized Odometry getInstance() {
+        if (instance == null) {
+            instance = new Odometry();
+        }
+        return instance;
     }
 
     public void setSwerveDrive(SwerveDriveTrain drive) {
@@ -157,6 +171,23 @@ public class Odometry extends SubsystemBase {
             return poseToFlip.relativeTo(new Pose2d(
                 new Translation2d(FIELD_LENGTH_METERS, FIELD_WIDTH_METERS),
                 new Rotation2d(Math.PI)));
+        } else {
+            return poseToFlip;
+        }
+    }
+
+     /**
+     * Transforms a pose to the opposite alliance's coordinate system. This will
+     * flip the left/right portion of the pose, but keep the up/down correct.
+     * 
+     * @param poseToFlip pose to transform to the other alliance
+     * @return pose relative to the other alliance's coordinate system
+     */
+    public static Pose2d mirrorAlliance(Pose2d poseToFlip) {
+        if (UtilFunctions.getAlliance() == Alliance.Red) {
+            return new Pose2d(
+                new Translation2d(FIELD_LENGTH_METERS - poseToFlip.getX(), poseToFlip.getY()),
+                new Rotation2d(Math.PI + poseToFlip.getRotation().getRadians()));
         } else {
             return poseToFlip;
         }

@@ -1,13 +1,9 @@
 package frc.robot.shooter;
 
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Controls.AutoShotLookup;
 
 public abstract class Shooter extends SubsystemBase {
-    private InterpolatingDoubleTreeMap speed, angle, kicker;
-
     public abstract void updateInputs();
     public abstract void setPower(double power);
     public abstract void setRpm(double rpm);
@@ -15,37 +11,6 @@ public abstract class Shooter extends SubsystemBase {
 
     public Shooter() {
         super();
-        
-        speed = new InterpolatingDoubleTreeMap();
-        angle = new InterpolatingDoubleTreeMap();
-        kicker = new InterpolatingDoubleTreeMap();
-
-        //input: Meters from target, output: RPM of shot  
-        speed.put(1.375, 5000.);
-        speed.put(1.78, 5000.);
-        speed.put(2.32, 5000.);
-        speed.put(2.8, 5000.);
-        speed.put(3.12, 5300.);
-        speed.put(3.43, 5300.);
-        speed.put(3.92, 5500.);
-
-        //input: Meters from target, output: Degrees of shot  
-        angle.put(1.375, 54.);
-        angle.put(1.78, 50.);
-        angle.put(2.32, 46.);
-        angle.put(2.8, 39.);
-        angle.put(3.12, 36.);
-        angle.put(3.43, 32.);
-        angle.put(3.92, 28.);
-
-        //input: Meters from target, output: RPM for kicker
-        kicker.put(1.375, 6000.);
-        kicker.put(1.78, 6000.);
-        kicker.put(2.32, 6000.);
-        kicker.put(2.8, 6000.);
-        kicker.put(3.12, 6000.);
-        kicker.put(3.43, 6000.);
-        kicker.put(3.92, 6000.);
     }
 
     @Override
@@ -57,11 +22,6 @@ public abstract class Shooter extends SubsystemBase {
         return getCurrentRPM(0);
     }
 
-    public AutoShotLookup estimate(double d) {
-        AutoShotLookup shot = new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
-        shot.printValues();
-        return shot;
-    }
     
     public static double RPMToVelocity(double RPM) {
         return ((((RPM*(Math.PI)*2)/60)*2)/(39.3700787402));
