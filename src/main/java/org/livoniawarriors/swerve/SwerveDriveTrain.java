@@ -8,6 +8,10 @@ import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,6 +21,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
@@ -78,8 +84,10 @@ public class SwerveDriveTrain extends SubsystemBase {
     private DoublePublisher swerveGyroOffset;
     private DoublePublisher swerveFieldOffset;
     private DoublePublisher pidZeroError;
+    private BooleanEntry aimedAtTarget;
     private DoubleArrayPublisher swerveStatePub;
     private DoubleArrayPublisher swerveRequestPub;
+    private double targetAngleRad;
 
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
@@ -145,7 +153,7 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveStatePub = UtilFunctions.getNtPub("/Swerve Drive/Module States", new double[0]);
         swerveRequestPub = UtilFunctions.getNtPub("/Swerve Drive/Module Requests", new double[0]);
         pidZeroError = UtilFunctions.getNtPub("/Swerve Drive/Pid Zero Error", 0.);
-
+        aimedAtTarget = UtilFunctions.getNtEntry("/Swerve Drive/Aimed at Target", false);
         minSpeed = UtilFunctions.getSetting(MIN_SPEED_KEY, 0.5);
         maxSpeed = UtilFunctions.getSetting(MAX_SPEED_KEY, 5);
 
@@ -222,6 +230,13 @@ public class SwerveDriveTrain extends SubsystemBase {
         swerveGyroOffset.set(gyroOffset);
         swerveFieldOffset.set(fieldOffset.getDegrees());
         pidZeroError.set(pidZero.getPositionError());
+
+        double curAngle = odometry.getPose().getRotation().getRadians();
+        double aimError = Math.abs(curAngle - targetAngleRad);
+        aimError = MathUtil.inputModulus(aimError, -Math.PI, Math.PI);
+        aimedAtTarget.set(Math.abs(aimError) < 0.16);
+        //force the target angle to be WAY off so we don't say aim is correct next loop
+        targetAngleRad = curAngle + Math.PI;
     }
 
     /**
@@ -468,5 +483,35 @@ public class SwerveDriveTrain extends SubsystemBase {
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutine.dynamic(direction);
+    }
+
+    public Command aimAtTargetBackwards(Supplier<Pose2d> target) {
+        try (var pid = new PIDController(.35/Math.PI, .45, 0)) {
+            //reset the pid in case the error is too high to stop the I from going crazy
+            pid.setIZone(0.4);  //in radians
+            return run(() -> { 
+                Pose2d robotPose = odometry.getPose();
+                double angleToTargetRad = UtilFunctions.getAngle(target.get(), robotPose);
+
+                if(UtilFunctions.getAlliance() == Alliance.Blue){
+                    targetAngleRad = angleToTargetRad;
+                } else {
+                    targetAngleRad = Math.PI + angleToTargetRad;
+                }
+
+                //put robot angle in reference to target angle
+                double robotAngleRad = robotPose.getRotation().getRadians();
+                robotAngleRad = MathUtil.inputModulus(robotAngleRad, targetAngleRad - Math.PI, targetAngleRad + Math.PI);
+
+                double angleCommand = pid.calculate(robotAngleRad, targetAngleRad);
+                angleCommand = Math.toDegrees(angleCommand);
+                SwerveDrive(0,0,angleCommand);
+            })
+            .finallyDo(()->SwerveDrive(0, 0, 0));
+        }
+    }
+
+    public BooleanSupplier aimedAtTarget() {
+        return aimedAtTarget::get;
     }
 }

@@ -49,6 +49,7 @@ import frc.robot.Controls.ShootFrom;
 import frc.robot.Controls.ShooterCalibrate;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.Controls.AutoShotLookup.TargetLocation;
+import frc.robot.VisionSystem.FieldLocation;
 import frc.robot.aimer.Aimer;
 import frc.robot.aimer.AimerHw;
 import frc.robot.aimer.AimerSim;
@@ -254,16 +255,16 @@ public class RobotContainer {
         swerveDrive.resetFieldOriented();
         OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer, intake);
         leds.setDefaultCommand(new RainbowLeds(leds));
-        shooter.setDefaultCommand(operatorStick);
-        kick.setDefaultCommand(operatorStick);
+        //shooter.setDefaultCommand(operatorStick);
+        //kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
         aimer.setDefaultCommand(aimer.driveAimer(operatorControls::GetManualSubAim));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(intake.drive(false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(intake.drive(false, true));
         new Trigger(driveControls::IsIntakeRequested).whileTrue(intake.drive(true));
-        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
-        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
-        new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
+        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(autoShot());
+        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(shootAtTarget(TargetLocation.Corner));
+        new Trigger(operatorControls::IsPillarShotRequested).whileTrue(shootAtTarget(TargetLocation.PillarFixed));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(ampScore());
         new Trigger(operatorControls::ReverseShooterRequested).whileTrue(shooter.reverseShooter());
         new HomeClimber(inclinator).schedule();
@@ -323,6 +324,19 @@ public class RobotContainer {
         return new ParallelCommandGroup(
             amp.setAmpDirection(true),
             shootAtTarget(TargetLocation.AmpFixed)
-        );
+        ).withName("AmpShot");
+    }
+
+    public Command autoShot() {
+        Trigger shotAimed = new Trigger(swerveDrive.aimedAtTarget()).and(shooter.atRpm());
+        
+        return new ParallelCommandGroup(
+            shooter.startShooter(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker)),
+            swerveDrive.aimAtTargetBackwards(VisionSystem.getLocation(FieldLocation.Speaker))
+        ).until(shotAimed)
+        .withTimeout(3)
+        .andThen(intake.drive(false).withTimeout(0.75))
+        .finallyDo(shooter::stopShooter)
+        .withName("AutoShot");
     }
 }

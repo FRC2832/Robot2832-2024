@@ -9,6 +9,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.BooleanTopic;
@@ -259,6 +260,13 @@ public class UtilFunctions {
         DoubleArrayPublisher pub = topic.publish();
         pub.setDefault(initValue);
         return pub;
+    }
+
+    public static BooleanEntry getNtEntry(String key, boolean initValue) {
+        BooleanTopic topic = NetworkTableInstance.getDefault().getBooleanTopic(checkKey(key));
+        BooleanEntry entry = topic.getEntry(initValue);
+        entry.setDefault(initValue);
+        return entry;
     }
 
     /**

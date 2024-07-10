@@ -62,7 +62,7 @@ public class ShooterHw extends Shooter {
     }
 
     @Override
-    public void setRpm(double rpm) {
+    protected void setRpmHw(double rpm) {
         //shooters[0].set(TalonFXControlMode.Velocity, rpm / UNITS_TO_RPM);
         if(Math.abs(rpm - getCurrentRPM(0)) > 3000) {
             //this is effectively an Izone

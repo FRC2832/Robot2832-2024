@@ -28,7 +28,7 @@ public class ShooterSim extends Shooter {
     }
 
     @Override
-    public void setRpm(double rpm) {
+    protected void setRpmHw(double rpm) {
         leftTarget = Math.copySign(Math.min(Math.abs(rpm),6450.), rpm);
         rightTarget = leftTarget;
     }
