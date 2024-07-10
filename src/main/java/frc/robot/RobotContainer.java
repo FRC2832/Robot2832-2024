@@ -34,11 +34,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Controls.AmpScore;
 import frc.robot.Controls.AutoFixedShot;
+import frc.robot.Controls.AutoShotLookup;
 import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -47,6 +48,7 @@ import frc.robot.Controls.OperatorStick;
 import frc.robot.Controls.ShootFrom;
 import frc.robot.Controls.ShooterCalibrate;
 import frc.robot.Controls.XboxDriveControls;
+import frc.robot.Controls.AutoShotLookup.TargetLocation;
 import frc.robot.aimer.Aimer;
 import frc.robot.aimer.AimerHw;
 import frc.robot.aimer.AimerSim;
@@ -262,7 +264,7 @@ public class RobotContainer {
         new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
-        new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
+        new Trigger(operatorControls::IsAmpToggled).whileTrue(ampScore());
         new Trigger(operatorControls::ReverseShooterRequested).whileTrue(shooter.reverseShooter());
         new HomeClimber(inclinator).schedule();
     }
@@ -306,6 +308,21 @@ public class RobotContainer {
             ),
             odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
             swerveDrive // Reference to this subsystem to set requirements
+        );
+    }
+
+    public Command shootAtTarget(TargetLocation location) {
+        return new ParallelCommandGroup(
+            shooter.runShooter(AutoShotLookup.getShooterSpeed(location)),
+            kick.runKicker(AutoShotLookup.getKickerSpeed(location)),
+            aimer.setAimer(AutoShotLookup.getShooterAngle(location))
+        );
+    }
+
+    public Command ampScore() {
+        return new ParallelCommandGroup(
+            amp.setAmpDirection(true),
+            shootAtTarget(TargetLocation.AmpFixed)
         );
     }
 }

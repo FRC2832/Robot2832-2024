@@ -89,7 +89,7 @@ public abstract class Aimer extends SubsystemBase {
             double command = pctCommand.getAsDouble();
             if(command > 0.2) {
                 driveDown();
-            } else if (command < -0.2 && getAngle() < 50) {
+            } else if (command < -0.2) {
                 driveUp();
             } else {
                 stop();

@@ -20,4 +20,8 @@ public abstract class Amp extends SubsystemBase {
     public Command toggleAmp() {
         return runOnce(this::ToggleAmp).withName("AmpToggle");
     }
+
+    public Command setAmpDirection(boolean up) {
+        return runOnce(() ->SetAmpDirection(up)).withName("AmpSetDir");
+    }
 }

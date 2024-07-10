@@ -1,5 +1,7 @@
 package frc.robot.shooter;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -60,6 +62,17 @@ public abstract class Shooter extends SubsystemBase {
     public Command startShooter(double rpm) {
         return runOnce(() -> setRpm(rpm))
             .withName("ShooterStart");
+    }
+
+    /** 
+     * Run the shooter at an rpm 
+     * @param rpm RPM to run at
+     * @return Command
+    */
+    public Command runShooter(DoubleSupplier rpm) {
+        return run(() -> setRpm(rpm.getAsDouble()))
+            .finallyDo(() -> setPower(0))
+            .withName("ShooterRun");
     }
 
     /**

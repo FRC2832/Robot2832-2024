@@ -1,5 +1,8 @@
 package frc.robot.kicker;
 
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public abstract class Kicker extends SubsystemBase {
@@ -35,4 +38,10 @@ public abstract class Kicker extends SubsystemBase {
     public boolean isAtSpeed() {
         return false;
     }
-   }
+
+    public Command runKicker(DoubleSupplier rpm) {
+        return run(() -> setRpm(rpm.getAsDouble()))
+            .finallyDo(() -> setPower(0))
+            .withName("KickerRun");
+    }
+}
