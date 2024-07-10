@@ -30,7 +30,7 @@ public class OperatorStick extends Command {
 
         SmartDashboard.putNumber("Shooter RPM Command",6000);
         SmartDashboard.putNumber("Kicker RPM Command",6500);
-        SmartDashboard.putNumber("Shooter Angle Command", 54);
+        SmartDashboard.putNumber("Shooter Angle Command", 52);
     }
 
     @Override

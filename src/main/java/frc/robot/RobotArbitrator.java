@@ -9,7 +9,7 @@ public class RobotArbitrator extends SubsystemBase {
     private Amp amp;
     private Inclinator climber;
     private Pneumatics aimer;
-    private final double MIN_CLIMBER_HEIGHT = 26.5;
+    private final double MIN_CLIMBER_HEIGHT = 24.5;
     private final double MOVE_AIMER_HEIGHT = 37; 
     private final double STOW_AIMER_ANGLE = 35;
 
