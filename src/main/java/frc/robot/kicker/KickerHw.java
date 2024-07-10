@@ -29,7 +29,7 @@ public class KickerHw implements IKickerHw {
             encoders[i] = kickers[i].getEncoder();
             pids[i] = kickers[i].getPIDController();
         }
-        //configureMotors();
+        configureMotors();
         Logger.RegisterCanSparkFlex("Top Kicker", kickers[0]);
         Logger.RegisterCanSparkFlex("Bottom Kicker", kickers[1]);
         Logger.RegisterSensor("Top Kicker RPM", () -> getCurrentRPM(0));
@@ -68,8 +68,8 @@ public class KickerHw implements IKickerHw {
     @Override
     public void setRpm(double rpm) {
         for (int i=0;i<pids.length; i++) {
-            pids[i].setReference(rpm, ControlType.kVelocity);
-            //kickers[i].set(rpm/6500);
+            //pids[i].setReference(rpm, ControlType.kVelocity);
+            kickers[i].set(rpm/6500);
         }
     }
 
