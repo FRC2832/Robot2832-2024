@@ -26,10 +26,12 @@ public class Shooter extends SubsystemBase {
         speed.put(3.92, 5500.);
 
         //input: Meters from target, output: Degrees of shot  
-        angle.put(1.375, 54.);
-        angle.put(1.78, 50.);
-        angle.put(2.32, 46.);
-        angle.put(2.8, 39.);
+        angle.put(1.375, 52.);
+        angle.put(1.78, 48.);
+        angle.put(2.05, 44.);
+        angle.put(2.31, 41.);
+        angle.put(2.55, 39.5);
+        angle.put(2.8, 37.5);
         angle.put(3.12, 36.);
         angle.put(3.43, 32.);
         angle.put(3.92, 28.);
