@@ -89,7 +89,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
             sensor.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 18);
             sensor.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 100);
         }
-        //configureMotors();
+        configureMotors();
 
         //register stuff for logging
         for(int wheel = 0; wheel<NUM_MOTORS; wheel++) {
@@ -148,6 +148,7 @@ public class SwerveHw24 implements ISwerveDriveIo {
         for(int wheel=0; wheel<swervePositions.length; wheel++) {
             turnMotors[wheel].setInverted(true);
             turnMotors[wheel].setSmartCurrentLimit(40, 25);
+            turnMotors[wheel].setClosedLoopRampRate(.75);    //seconds to max speed
             turnMotors[wheel].burnFlash();
         }
     }
