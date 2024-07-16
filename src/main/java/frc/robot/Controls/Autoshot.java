@@ -82,23 +82,34 @@ public class Autoshot extends Command {
             //if off by more than ~22*, reset the error
             pid.reset();
         }
-        if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 300)
-              && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 4)
-              && (shooterError < 0.16)
-              )
-           )
-        {
+
+        SmartDashboard.putNumber("Auto Drive Aim Error", shooterError);
+        SmartDashboard.putNumber("Auto Shoot RPM Error", Math.abs(shooter.getRPM() - lookup.getShooterSpeed()));
+        SmartDashboard.putNumber("Auto Aimer Aim Error", Math.abs(pneumatic.getAngle() - (lookup.getAngle())));
+
+        if (goodCounts > 10) {
+            //if we have see the target enough send it
             intake.setRpm(250);
-            //wait to start timeout until piece leaves starts leaving intake
-            if(intake.isPieceDetected() == false) {
-                goodCounts++;
-            }   
+            goodCounts++;
+        }
+        else if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 300)
+                   && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 4)
+                   && (shooterError < 0.16)
+                   )
+                )
+        {
+            //we are starting to see the target, wait
+            intake.setPower(0);
+            goodCounts++;
         }
         else {
+            //target missing, decrement the counts
             intake.setPower(0);
+            goodCounts--;
+            if (goodCounts < 0) {
+                goodCounts = 0;
+            }
         }
-        //intake.setRpm(250);
-        //goodCounts++;
     }
 
     @Override

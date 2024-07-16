@@ -212,7 +212,7 @@ public class RobotContainer {
         if(Robot.isSimulation()) {
             NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive).withTimeout(1.5));
         } else {
-            NamedCommands.registerCommand("Shoot", new AutoFixedShot(intake, shooter, kick, aimer));
+            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
         }
 
         // Controller chooser Setup
@@ -306,7 +306,7 @@ public class RobotContainer {
                     UtilFunctions.getSetting("/PathPlanner/TurnP", 1.5), 
                     UtilFunctions.getSetting("/PathPlanner/TurnI", 0.5), 
                     UtilFunctions.getSetting("/PathPlanner/TurnD", 0)), // Rotation PID constants
-                3, // Max module speed, in m/s
+                4.5, // Max module speed, in m/s
                 swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
                 new ReplanningConfig() // Default path replanning config. See the API for the options here
             ),
