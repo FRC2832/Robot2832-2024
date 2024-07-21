@@ -34,7 +34,7 @@ public class Autoshot extends Command {
         this.intake = intake;
         this.tagY = 218.42 * 0.0254;
         this.swerveDrive = swerveDrive;
-        this.pid = new PIDController(.35/Math.PI, .45, 0); //DID NOT THINK ABOUT SETTINGS!!!
+        this.pid = new PIDController(.28/Math.PI, .45, 0);
         addRequirements(shooter, pneumatic, kicker, intake, swerveDrive);
     }
 
@@ -66,16 +66,10 @@ public class Autoshot extends Command {
         double angleCommand = pid.calculate(robotAngleRad, targetAngleRad);
         angleCommand = Math.toDegrees(angleCommand);
         SmartDashboard.putNumber("Aim Command", angleCommand);
-        swerveDrive.SwerveDrive(0,0,angleCommand);
-        //swerveDrive.SwerveDrive(0,0,-0);
         
         //calculate robot distance
         var distance = UtilFunctions.getDistance(new Pose2d(tagX, tagY, null), robotPose);
         AutoShotLookup lookup = shooter.estimate(distance);
-
-        shooter.setRPM(lookup.getShooterSpeed());
-        pneumatic.goToSmooth(lookup.getAngle());
-        kicker.setRPM(lookup.getKickerSpeed());
 
         var shooterError = Math.abs(robotAngleRad - targetAngleRad);
         if (shooterError > 0.4) {
@@ -93,28 +87,30 @@ public class Autoshot extends Command {
             goodCounts++;
         }
         else if (  (  (Math.abs(shooter.getRPM() - lookup.getShooterSpeed()) < 300)
-                   && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 4)
-                   && (shooterError < 0.16)
+                   && (Math.abs(pneumatic.getAngle() - (lookup.getAngle())) < 3)
+                   && (shooterError < 0.08)
                    )
                 )
         {
             //we are starting to see the target, wait
             intake.setPower(0);
             goodCounts++;
+            swerveDrive.SwerveDrive(0,0,0);
         }
         else {
-            //target missing, decrement the counts
+            //target missing, reset counts
             intake.setPower(0);
-            goodCounts--;
-            if (goodCounts < 0) {
-                goodCounts = 0;
-            }
+            shooter.setRPM(lookup.getShooterSpeed());
+            pneumatic.goToSmooth(lookup.getAngle());
+            kicker.setRPM(lookup.getKickerSpeed());
+            swerveDrive.SwerveDrive(0,0,angleCommand);
+            goodCounts = 0;
         }
     }
 
     @Override
     public boolean isFinished() {
-        return goodCounts > 40;
+        return goodCounts > 60;
     }
 
     @Override

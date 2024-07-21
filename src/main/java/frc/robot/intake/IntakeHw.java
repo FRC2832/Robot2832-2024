@@ -52,7 +52,7 @@ public class IntakeHw implements IIntakeHw {
         slot0Configs.kS = 0.0; // no output overcome static friction
         slot0Configs.kV = 12./6000.; // 6000 RPM over 12V
         slot0Configs.kP = 0.011; // An error of 1 rpm results in 0.011 V output
-        slot0Configs.kI = 0.001; // no output for integrated error
+        slot0Configs.kI = 0.00; // no output for integrated error
         slot0Configs.kD = 0; // no output for error derivative
         
         rightIntake.getConfigurator().apply(configs);

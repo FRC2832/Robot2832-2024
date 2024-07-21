@@ -38,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Controls.AmpScore;
-import frc.robot.Controls.AutoFixedShot;
 import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -308,7 +307,7 @@ public class RobotContainer {
                     UtilFunctions.getSetting("/PathPlanner/TurnD", 0)), // Rotation PID constants
                 4.5, // Max module speed, in m/s
                 swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
-                new ReplanningConfig() // Default path replanning config. See the API for the options here
+                new ReplanningConfig(false, true) // Default path replanning config. See the API for the options here
             ),
             odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
             swerveDrive // Reference to this subsystem to set requirements
