@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -218,6 +219,12 @@ public class RobotContainer {
         driveControllerChooser.addOption("Xbox Controller", kXbox );
         driveControllerChooser.setDefaultOption("Fight Sticks", kFlight);
         SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
+
+        //command execution logging
+        //CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
+        //CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
+        //CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
+        //CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         configureAutoBuilder();
