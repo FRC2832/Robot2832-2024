@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
-public class AmpHw implements IAmpHw {
+public class AmpHw extends Amp {
     private DoubleSolenoid amp;
 
     public AmpHw() {

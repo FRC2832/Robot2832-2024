@@ -6,15 +6,15 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 
 public class ShooterCalibrate extends Command{
     private Shooter shooter;
     private Kicker kicker;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private DoubleSubscriber shooterRpm, kickRpm, shooterAngle;
 
-    public ShooterCalibrate(Shooter shooter, Kicker kicker, Pneumatics aimer) {
+    public ShooterCalibrate(Shooter shooter, Kicker kicker, Aimer aimer) {
         this.shooter = shooter;
         this.kicker = kicker;
         this.aimer = aimer;
@@ -27,8 +27,8 @@ public class ShooterCalibrate extends Command{
     
     @Override
     public void execute() {
-        shooter.setRPM(shooterRpm.get());
-        kicker.setRPM(kickRpm.get());
+        shooter.setRpm(shooterRpm.get());
+        kicker.setRpm(kickRpm.get());
         aimer.goTo(shooterAngle.get());
     }
 }

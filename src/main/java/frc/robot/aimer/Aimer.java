@@ -4,15 +4,22 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.function.DoubleSupplier;
 
+public abstract class Aimer extends SubsystemBase {
+    public abstract void updateInputs();
+    public abstract double getAngle();
+    public abstract void driveUp();
+    public abstract void driveDown();
+    public abstract void stop();
+    public abstract void startPulse(double time, boolean goingUp);
 
-public class Pneumatics extends SubsystemBase {
-    IPneumaticHW hardware;
     private double moe = 4.00;
     private double timeToStartUp = 0.07;
     private double timeToStartDown = 0.0825;
@@ -23,9 +30,8 @@ public class Pneumatics extends SubsystemBase {
     private InterpolatingDoubleTreeMap downTable;
     private double stopAimTime = 0;
 
-    public Pneumatics(IPneumaticHW hardware) {
+    public Aimer() {
         super();
-        this.hardware = hardware;
         upTable = new InterpolatingDoubleTreeMap();
         downTable = new InterpolatingDoubleTreeMap();
         readShooterTable("/Aimer_Cal2_Up.csv",upTable);
@@ -33,15 +39,15 @@ public class Pneumatics extends SubsystemBase {
     }
 
     public void goTo(double target) {
-        double currentAngle = hardware.getAngle();
+        double currentAngle = getAngle();
         if(((target - moe) < currentAngle) && (currentAngle < (target + moe))){
-            hardware.stop(); 
+            stop(); 
         }
         else {
             if(currentAngle < target) {
-                hardware.driveUp(); 
+                driveUp(); 
             } else {
-                hardware.driveDown();
+                driveDown();
             }
         }
     }
@@ -51,7 +57,7 @@ public class Pneumatics extends SubsystemBase {
         if (Timer.getFPGATimestamp() < stopAimTime) {
             return;
         }
-        double currentAngle = hardware.getAngle();
+        double currentAngle = getAngle();
         boolean goingUp = target >= currentAngle;
         double time;
         if(goingUp){
@@ -68,33 +74,39 @@ public class Pneumatics extends SubsystemBase {
         if(time<0){
             time = 0;
         } else {
-            hardware.startPulse(time, goingUp);
+            startPulse(time, goingUp);
             stopAimTime = Timer.getFPGATimestamp() + time;
         }
     }
 
-    public void driveUp() {
-        hardware.driveUp();
-    }
-
-    public void driveDown() {
-        hardware.driveDown();
-    }
-
-    public void stop() {
-        hardware.stop();
-    }
-
-    public double getAngle() {
-        return hardware.getAngle();
-    }
-
     @Override
     public void periodic() {
-        hardware.updateInputs();
+        updateInputs();
     }
 
-    public void readShooterTable(String fileName, InterpolatingDoubleTreeMap table){
+    public Command driveAimer(DoubleSupplier pctCommand) {
+        return run(() -> {
+            double command = pctCommand.getAsDouble();
+            if(command > 0.2) {
+                driveDown();
+            } else if (command < -0.2) {
+                driveUp();
+            } else {
+                stop();
+            }
+        }).finallyDo(this::stop).withName("AimerDrive");
+    }
+
+    public Command setAimer(DoubleSupplier angle) {
+        return run(() -> {
+            double ang = angle.getAsDouble();
+            goToSmooth(ang);
+        })
+        .until(() -> Math.abs(getAngle() - angle.getAsDouble()) < 3)
+        .finallyDo(this::stop).withName("AimerSet");
+    }
+
+    private void readShooterTable(String fileName, InterpolatingDoubleTreeMap table){
         try {
 			String path = Filesystem.getDeployDirectory() + fileName;
             reader = new BufferedReader(new FileReader(path));

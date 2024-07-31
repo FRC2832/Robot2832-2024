@@ -1,7 +1,7 @@
 package frc.robot.Controls;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import frc.robot.intake.Intake;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
@@ -10,13 +10,13 @@ public class AutoFixedShot extends Command {
     private Intake intake;
     private Shooter shooter;
     private Kicker kicker;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private int goodCounts;
 
     private final double SHOT_RPM = 6000;
     private final double AIMER_ANGLE = 51;
 
-    public AutoFixedShot(Intake intake, Shooter shooter, Kicker kicker, Pneumatics aimer) {
+    public AutoFixedShot(Intake intake, Shooter shooter, Kicker kicker, Aimer aimer) {
         this.intake = intake;
         this.shooter = shooter;
         this.kicker = kicker;
@@ -31,11 +31,11 @@ public class AutoFixedShot extends Command {
 
     @Override 
     public void execute() {
-        shooter.setRPM(SHOT_RPM);
+        shooter.setRpm(SHOT_RPM);
         kicker.setPower(1);
         aimer.goTo(AIMER_ANGLE);
 
-        if((  shooter.getRPM() > 4800
+        if((  shooter.getRpm() > 4800
           && Math.abs(aimer.getAngle() - AIMER_ANGLE) < 5)
           || goodCounts > 6
           )
@@ -60,7 +60,7 @@ public class AutoFixedShot extends Command {
         aimer.stop();
         intake.setPower(0);
         //keep shooter running in auto
-        shooter.setRPM(6000);
+        shooter.setRpm(6000);
         kicker.stop();
     }
 }

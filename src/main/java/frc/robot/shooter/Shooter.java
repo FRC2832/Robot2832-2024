@@ -1,92 +1,108 @@
 package frc.robot.shooter;
 
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import org.livoniawarriors.UtilFunctions;
+
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Controls.AutoShotLookup;
 
-public class Shooter extends SubsystemBase {
-    private IShooterHw hw;
-    private InterpolatingDoubleTreeMap speed, angle, kicker;
+public abstract class Shooter extends SubsystemBase {
+    public abstract void updateInputs();
+    public abstract void setPower(double power);
+    protected abstract void setRpmHw(double rpm);
+    public abstract double getCurrentRPM(int shooterID);
 
-    public Shooter(IShooterHw hardware) {
+    private double targetRpm;
+    private BooleanEntry atRpm;
+    private DoubleSubscriber errorRpm;
+
+    public Shooter() {
         super();
-        hw = hardware;
-        
-        speed = new InterpolatingDoubleTreeMap();
-        angle = new InterpolatingDoubleTreeMap();
-        kicker = new InterpolatingDoubleTreeMap();
-
-        //input: Meters from target, output: RPM of shot  
-        speed.put(1.375, 5000.);
-        speed.put(1.78, 5000.);
-        speed.put(2.32, 5000.);
-        speed.put(2.8, 5000.);
-        speed.put(3.12, 5300.);
-        speed.put(3.43, 5300.);
-        speed.put(3.92, 5500.);
-
-        //input: Meters from target, output: Degrees of shot  
-        angle.put(1.375, 52.);
-        angle.put(1.78, 48.);
-        angle.put(2.05, 44.);
-        angle.put(2.31, 41.);
-        angle.put(2.55, 39.5);
-        angle.put(2.8, 37.5);
-        angle.put(3.12, 36.);
-        angle.put(3.43, 32.);
-        angle.put(3.92, 28.);
-
-        //input: Meters from target, output: RPM for kicker
-        kicker.put(1.375, 6000.);
-        kicker.put(1.78, 6000.);
-        kicker.put(2.32, 6000.);
-        kicker.put(2.8, 6000.);
-        kicker.put(3.12, 6000.);
-        kicker.put(3.43, 6000.);
-        kicker.put(3.92, 6000.);
+        atRpm = UtilFunctions.getNtEntry("/Shooter/At Rpm", false);
+        errorRpm = UtilFunctions.getSettingSub("/Shooter/Error RPM Allowed", 300);
     }
 
     @Override
     public void periodic() {
-        hw.updateInputs();
-    }
-    public AutoShotLookup estimate(double d) {
-        AutoShotLookup shot = new AutoShotLookup(angle.get(d), kicker.get(d), speed.get(d));
-        shot.printValues();
-        return shot;
+        updateInputs();
+
+        double shooterError = Math.abs(targetRpm - getCurrentRPM(0));
+        atRpm.set(shooterError < errorRpm.get());
+        //reset target so we don't start with it in range
+        targetRpm = -errorRpm.get() - 100;
     }
 
-    public void setRPM(double RPM) {
-        hw.setRpm(RPM);
+    public double getRpm() {
+        return getCurrentRPM(0);
     }
 
-    public double getRPM() {
-        return hw.getCurrentRPM(0);
+    public void setRpm(double rpm) {
+        setRpmHw(rpm);
+        targetRpm = rpm;
     }
     
     public static double RPMToVelocity(double RPM) {
         return ((((RPM*(Math.PI)*2)/60)*2)/(39.3700787402));
     }
 
-    public boolean isAtSpeed() {
-        return false;
+    /** 
+     * Starts the shooter and keeps the rpm on exit 
+     * @return Command
+    */
+    public Command startShooter() {
+        return startShooter(6000);
+    }
+
+    /** 
+     * Starts the shooter and keeps the rpm on exit 
+     * @param rpm RPM to run at
+     * @return Command
+    */
+    public Command startShooter(double rpm) {
+        return run(() -> setRpm(rpm))
+            .withName("ShooterStart");
+    }
+
+    /** 
+     * Starts the shooter and keeps the rpm on exit 
+     * @param rpm RPM to run at
+     * @return Command
+    */
+    public Command startShooter(DoubleSupplier rpm) {
+        return run(() -> setRpm(rpm.getAsDouble()))
+            .withName("ShooterStart");
+    }
+
+    /** 
+     * Run the shooter at an rpm 
+     * @param rpm RPM to run at
+     * @return Command
+    */
+    public Command runShooter(DoubleSupplier rpm) {
+        return run(() -> setRpm(rpm.getAsDouble()))
+            .finallyDo(this::stopShooter)
+            .withName("ShooterRun");
+    }
+
+    /**
+     * Runs the shooter in reverse
+     * @return Command
+     */
+    public Command reverseShooter() {
+        return run(() -> setRpm(-3000))
+            .finallyDo(this::stopShooter)
+            .withName("ShooterReverse");
+    }
+
+    public void stopShooter() {
+        setPower(0);
     }
     
-    /**@param power percent -1 to 1 */
-    public void setPower (double power) {
-        hw.setPower(power);
-    }
-
-    public void shoot() {
-        // if shooter is at x speed and note is detected?
-    }
-
-    public boolean canMakeShot() {
-        //check distance, rpm, height of shooter, turned left/right
-        return false;
-    }
-
-    public void autoShoot() {
-        // Handle auto calculations and then shoot
+    public BooleanSupplier atRpm() {
+        return atRpm;
     }
 }

@@ -1,25 +1,27 @@
 package frc.robot.amp;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Amp extends SubsystemBase {
-    private IAmpHw hw;
+public abstract class Amp extends SubsystemBase {
+    public abstract void ToggleAmp();
+    public abstract void SetAmpDirection(boolean up);
+    public abstract Value getDirection();
 
-    public Amp(IAmpHw hw) {
+    public Amp() {
         super();
-        this.hw = hw;
-    }
-
-    public void ToggleAmp() {
-        hw.ToggleAmp();
-    }
-
-    public void SetAmpDirection(boolean up) {
-        hw.SetAmpDirection(up);
     }
 
     public boolean IsRaised() {
-        return hw.getDirection() == Value.kForward;
+        return getDirection() == Value.kForward;
+    }
+
+    public Command toggleAmp() {
+        return runOnce(this::ToggleAmp).withName("AmpToggle");
+    }
+
+    public Command setAmpDirection(boolean up) {
+        return runOnce(() ->SetAmpDirection(up)).withName("AmpSetDir");
     }
 }

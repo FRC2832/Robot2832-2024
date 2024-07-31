@@ -9,7 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
-public class IntakeHw implements IIntakeHw {
+public class IntakeHw extends Intake {
     private TalonFX rightIntake;
     private TalonFX leftIntake;
     private DigitalInput enterSensor;
@@ -71,7 +71,6 @@ public class IntakeHw implements IIntakeHw {
         this.inverted = inverted;
         rightIntake.set(power*ratio);
         leftIntake.set(power);
-
     }
 
     public double getPercentOutput() {
@@ -110,7 +109,6 @@ public class IntakeHw implements IIntakeHw {
     public void setPower(double power) {
         rightIntake.set(2*power*ratio);
         leftIntake.set(2*power);
-
     }
 
     @Override

@@ -1,44 +1,72 @@
 package frc.robot.intake;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.function.DoubleSupplier;
+
+import org.livoniawarriors.UtilFunctions;
+
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Intake extends SubsystemBase {
-    private IIntakeHw hardware;
+public abstract class Intake extends SubsystemBase {
+    public static final double PIT_INTAKE_SPEED = 225;
+    /** @param inverted true = spin backwards, false = spin forwards */
+    public abstract void setIntake(boolean isRunning, boolean inverted);
+    public abstract double getPercentOutput();
+    public abstract boolean isRunning();
+    public abstract boolean isInverted();
+    public abstract boolean isPieceSeen();
+    public abstract void removeInterrupt();
+    public abstract void updateInputs();
+    public abstract void setPower(double power);
+    public abstract void setRpm(double rpm);
 
-    public Intake(IIntakeHw hardware) {
+    DoubleSubscriber intakeSpeed;
+
+    public Intake() {
         super();
-        this.hardware = hardware;
+        intakeSpeed = UtilFunctions.getSettingSub("/DriveIntake/Intake Speed", 150);
     }
 
     @Override
     public void periodic() {
-        hardware.updateInputs();
+        updateInputs();
         SmartDashboard.putNumber("Intake Percent", getPercentOutput());
     }
 
     public boolean isPieceDetected() {
-        return hardware.isPieceSeen();
+        return isPieceSeen();
     }
 
-    /** @param inverted true = spin backwards, false = spin forwards */
-    public void setIntake(boolean isRunning, boolean inverted) {
-        hardware.setIntake(isRunning, inverted);
+    public void stop() {
+        setPower(0);
     }
 
-    public double getPercentOutput() {
-        return hardware.getPercentOutput();
+    /* runs the intake at the default speed */
+    public Command drive(boolean stopOnPiece) {
+        return drive(intakeSpeed, stopOnPiece, false);
     }
 
-    public void removeInterrupt() {
-        hardware.removeInterrupt();
+    /* runs the intake at the default speed */
+    public Command drive(boolean stopOnPiece, boolean invertDir) {
+        return drive(intakeSpeed, stopOnPiece, invertDir);
     }
 
-    public void setPower(double power) {
-        hardware.setPower(power);
+    /* runs the intake at a custom speed */
+    public Command drive(DoubleSupplier speed, boolean stopOnPiece) {
+        return drive(speed, stopOnPiece, false);
     }
 
-    public void setRpm(double rpm) {
-        hardware.setRpm(rpm);
+    public Command drive(DoubleSupplier speed, boolean stopOnPiece, boolean invertDir) {
+        return run(() -> {
+            double dir = 1;
+            if(invertDir) dir = -1;
+            setRpm(dir * intakeSpeed.get());    
+        })
+        .until(() -> isPieceDetected() && stopOnPiece)
+        .finallyDo(this::stop)
+        .withName("IntakeDrive");
     }
 }

@@ -13,7 +13,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-public class ShooterHw implements IShooterHw {
+public class ShooterHw extends Shooter {
     private TalonFX[] shooters;
     private final double UNITS_TO_RPM = 60;  //rps to rpm is just 60x
     final VelocityVoltage velocityCommand;
@@ -64,7 +64,7 @@ public class ShooterHw implements IShooterHw {
     }
 
     @Override
-    public void setRpm(double rpm) {
+    protected void setRpmHw(double rpm) {
         shooters[0].setControl(velocityCommand.withVelocity(rpm / UNITS_TO_RPM));
     }
 

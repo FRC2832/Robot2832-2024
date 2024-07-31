@@ -1,34 +1,32 @@
-package frc.robot.shooter;
+package frc.robot.Controls;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Controls.AutoShotLookup;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import frc.robot.intake.Intake;
 import frc.robot.kicker.Kicker;
+import frc.robot.shooter.Shooter;
 
 public class ShootFrom extends Command {
     private Shooter shooter;
-    private Pneumatics pneumatics;
+    private Aimer aimer;
     private Kicker kicker;
     private Intake intake;
     private AutoShotLookup shootData;
     private boolean shotCalled;
     private boolean IsCenterFieldShot;
-    private int goodCounts;
 
-    public ShootFrom(Shooter shooter, Pneumatics pneumatics, Kicker kicker, Intake intake, boolean IsCenterFieldShot) {
+    public ShootFrom(Shooter shooter, Aimer aimer, Kicker kicker, Intake intake, boolean IsCenterFieldShot) {
         this.shooter = shooter;
-        this.pneumatics = pneumatics;
+        this.aimer = aimer;
         this.kicker = kicker;
         this.intake = intake;
         this.IsCenterFieldShot = IsCenterFieldShot;
-        addRequirements(shooter, pneumatics, kicker, intake);
+        addRequirements(shooter, aimer, kicker, intake);
     }
 
     @Override
     public void initialize() {
         shootData = new AutoShotLookup(0, 0, 0);
-        goodCounts = 0;
         shotCalled = false;
     }
     
@@ -39,16 +37,13 @@ public class ShootFrom extends Command {
             handleShot(shootData);
             shotCalled = true;
         }
-        if (shotCalled && !intake.isPieceDetected()) {
-            goodCounts++;
-        }
     }
 
     public void handleShot(AutoShotLookup data) {
-        shooter.setRPM(data.getShooterSpeed());
-        kicker.setRPM(data.getKickerSpeed());
+        shooter.setRpm(data.getShooterSpeed());
+        kicker.setRpm(data.getKickerSpeed());
         //pneumatics.goTo(data.getAngle());
-        pneumatics.goToSmooth(data.getAngle());
+        aimer.goToSmooth(data.getAngle());
         intake.setRpm(250);
     }
 
@@ -59,10 +54,10 @@ public class ShootFrom extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        pneumatics.stop();
+        aimer.stop();
         intake.setPower(0);
         //keep shooter running in auto
-        shooter.setRPM(3000);
+        shooter.setRpm(3000);
         kicker.stop();
     }
 }

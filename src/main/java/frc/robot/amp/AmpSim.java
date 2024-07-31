@@ -2,7 +2,7 @@ package frc.robot.amp;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
-public class AmpSim implements IAmpHw {
+public class AmpSim extends Amp {
 
     @Override
     public void ToggleAmp() {

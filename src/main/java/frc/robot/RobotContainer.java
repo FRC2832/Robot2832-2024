@@ -35,20 +35,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Controls.AmpScore;
-import frc.robot.Controls.Autoshot;
+import frc.robot.Controls.AutoShotLookup;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
 import frc.robot.Controls.OperatorControls;
-import frc.robot.Controls.OperatorStick;
 import frc.robot.Controls.ShooterCalibrate;
 import frc.robot.Controls.XboxDriveControls;
-import frc.robot.aimer.DriveAimer;
-import frc.robot.aimer.PneumaticHW;
-import frc.robot.aimer.SetAimer;
+import frc.robot.Controls.AutoShotLookup.TargetLocation;
+import frc.robot.VisionSystem.FieldLocation;
+import frc.robot.aimer.Aimer;
+import frc.robot.aimer.AimerHw;
+import frc.robot.aimer.AimerSim;
 import frc.robot.amp.Amp;
 import frc.robot.amp.AmpHw;
 import frc.robot.amp.AmpSim;
@@ -57,26 +58,19 @@ import frc.robot.climber.HomeClimber;
 import frc.robot.climber.Inclinator;
 import frc.robot.climber.InclinatorHw;
 import frc.robot.climber.InclinatorSim;
-import frc.robot.intake.DriveIntake;
 import frc.robot.intake.Intake;
 import frc.robot.intake.IntakeHw;
 import frc.robot.intake.IntakeSim;
-import frc.robot.intake.PitIntake;
 import frc.robot.kicker.Kicker;
 import frc.robot.kicker.KickerHw;
 import frc.robot.kicker.KickerSim;
-import frc.robot.shooter.ReverseShooter;
-import frc.robot.shooter.ShootFrom;
 import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
-import frc.robot.shooter.StartShooter;
-import frc.robot.aimer.PneumaticsSim;
 import frc.robot.swerve.DriveStick;
 import frc.robot.swerve.PracticeSwerveHw;
 import frc.robot.swerve.ResetWheelPosition;
 import frc.robot.swerve.SwerveHw24;
-import frc.robot.aimer.Pneumatics;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -94,7 +88,7 @@ public class RobotContainer {
     private Inclinator inclinator;
     private Intake intake;
     private Kicker kick;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private PneumaticHub ph;
     private VisionSystem vision;
     private Amp amp;
@@ -132,32 +126,32 @@ public class RobotContainer {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
-            shooter = new Shooter(new ShooterSim());
-            intake = new Intake(new IntakeSim());
+            shooter = new ShooterSim();
+            intake = new IntakeSim();
             inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerSim());
-            aimer = new Pneumatics(new PneumaticsSim());
-            amp = new Amp(new AmpSim());
+            kick = new KickerSim();
+            aimer = new AimerSim();
+            amp = new AmpSim();
         } else if (serNum.equals("031e3219")) {
             //practice robot
             swerveDrive = new SwerveDriveTrain(new PracticeSwerveHw(), odometry);
             odometry.setGyroHardware(new PigeonGyro(0));
-            shooter = new Shooter(new ShooterSim());
-            intake = new Intake(new IntakeSim());
+            shooter = new ShooterSim();
+            intake = new IntakeSim();
             inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerSim());
-            aimer = new Pneumatics(new PneumaticsSim());
-            amp = new Amp(new AmpSim());
+            kick = new KickerSim();
+            aimer = new AimerSim();
+            amp = new AmpSim();
         } else if (serNum.equals("03134cef")) {
             //woody demo shooter
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
             odometry.setGyroHardware(new SimSwerveGyro(swerveDrive));
-            shooter = new Shooter(new ShooterHw());
-            intake = new Intake(new IntakeHw());
+            shooter = new ShooterHw();
+            intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorSim());
-            kick = new Kicker(new KickerHw());
-            aimer = new Pneumatics(new PneumaticsSim());
-            amp = new Amp(new AmpSim());
+            kick = new KickerHw();
+            aimer = new AimerSim();
+            amp = new AmpSim();
         } else {
             //competition robot
             ph = new PneumaticHub();
@@ -168,12 +162,12 @@ public class RobotContainer {
             
             swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
             odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
-            shooter = new Shooter(new ShooterHw());
-            intake = new Intake(new IntakeHw());
+            shooter = new ShooterHw();
+            intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorHw());
-            kick = new Kicker(new KickerHw());
-            aimer = new Pneumatics(new PneumaticHW());
-            amp = new Amp(new AmpHw());
+            kick = new KickerHw();
+            aimer = new AimerHw();
+            amp = new AmpHw();
         }
 
         new DriverFeedback(vision, intake, leds);
@@ -189,12 +183,12 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Wheels Diamond", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsDiamond()));
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
         SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
-        SmartDashboard.putData("Pit Intake", new PitIntake(intake));
+        SmartDashboard.putData("Pit Intake", intake.drive(() -> Intake.PIT_INTAKE_SPEED, false));
         SmartDashboard.putData("Home Climber", new HomeClimber(inclinator));
-        SmartDashboard.putData("Test Aimer Low", new SetAimer(aimer, 35));
-        SmartDashboard.putData("Test Aimer High", new SetAimer(aimer, 50));
+        SmartDashboard.putData("Test Aimer Low", aimer.setAimer(() -> 35));
+        SmartDashboard.putData("Test Aimer High", aimer.setAimer(() -> 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
-        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
+        SmartDashboard.putData("Auto Aim", autoShot());
         SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
         SmartDashboard.putData("Swerve SysId Dynamic Backward", swerveDrive.sysIdDynamic(Direction.kReverse));
         SmartDashboard.putData("Swerve SysId Quasistatic Forward", swerveDrive.sysIdQuasistatic(Direction.kForward));
@@ -203,16 +197,16 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("Intake", new DriveIntake(intake, true));
-        NamedCommands.registerCommand("Kick", new DriveIntake(intake, false).withTimeout(0.75));
+        NamedCommands.registerCommand("Intake", intake.drive(true));
+        NamedCommands.registerCommand("Kick", intake.drive(false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
-        NamedCommands.registerCommand("StartShooter", new StartShooter(shooter));
+        NamedCommands.registerCommand("StartShooter", shooter.startShooter());
         //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
         if(Robot.isSimulation()) {
-            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive).withTimeout(1.5));
+            NamedCommands.registerCommand("Shoot", autoShot().withTimeout(1.5));
         } else {
-            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
+            NamedCommands.registerCommand("Shoot", autoShot());
         }
 
         // Controller chooser Setup
@@ -221,11 +215,14 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
 
         //command execution logging
-        //CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
-        //CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
-        //CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
-        //CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
-
+        boolean commandLogging = false;
+        if (commandLogging) {
+            CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
+            CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
+            CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
+            CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
+        }
+        
         // Build an auto chooser. This will use Commands.none() as the default option.
         configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -260,30 +257,33 @@ public class RobotContainer {
             driveControls = new XboxDriveControls();
         }
         OperatorControls operatorControls = new OperatorControls();
+
+        //setup default commands for subsystems
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
-        swerveDrive.resetFieldOriented();
-        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer, intake);
         leds.setDefaultCommand(new RainbowLeds(leds));
-        shooter.setDefaultCommand(operatorStick);
-        kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
-        new Trigger(() -> Math.abs(operatorControls.GetManualSubAim()) > 0.2).whileTrue(new DriveAimer(operatorControls, aimer));
-        new Trigger(operatorControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, false));
-        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(new DriveIntake(intake, false, true));
-        new Trigger(driveControls::IsIntakeRequested).whileTrue(new DriveIntake(intake, true));
-        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
-        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, true));
-        new Trigger(operatorControls::IsPillarShotRequested).whileTrue(new ShootFrom(shooter, aimer, kick, intake, false));
-        new Trigger(operatorControls::IsAmpToggled).whileTrue(new AmpScore(kick, shooter, amp, aimer));
-        new Trigger(operatorControls::ReverseShooterRequested).whileTrue(new ReverseShooter(kick, shooter));
+        aimer.setDefaultCommand(aimer.driveAimer(operatorControls::GetManualSubAim));
+
+        //drive team controls
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(intake.drive(true));
+        new Trigger(operatorControls::IsIntakeRequested).whileTrue(intake.drive(false));
+        new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(intake.drive(false, true));
+        new Trigger(operatorControls::AutoSubAimRequested).whileTrue(autoShot());
+        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(shootAtTarget(TargetLocation.Corner));
+        new Trigger(operatorControls::IsPillarShotRequested).whileTrue(shootAtTarget(TargetLocation.PillarFixed));
+        new Trigger(operatorControls::IsSubShotRequested).whileTrue(shootAtTarget(TargetLocation.SpeakerFixed));
+        new Trigger(operatorControls::IsAmpToggled).whileTrue(ampScore());
+        new Trigger(operatorControls::ReverseShooterRequested).whileTrue(shooter.reverseShooter());
+
+        //commands to run at startup
+        swerveDrive.resetFieldOriented();
         new HomeClimber(inclinator).schedule();
     }
 
     public void disableBindings() {
         swerveDrive.removeDefaultCommand();
-        shooter.removeDefaultCommand();
-        kick.removeDefaultCommand();
         inclinator.removeDefaultCommand();
+        aimer.removeDefaultCommand();
     }
 
     /**
@@ -319,5 +319,33 @@ public class RobotContainer {
             odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
             swerveDrive // Reference to this subsystem to set requirements
         );
+    }
+
+    public Command shootAtTarget(TargetLocation location) {
+        return new ParallelCommandGroup(
+            shooter.runShooter(AutoShotLookup.getShooterSpeed(location)),
+            kick.runKicker(AutoShotLookup.getKickerSpeed(location)),
+            aimer.setAimer(AutoShotLookup.getShooterAngle(location))
+        );
+    }
+
+    public Command ampScore() {
+        return new ParallelCommandGroup(
+            amp.setAmpDirection(true),
+            shootAtTarget(TargetLocation.AmpFixed)
+        ).withName("AmpShot");
+    }
+
+    public Command autoShot() {
+        Trigger shotAimed = new Trigger(swerveDrive.aimedAtTarget()).and(shooter.atRpm());
+        
+        return new ParallelCommandGroup(
+            shooter.startShooter(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker)),
+            swerveDrive.aimAtTargetBackwards(VisionSystem.getLocation(FieldLocation.Speaker))
+        ).until(shotAimed)
+        .withTimeout(3)
+        .andThen(intake.drive(false).withTimeout(0.75))
+        .finallyDo(shooter::stopShooter)
+        .withName("AutoShot");
     }
 }

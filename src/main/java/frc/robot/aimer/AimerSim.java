@@ -5,17 +5,21 @@ import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import frc.robot.Robot;
 
-public class PneumaticsSim implements IPneumaticHW {
+public class AimerSim extends Aimer {
     private DoubleSolenoid.Value direction;
     private double angle;
+    private double pulseTimer;
+    private boolean pulseUp;
     private SimDevice aimerDevice;
     private SimDouble aimerAngle;
-    private final double kAnglePerStep = 2;
+    private final double kAnglePerStep = 1;
 
-    public PneumaticsSim() {
+    public AimerSim() {
         direction = Value.kOff;
         angle = 37;
+        pulseTimer = 0;
         aimerDevice = SimDevice.create("Jukebox:Aimer");
         if(aimerDevice != null) {
             aimerAngle = aimerDevice.createDouble("Angle", Direction.kOutput, angle);
@@ -24,6 +28,13 @@ public class PneumaticsSim implements IPneumaticHW {
 
     @Override
     public void updateInputs() {
+        if(pulseTimer > Robot.kDefaultPeriod) {
+            pulseTimer -= Robot.kDefaultPeriod;
+            direction = pulseUp ? Value.kForward : Value.kReverse;
+        } else {
+            //pulse not active, don't do anything
+        }
+
         if (direction == Value.kForward) {
             angle = Math.min(angle+kAnglePerStep,75);
         } else if (direction == Value.kReverse) {
@@ -44,12 +55,12 @@ public class PneumaticsSim implements IPneumaticHW {
 
     @Override
     public void driveUp() {
-        direction = Value.kReverse;
+        direction = Value.kForward;
     }
 
     @Override
     public void driveDown() {
-        direction = Value.kForward;
+        direction = Value.kReverse;
     }
 
     @Override
@@ -59,7 +70,8 @@ public class PneumaticsSim implements IPneumaticHW {
 
     @Override
     public void startPulse(double time, boolean goingUp) {
-        // TODO Auto-generated method stub
+        pulseTimer = time;
+        pulseUp = goingUp;
     }
     
 }

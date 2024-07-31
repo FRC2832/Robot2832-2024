@@ -6,7 +6,7 @@ import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDevice.Direction;
 import edu.wpi.first.hal.SimDouble;
 
-public class KickerSim implements IKickerHw {
+public class KickerSim extends Kicker {
     private SimDevice kickerDevice;
     private SimDouble leftRpmDev;
     private SimDouble rightRpmDev;

@@ -7,23 +7,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.DriverFeedback;
 import frc.robot.kicker.Kicker;
 import frc.robot.shooter.Shooter;
-import frc.robot.aimer.Pneumatics;
+import frc.robot.aimer.Aimer;
 import frc.robot.intake.Intake;
 
 public class OperatorStick extends Command {
     private Shooter shoot;
     private Kicker kick;
-    private Pneumatics aimer;
+    private Aimer aimer;
     private IOperatorControls cont;
-    private Intake intake;
-    private int kickerTimer;
 
-    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Pneumatics aimer, Intake intake){
+    public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Aimer aimer, Intake intake){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;
         this.aimer = aimer;
-        this.intake = intake;
 
         addRequirements(shoot);
         addRequirements(kick);
@@ -35,7 +32,6 @@ public class OperatorStick extends Command {
 
     @Override
     public void initialize() {
-        kickerTimer = 0;
     }
 
     @Override
@@ -44,11 +40,11 @@ public class OperatorStick extends Command {
             double shotRpm = SmartDashboard.getNumber("Shooter RPM Command", 6000);
             double shotAngle = SmartDashboard.getNumber("Shooter Angle Command", 54);
             double kickRpm = SmartDashboard.getNumber("Kicker RPM Command", 6500);
-            shoot.setRPM(shotRpm);
-            kick.setRPM(kickRpm);
+            shoot.setRpm(shotRpm);
+            kick.setRpm(kickRpm);
             aimer.goToSmooth(shotAngle);
 
-            if (  (Math.abs(shotRpm - shoot.getRPM()) < 125) 
+            if (  (Math.abs(shotRpm - shoot.getRpm()) < 125) 
                && (Math.abs(shotAngle - aimer.getAngle()) < 4)
                )
             {

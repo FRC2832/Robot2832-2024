@@ -6,7 +6,7 @@ import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.SimDevice.Direction;
 
-public class ShooterSim implements IShooterHw {
+public class ShooterSim extends Shooter {
     private SimDevice shooterDevice;
     private SimDouble leftRpmDev;
     private SimDouble rightRpmDev;
@@ -28,7 +28,7 @@ public class ShooterSim implements IShooterHw {
     }
 
     @Override
-    public void setRpm(double rpm) {
+    protected void setRpmHw(double rpm) {
         leftTarget = Math.copySign(Math.min(Math.abs(rpm),6450.), rpm);
         rightTarget = leftTarget;
     }

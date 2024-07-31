@@ -2,7 +2,6 @@ package frc.robot.kicker;
 
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
@@ -11,13 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.livoniawarriors.Logger;
 
-public class KickerHw implements IKickerHw {
-//
+public class KickerHw extends Kicker {
     private CANSparkFlex[] kickers;
     private SparkPIDController[] pids;
     private RelativeEncoder[] encoders;
     
-
     public KickerHw() {
         kickers = new CANSparkFlex[2];
         pids = new SparkPIDController[2];
