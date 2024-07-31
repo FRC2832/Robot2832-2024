@@ -23,8 +23,8 @@ public abstract class Aimer extends SubsystemBase {
     private double moe = 4.00;
     private double timeToStartUp = 0.07;
     private double timeToStartDown = 0.0825;
-    private double timeToStopUp = 0.161;
-    private double timeToStopDown = 0.15;
+    private double timeToStopUp = 0.26;
+    private double timeToStopDown = 0.28;
     private BufferedReader reader = null;
     private InterpolatingDoubleTreeMap upTable;
     private InterpolatingDoubleTreeMap downTable;

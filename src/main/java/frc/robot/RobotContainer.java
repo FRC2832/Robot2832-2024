@@ -34,13 +34,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Controls.AutoFixedShot;
 import frc.robot.Controls.AutoShotLookup;
-import frc.robot.Controls.Autoshot;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
 import frc.robot.Controls.OperatorControls;
@@ -191,7 +191,7 @@ public class RobotContainer {
         SmartDashboard.putData("Test Aimer Low", aimer.setAimer(() -> 35));
         SmartDashboard.putData("Test Aimer High", aimer.setAimer(() -> 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
-        SmartDashboard.putData("Auto Aim", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive));
+        SmartDashboard.putData("Auto Aim", autoShot());
         SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
         SmartDashboard.putData("Swerve SysId Dynamic Backward", swerveDrive.sysIdDynamic(Direction.kReverse));
         SmartDashboard.putData("Swerve SysId Quasistatic Forward", swerveDrive.sysIdQuasistatic(Direction.kForward));
@@ -207,15 +207,21 @@ public class RobotContainer {
         NamedCommands.registerCommand("StartShooter", shooter.startShooter());
         //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
         if(Robot.isSimulation()) {
-            NamedCommands.registerCommand("Shoot", new Autoshot(shooter, aimer, kick, odometry, intake, swerveDrive).withTimeout(1.5));
+            NamedCommands.registerCommand("Shoot", autoShot().withTimeout(1.5));
         } else {
-            NamedCommands.registerCommand("Shoot", new AutoFixedShot(intake, shooter, kick, aimer));
+            NamedCommands.registerCommand("Shoot", autoShot());
         }
 
         // Controller chooser Setup
         driveControllerChooser.addOption("Xbox Controller", kXbox );
         driveControllerChooser.setDefaultOption("Fight Sticks", kFlight);
         SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
+
+        //command execution logging
+        //CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
+        //CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
+        //CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
+        //CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
 
         // Build an auto chooser. This will use Commands.none() as the default option.
         configureAutoBuilder();
@@ -306,9 +312,9 @@ public class RobotContainer {
                     UtilFunctions.getSetting("/PathPlanner/TurnP", 1.5), 
                     UtilFunctions.getSetting("/PathPlanner/TurnI", 0.5), 
                     UtilFunctions.getSetting("/PathPlanner/TurnD", 0)), // Rotation PID constants
-                3, // Max module speed, in m/s
+                4.5, // Max module speed, in m/s
                 swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
-                new ReplanningConfig() // Default path replanning config. See the API for the options here
+                new ReplanningConfig(false, true) // Default path replanning config. See the API for the options here
             ),
             odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
             swerveDrive // Reference to this subsystem to set requirements
