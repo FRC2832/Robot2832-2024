@@ -15,15 +15,12 @@ public class OperatorStick extends Command {
     private Kicker kick;
     private Aimer aimer;
     private IOperatorControls cont;
-    private Intake intake;
-    private int kickerTimer;
 
     public OperatorStick(Shooter shoot, IOperatorControls cont, Kicker kick, Aimer aimer, Intake intake){
         this.shoot = shoot;
         this.cont = cont;
         this.kick = kick;
         this.aimer = aimer;
-        this.intake = intake;
 
         addRequirements(shoot);
         addRequirements(kick);
@@ -35,7 +32,6 @@ public class OperatorStick extends Command {
 
     @Override
     public void initialize() {
-        kickerTimer = 0;
     }
 
     @Override

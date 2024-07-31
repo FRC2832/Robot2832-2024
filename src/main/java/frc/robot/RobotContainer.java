@@ -39,13 +39,10 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Controls.AutoFixedShot;
 import frc.robot.Controls.AutoShotLookup;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
 import frc.robot.Controls.OperatorControls;
-import frc.robot.Controls.OperatorStick;
-import frc.robot.Controls.ShootFrom;
 import frc.robot.Controls.ShooterCalibrate;
 import frc.robot.Controls.XboxDriveControls;
 import frc.robot.Controls.AutoShotLookup.TargetLocation;
@@ -218,11 +215,14 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Controller Select",driveControllerChooser);
 
         //command execution logging
-        //CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
-        //CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
-        //CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
-        //CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
-
+        boolean commandLogging = false;
+        if (commandLogging) {
+            CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
+            CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
+            CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
+            CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
+        }
+        
         // Build an auto chooser. This will use Commands.none() as the default option.
         configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
