@@ -251,30 +251,33 @@ public class RobotContainer {
             driveControls = new XboxDriveControls();
         }
         OperatorControls operatorControls = new OperatorControls();
+
+        //setup default commands for subsystems
         swerveDrive.setDefaultCommand(new DriveStick(swerveDrive, driveControls));
-        swerveDrive.resetFieldOriented();
-        OperatorStick operatorStick = new OperatorStick(shooter, operatorControls, kick, aimer, intake);
         leds.setDefaultCommand(new RainbowLeds(leds));
-        //shooter.setDefaultCommand(operatorStick);
-        //kick.setDefaultCommand(operatorStick);
         inclinator.setDefaultCommand(new DriveClimb(inclinator, operatorControls));
         aimer.setDefaultCommand(aimer.driveAimer(operatorControls::GetManualSubAim));
+
+        //drive team controls
+        new Trigger(driveControls::IsIntakeRequested).whileTrue(intake.drive(true));
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(intake.drive(false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(intake.drive(false, true));
-        new Trigger(driveControls::IsIntakeRequested).whileTrue(intake.drive(true));
-        new Trigger(()->operatorControls.AutoSubAimRequested()).whileTrue(autoShot());
+        new Trigger(operatorControls::AutoSubAimRequested).whileTrue(autoShot());
         new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(shootAtTarget(TargetLocation.Corner));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(shootAtTarget(TargetLocation.PillarFixed));
+        new Trigger(operatorControls::IsSubShotRequested).whileTrue(shootAtTarget(TargetLocation.SpeakerFixed));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(ampScore());
         new Trigger(operatorControls::ReverseShooterRequested).whileTrue(shooter.reverseShooter());
+
+        //commands to run at startup
+        swerveDrive.resetFieldOriented();
         new HomeClimber(inclinator).schedule();
     }
 
     public void disableBindings() {
         swerveDrive.removeDefaultCommand();
-        shooter.removeDefaultCommand();
-        kick.removeDefaultCommand();
         inclinator.removeDefaultCommand();
+        aimer.removeDefaultCommand();
     }
 
     /**
