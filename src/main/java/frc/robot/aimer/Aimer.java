@@ -102,7 +102,7 @@ public abstract class Aimer extends SubsystemBase {
             double ang = angle.getAsDouble();
             goToSmooth(ang);
         })
-        .until(() -> Math.abs(getAngle() - angle.getAsDouble()) < 3)
+        //.until(() -> Math.abs(getAngle() - angle.getAsDouble()) < 3)
         .finallyDo(this::stop).withName("AimerSet");
     }
 

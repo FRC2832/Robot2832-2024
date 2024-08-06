@@ -84,12 +84,12 @@ public class OperatorControls implements IOperatorControls{
 
     @Override
     public boolean IsCenterFieldShotRequested() {
-        return cont.getBButtonPressed();
+        return cont.getBButton();
     }
 
     @Override
     public boolean IsPillarShotRequested() {
-        return cont.getXButtonPressed();
+        return cont.getXButton();
     }
 
     @Override

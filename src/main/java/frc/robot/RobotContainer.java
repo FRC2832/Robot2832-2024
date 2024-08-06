@@ -218,7 +218,7 @@ public class RobotContainer {
         boolean commandLogging = false;
         if (commandLogging) {
             CommandScheduler.getInstance().onCommandInitialize(command -> System.out.println("Command Initialize " + command.getName()));
-            CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
+            //CommandScheduler.getInstance().onCommandExecute(command -> System.out.println("Command Execute " + command.getName()));
             CommandScheduler.getInstance().onCommandInterrupt(command -> System.out.println("Command Interrupted " + command.getName()));
             CommandScheduler.getInstance().onCommandFinish(command -> System.out.println("Command Finish " + command.getName()));
         }
@@ -269,11 +269,12 @@ public class RobotContainer {
         new Trigger(operatorControls::IsIntakeRequested).whileTrue(intake.drive(false));
         new Trigger(operatorControls::IsIntakeDownRequested).whileTrue(intake.drive(false, true));
         new Trigger(operatorControls::AutoSubAimRequested).whileTrue(autoShot());
-        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(shootAtTarget(TargetLocation.Corner));
+        new Trigger(operatorControls::IsCenterFieldShotRequested).whileTrue(shootAtTarget(TargetLocation.CenterFixed));
         new Trigger(operatorControls::IsPillarShotRequested).whileTrue(shootAtTarget(TargetLocation.PillarFixed));
         new Trigger(operatorControls::IsSubShotRequested).whileTrue(shootAtTarget(TargetLocation.SpeakerFixed));
         new Trigger(operatorControls::IsAmpToggled).whileTrue(ampScore());
         new Trigger(operatorControls::ReverseShooterRequested).whileTrue(shooter.reverseShooter());
+        new Trigger(operatorControls::IsClimbRequested).whileTrue(new DriveClimb(inclinator, operatorControls));
 
         //commands to run at startup
         swerveDrive.resetFieldOriented();
@@ -333,7 +334,9 @@ public class RobotContainer {
         return new ParallelCommandGroup(
             amp.setAmpDirection(true),
             shootAtTarget(TargetLocation.AmpFixed)
-        ).withName("AmpShot");
+        )
+        .finallyDo(() -> amp.SetAmpDirection(false))
+        .withName("AmpShot");
     }
 
     public Command autoShot() {
