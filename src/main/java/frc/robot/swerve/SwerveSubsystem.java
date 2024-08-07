@@ -315,6 +315,7 @@ public class SwerveSubsystem extends SubsystemBase {
      *                      robot-relative.
      */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
+        swerveDrive.chassisVelocityCorrection = true;
         int inv = 1;
         if (UtilFunctions.getAlliance() == Alliance.Red) {
             inv = -1;

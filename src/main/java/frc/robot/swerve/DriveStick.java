@@ -98,7 +98,7 @@ public class DriveStick extends Command {
             yDrive = yDrive * (maxSpeed / hyp);
         }
 
-        drive.drive(new Translation2d(xDrive, yDrive), -turn * drive.getMaxDriverOmega(), true);
+        drive.drive(new Translation2d(xDrive, yDrive), turn * drive.getMaxDriverOmega(), true);
     }
 
     @Override
