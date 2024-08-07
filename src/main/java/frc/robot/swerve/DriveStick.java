@@ -1,10 +1,9 @@
 package frc.robot.swerve;
 
 
-import org.livoniawarriors.swerve.SwerveDriveTrain;
-
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Controls.IDriveControls;
 
@@ -13,7 +12,7 @@ import frc.robot.Controls.IDriveControls;
  */
 public class DriveStick extends Command {
 
-    private SwerveDriveTrain drive;
+    private SwerveSubsystem drive;
     private IDriveControls cont;
     private InterpolatingDoubleTreeMap controlTableX;
     private InterpolatingDoubleTreeMap controlTableY;
@@ -26,7 +25,7 @@ public class DriveStick extends Command {
      * @param drive Drivetrain to command
      * @param cont Controller to read from
      */
-    public DriveStick(SwerveDriveTrain drive, IDriveControls cont) {
+    public DriveStick(SwerveSubsystem drive, IDriveControls cont) {
         this.drive = drive;
         this.cont = cont;
         addRequirements(drive);
@@ -34,8 +33,7 @@ public class DriveStick extends Command {
 
     @Override
     public void initialize() {
-        SmartDashboard.putNumber("Turtle Turn Speed", 4);
-        drive.SwerveDrive(0, 0, 0, false);
+        drive.drive(new ChassisSpeeds(0, 0, 0));
         controlTableX = new InterpolatingDoubleTreeMap();
         controlTableY = new InterpolatingDoubleTreeMap();
         turnTable = new InterpolatingDoubleTreeMap();
@@ -65,7 +63,7 @@ public class DriveStick extends Command {
     @Override
     public void execute() {
         if (cont.IsFieldOrientedResetRequested()) {
-            drive.resetFieldOriented();
+            drive.zeroGyro();
         }
         
         if(cont.GetXDrivePct()>=0){
@@ -100,11 +98,7 @@ public class DriveStick extends Command {
             yDrive = yDrive * (maxSpeed / hyp);
         }
 
-        drive.SwerveDrive(
-            xDrive, 
-            yDrive, 
-            turn * drive.getMaxDriverOmega()
-        );
+        drive.drive(new Translation2d(xDrive, yDrive), -turn * drive.getMaxDriverOmega(), true);
     }
 
     @Override

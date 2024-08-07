@@ -4,29 +4,20 @@
 
 package frc.robot;
 
+import java.io.File;
+
 import org.livoniawarriors.Logger;
-import org.livoniawarriors.UtilFunctions;
 import org.livoniawarriors.leds.LedSubsystem;
 import org.livoniawarriors.leds.LightningFlash;
 import org.livoniawarriors.leds.RainbowLeds;
 import org.livoniawarriors.leds.TestLeds;
-import org.livoniawarriors.odometry.Odometry;
-import org.livoniawarriors.odometry.Pigeon2Gyro;
-import org.livoniawarriors.odometry.PigeonGyro;
-import org.livoniawarriors.odometry.SimSwerveGyro;
 import org.livoniawarriors.swerve.MoveWheels;
-import org.livoniawarriors.swerve.SwerveDriveSim;
-import org.livoniawarriors.swerve.SwerveDriveTrain;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
@@ -35,10 +26,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Controls.AutoShotLookup;
 import frc.robot.Controls.FlightDriveControls;
 import frc.robot.Controls.IDriveControls;
@@ -68,9 +59,7 @@ import frc.robot.shooter.Shooter;
 import frc.robot.shooter.ShooterHw;
 import frc.robot.shooter.ShooterSim;
 import frc.robot.swerve.DriveStick;
-import frc.robot.swerve.PracticeSwerveHw;
-import frc.robot.swerve.ResetWheelPosition;
-import frc.robot.swerve.SwerveHw24;
+import frc.robot.swerve.SwerveSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -81,8 +70,7 @@ import frc.robot.swerve.SwerveHw24;
 public class RobotContainer {
     public static String kCanBusName = "rio";
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
-    private SwerveDriveTrain swerveDrive;
-    private Odometry odometry;
+    private SwerveSubsystem swerveDrive;
     private LedSubsystem leds;
     private Shooter shooter;
     private Inclinator inclinator;
@@ -93,6 +81,8 @@ public class RobotContainer {
     private VisionSystem vision;
     private Amp amp;
     private SendableChooser<Command> autoChooser;
+    //removed with YAGSL
+    //private Odometry odometry;
 
     // Controller Options
     private final String kXbox = "Xbox";
@@ -116,12 +106,8 @@ public class RobotContainer {
         //031e3219 = practice chassis
         //03134cef = woody
 
-        //subsystems used in all robots
-        odometry = new Odometry();
-        leds = new LedSubsystem(0, 92);
-        vision = new VisionSystem(odometry); //not making variable as we won't change this subsystem
-
         //build the robot based on the Rio ID of the robot
+        /* turned off due to YAGSL swerve changes
         if (Robot.isSimulation() || (serNum.equals("031b525b")) || (serNum.equals("03064db7"))) {
             //either buzz or simulation
             swerveDrive = new SwerveDriveTrain(new SwerveDriveSim(), odometry);
@@ -153,15 +139,27 @@ public class RobotContainer {
             aimer = new AimerSim();
             amp = new AmpSim();
         } else {
+         */
+
+        if (Robot.isSimulation()) {
+            //either buzz or simulation
+            swerveDrive = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+                                                                         "swerve/falcon"));
+            shooter = new ShooterSim();
+            intake = new IntakeSim();
+            inclinator = new Inclinator(new InclinatorSim());
+            kick = new KickerSim();
+            aimer = new AimerSim();
+            amp = new AmpSim();
+        } else {
             //competition robot
             ph = new PneumaticHub();
             ph.enableCompressorAnalog(85, 115);
             Logger.RegisterSensor("Pressure", () -> ph.getPressure(0));
-
             Logger.RegisterPdp(new PowerDistribution(), pdpList);
             
-            swerveDrive = new SwerveDriveTrain(new SwerveHw24(), odometry);
-            odometry.setGyroHardware(new Pigeon2Gyro(0,kCanBusName));
+            swerveDrive = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+                                                                         "swerve/falcon"));
             shooter = new ShooterHw();
             intake = new IntakeHw();
             inclinator = new Inclinator(new InclinatorHw());
@@ -170,29 +168,29 @@ public class RobotContainer {
             amp = new AmpHw();
         }
 
+        //subsystems used in all robots
+        leds = new LedSubsystem(0, 92);
+        vision = new VisionSystem(swerveDrive::getPose, swerveDrive::addVisionMeasurement);
+
         new DriverFeedback(vision, intake, leds);
-        odometry.setSwerveDrive(swerveDrive);
-        odometry.setStartingPose(new Pose2d(1.92, 2.79, new Rotation2d(0)));
         new RobotArbitrator(amp, inclinator, aimer);
 
         //add some buttons to press for development
-        SmartDashboard.putData("Wheels Straight", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
-        SmartDashboard.putData("Wheels Crossed", new MoveWheels(swerveDrive, MoveWheels.WheelsCrossed()));
-        SmartDashboard.putData("Wheels Diamond", new MoveWheels(swerveDrive, MoveWheels.WheelsDiamond()));
-        SmartDashboard.putData("Drive Wheels Straight", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsStraight()));
-        SmartDashboard.putData("Drive Wheels Diamond", new MoveWheels(swerveDrive, MoveWheels.DriveWheelsDiamond()));
+        SmartDashboard.putData("Wheels Straight", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.WheelsStraight())));
+        SmartDashboard.putData("Wheels Crossed", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.WheelsCrossed())));
+        SmartDashboard.putData("Wheels Diamond", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.WheelsDiamond())));
+        SmartDashboard.putData("Drive Wheels Straight", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.DriveWheelsStraight())));
+        SmartDashboard.putData("Drive Wheels Diamond", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.DriveWheelsDiamond())));
         SmartDashboard.putData("Test Leds", new TestLeds(leds));
-        SmartDashboard.putData("Reset Wheel Position", new ResetWheelPosition(swerveDrive, odometry));
+        SmartDashboard.putData("Reset Wheel Position", new InstantCommand(swerveDrive::zeroGyro, swerveDrive));
         SmartDashboard.putData("Pit Intake", intake.drive(() -> Intake.PIT_INTAKE_SPEED, false));
         SmartDashboard.putData("Home Climber", new HomeClimber(inclinator));
         SmartDashboard.putData("Test Aimer Low", aimer.setAimer(() -> 35));
         SmartDashboard.putData("Test Aimer High", aimer.setAimer(() -> 50));
         SmartDashboard.putData("Calibrate Shooter", new ShooterCalibrate(shooter, kick, aimer));
         SmartDashboard.putData("Auto Aim", autoShot());
-        SmartDashboard.putData("Swerve SysId Dynamic Forward", swerveDrive.sysIdDynamic(Direction.kForward));
-        SmartDashboard.putData("Swerve SysId Dynamic Backward", swerveDrive.sysIdDynamic(Direction.kReverse));
-        SmartDashboard.putData("Swerve SysId Quasistatic Forward", swerveDrive.sysIdQuasistatic(Direction.kForward));
-        SmartDashboard.putData("Swerve SysId Quasistatic Backward", swerveDrive.sysIdQuasistatic(Direction.kReverse));
+        SmartDashboard.putData("Swerve SysId Drive", swerveDrive.sysIdDriveMotorCommand());
+        SmartDashboard.putData("Swerve SysId Angle", swerveDrive.sysIdAngleMotorCommand());
 
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
@@ -200,7 +198,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Intake", intake.drive(true));
         NamedCommands.registerCommand("Kick", intake.drive(false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
-        NamedCommands.registerCommand("StraightenWheels", new MoveWheels(swerveDrive, MoveWheels.WheelsStraight()));
+        NamedCommands.registerCommand("StraightenWheels", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.WheelsStraight())));
         NamedCommands.registerCommand("StartShooter", shooter.startShooter());
         //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
         if(Robot.isSimulation()) {
@@ -224,14 +222,13 @@ public class RobotContainer {
         }
         
         // Build an auto chooser. This will use Commands.none() as the default option.
-        configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
         autoChooser.onChange(command -> {
             var path = command.getName();
             try {
                 Pose2d startingPose = PathPlannerAuto.getStaringPoseFromAutoFile(path);
-                odometry.setStartingPose(startingPose);
+                swerveDrive.setPose(startingPose);
             } catch (RuntimeException e) {
                 //if the path doesn't exist, don't change the starting position
                 //this is common if the drivers select "None" (which would come as InstantCommand)
@@ -277,7 +274,7 @@ public class RobotContainer {
         new Trigger(operatorControls::IsClimbRequested).whileTrue(new DriveClimb(inclinator, operatorControls));
 
         //commands to run at startup
-        swerveDrive.resetFieldOriented();
+        swerveDrive.zeroGyro();
         new HomeClimber(inclinator).schedule();
     }
 
@@ -293,33 +290,8 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        configureAutoBuilder();
+        swerveDrive.setupPathPlanner();
         return autoChooser.getSelected();
-    }
-
-    private void configureAutoBuilder() {
-        // Configure the AutoBuilder
-        AutoBuilder.configureHolonomic(
-            odometry::getPose, // Robot pose supplier
-            odometry::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            swerveDrive::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            swerveDrive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                new PIDConstants(
-                    UtilFunctions.getSetting("/PathPlanner/DriveP", 2), 
-                    UtilFunctions.getSetting("/PathPlanner/DriveI", 0.5), 
-                    UtilFunctions.getSetting("/PathPlanner/DriveD", 0)), // Translation PID constants
-                new PIDConstants(
-                    UtilFunctions.getSetting("/PathPlanner/TurnP", 1.5), 
-                    UtilFunctions.getSetting("/PathPlanner/TurnI", 0.5), 
-                    UtilFunctions.getSetting("/PathPlanner/TurnD", 0)), // Rotation PID constants
-                4.5, // Max module speed, in m/s
-                swerveDrive.getDriveBaseRadius(), // Drive base radius in meters. Distance from robot center to furthest module.
-                new ReplanningConfig(false, true) // Default path replanning config. See the API for the options here
-            ),
-            odometry::shouldFlipAlliance, //shouldFlipPath Supplier that determines if paths should be flipped to the other side of the field. This will maintain a global blue alliance origin.
-            swerveDrive // Reference to this subsystem to set requirements
-        );
     }
 
     public Command shootAtTarget(TargetLocation location) {
