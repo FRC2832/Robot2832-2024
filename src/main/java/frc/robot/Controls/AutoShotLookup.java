@@ -20,6 +20,7 @@ public class AutoShotLookup {
         AmpFixed,
         SpeakerFixed,
         PillarFixed,
+        CenterFixed,
         Corner,
         Speaker
     }
@@ -95,6 +96,8 @@ public class AutoShotLookup {
                 return UtilFunctions.getSettingSub("/Shooting/PillarShooterAngle", 40.);
             case SpeakerFixed:
                 return UtilFunctions.getSettingSub("/Shooting/SpeakerShooterAngle", 54.);
+            case CenterFixed:
+                return UtilFunctions.getSettingSub("/Shooting/CenterFieldShooterAngle", 54.);
             case Speaker:
             case Corner:
             default:
@@ -110,6 +113,8 @@ public class AutoShotLookup {
                 return UtilFunctions.getSettingSub("/Shooting/PillarShooterSpeed", 4500.);
             case SpeakerFixed:
                 return UtilFunctions.getSettingSub("/Shooting/SpeakerShooterSpeed", 6000.);
+            case CenterFixed:
+                return UtilFunctions.getSettingSub("/Shooting/CenterFieldShooterSpeed", 4500.);
             case Speaker:
             case Corner:
             default:
@@ -125,6 +130,8 @@ public class AutoShotLookup {
                 return UtilFunctions.getSettingSub("/Shooting/PillarKickerSpeed", 4500.);
             case SpeakerFixed:
                 return UtilFunctions.getSettingSub("/Shooting/SpeakerKickerSpeed", 6500.);
+            case CenterFixed:
+                return UtilFunctions.getSettingSub("/Shooting/CenterFieldKickerSpeed", 4500.);
             case Speaker:
             case Corner:
             default:
