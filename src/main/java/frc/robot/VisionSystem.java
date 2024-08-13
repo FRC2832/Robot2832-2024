@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -31,7 +32,10 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.swerve.AddVisionParams;
@@ -60,6 +64,7 @@ public class VisionSystem extends SubsystemBase {
     private CameraData cameras[];
     private static Supplier<Pose2d> poseSupplier;
     private Consumer<AddVisionParams> addVisionMeasurement;
+    private SendableChooser<String> alliChooser;
 
     public static enum FieldLocation {
         Speaker,
@@ -113,10 +118,21 @@ public class VisionSystem extends SubsystemBase {
         heartbeatSub = frontCam.getCameraTable().getIntegerTopic("heartbeat").subscribe(0);
         heartbeatLast = 0;
         heartbeatMisses = 0;
+
+        //add alliance chooser
+        alliChooser = new SendableChooser<>();
+        alliChooser.addOption("Red", "Red");
+        alliChooser.addOption("Blue", "Blue");
+        alliChooser.setDefaultOption("Field", "Default");
+        SmartDashboard.putData("Alliance Overwrite", alliChooser);
     }
 
     @Override
     public void periodic() {
+        //handle alliance color
+        updateAlliance();
+        SmartDashboard.putString("Alliance Color", UtilFunctions.getAlliance().toString());
+
         //check if camera is there
         long heartbeat = heartbeatSub.get();
         if(heartbeat != heartbeatLast) {
@@ -278,5 +294,30 @@ public class VisionSystem extends SubsystemBase {
         Pose2d pose = poseSupplier.get();
         Pose2d target = VisionSystem.getLocation(location).get();
         return UtilFunctions.getDistance(pose, target);
+    }
+
+    private void updateAlliance() {
+        Alliance output;
+        var selected = alliChooser.getSelected();
+
+        //ask the driver station what our alliance is
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+            output = Alliance.Red;
+        } else {
+            output = Alliance.Blue;
+        }
+
+        if(selected == null) {
+            //don't change the output
+        } else if(selected == "Red") {
+            output = Alliance.Red;
+        } else if(selected == "Blue") {
+            output = Alliance.Blue;
+        } else {
+            //don't change the output
+        }
+        
+        UtilFunctions.setAlliance(output);
     }
 }
