@@ -1,6 +1,8 @@
 package frc.robot.aimer;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,7 +12,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+
+import org.livoniawarriors.UtilFunctions;
 
 public abstract class Aimer extends SubsystemBase {
     public abstract void updateInputs();
@@ -30,12 +35,18 @@ public abstract class Aimer extends SubsystemBase {
     private InterpolatingDoubleTreeMap downTable;
     private double stopAimTime = 0;
 
+    private BooleanEntry atAngle;
+    private DoubleSubscriber errorAngle;
+
     public Aimer() {
         super();
         upTable = new InterpolatingDoubleTreeMap();
         downTable = new InterpolatingDoubleTreeMap();
         readShooterTable("/Aimer_Cal2_Up.csv",upTable);
         readShooterTable("/Aimer_Cal2_Down.csv",downTable);
+        
+        atAngle = UtilFunctions.getNtEntry("/Shooter/At Angle", false);
+        errorAngle = UtilFunctions.getSettingSub("/Shooter/Error Angle Allowed", 3);
     }
 
     public void goTo(double target) {
@@ -101,9 +112,22 @@ public abstract class Aimer extends SubsystemBase {
         return run(() -> {
             double ang = angle.getAsDouble();
             goToSmooth(ang);
+            updateAtAngle(ang);
         })
-        //.until(() -> Math.abs(getAngle() - angle.getAsDouble()) < 3)
-        .finallyDo(this::stop).withName("AimerSet");
+        .finallyDo(() -> {
+            stop();
+            atAngle.set(false);
+        })
+        .withName("AimerSet");
+    }
+
+    private void updateAtAngle(double targetAngle) {
+        var allowedError = errorAngle.get();
+        atAngle.set(Math.abs(getAngle() - targetAngle) < allowedError);
+    }
+
+    public BooleanSupplier atAngle() {
+        return atAngle;
     }
 
     private void readShooterTable(String fileName, InterpolatingDoubleTreeMap table){

@@ -2,6 +2,7 @@ package frc.robot;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.livoniawarriors.UtilFunctions;
@@ -33,9 +34,9 @@ import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.swerve.AddVisionParams;
 
 public class VisionSystem extends SubsystemBase {
-    Odometry odometry;
     AprilTagFieldLayout aprilTagFieldLayout;
     PhotonPoseEstimator frontCamEstimator;
     private VisionSystemSim visionSim;
@@ -57,15 +58,18 @@ public class VisionSystem extends SubsystemBase {
     private long heartbeatLast;
     private int heartbeatMisses;
     private CameraData cameras[];
+    private static Supplier<Pose2d> poseSupplier;
+    private Consumer<AddVisionParams> addVisionMeasurement;
 
     public static enum FieldLocation {
         Speaker,
         Amp
     }
 
-    public VisionSystem(Odometry odometry) {
+    public VisionSystem(Supplier<Pose2d> poseSupplier, Consumer<AddVisionParams> addVisionMeasurement) {
         super();
-        this.odometry = odometry;
+        VisionSystem.poseSupplier = poseSupplier;
+        this.addVisionMeasurement = addVisionMeasurement;
         simInit = false;
         try {
             aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile);
@@ -125,6 +129,7 @@ public class VisionSystem extends SubsystemBase {
         for(var camera : cameras) {
             processCamera(camera);
         }
+        SmartDashboard.putNumber("Robot to Speaker", VisionSystem.getDistanceToTarget(FieldLocation.Speaker));
     }
 
     private class CameraData {
@@ -138,7 +143,7 @@ public class VisionSystem extends SubsystemBase {
         // Update and log inputs
         PhotonPipelineResult pipelineResult = data.camera.getLatestResult();
         //need to update our estimate every loop
-        data.poseEstimator.setReferencePose(odometry.getPose());
+        data.poseEstimator.setReferencePose(poseSupplier.get());
 
         //return if we don't have a new packet
         if(data.lastTimestamp == pipelineResult.getLatencyMillis()) return;
@@ -172,7 +177,8 @@ public class VisionSystem extends SubsystemBase {
                 SmartDashboard.putNumber(name + " Pose Data Z", estimatedPose.getZ());
                 double stdDiv = visionStdDev.get();
                 Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
-                odometry.addVisionMeasurement(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
+                var args = new AddVisionParams(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
+                addVisionMeasurement.accept(args);
                 data.lastTimestamp = pipelineResult.getTimestampSeconds();
                 lastTargetTimestamp = data.lastTimestamp;
                 
@@ -207,7 +213,7 @@ public class VisionSystem extends SubsystemBase {
             cameraSim.enableDrawWireframe(true);
             simInit = true;
         }
-        visionSim.update(odometry.getPose());
+        visionSim.update(poseSupplier.get());
     }
 
     /**
@@ -269,7 +275,7 @@ public class VisionSystem extends SubsystemBase {
     }
 
     public static double getDistanceToTarget(FieldLocation location) {
-        Pose2d pose = Odometry.getInstance().getPose();
+        Pose2d pose = poseSupplier.get();
         Pose2d target = VisionSystem.getLocation(location).get();
         return UtilFunctions.getDistance(pose, target);
     }
