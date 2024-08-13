@@ -196,7 +196,7 @@ public class RobotContainer {
         // Register Named Commands for PathPlanner
         NamedCommands.registerCommand("flashRed", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("flashBlue", new LightningFlash(leds, Color.kFirstBlue));
-        NamedCommands.registerCommand("Intake", intake.drive(true));
+        NamedCommands.registerCommand("Intake", intake.drive(true).withTimeout(3));
         NamedCommands.registerCommand("Kick", intake.drive(false).withTimeout(0.75));
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.WheelsStraight())));
@@ -330,7 +330,10 @@ public class RobotContainer {
                 shooter.runShooter(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker)),
                 kick.runKicker(AutoShotLookup.getKickerSpeed(TargetLocation.Speaker))
             ).withTimeout(0.75)
-        ).finallyDo((interrupt) -> {shooter.stopShooter(); aimer.goToSmooth(40.);})
+        ).finallyDo((interrupt) -> {
+            shooter.setRpm(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker).getAsDouble());
+            aimer.goToSmooth(40.);
+        })
         .withName("AutoShot");
     }
 }
