@@ -58,7 +58,7 @@ public class VisionSystem extends SubsystemBase {
     private long heartbeatLast;
     private int heartbeatMisses;
     private CameraData cameras[];
-    private Supplier<Pose2d> poseSupplier;
+    private static Supplier<Pose2d> poseSupplier;
     private Consumer<AddVisionParams> addVisionMeasurement;
 
     public static enum FieldLocation {
@@ -68,7 +68,7 @@ public class VisionSystem extends SubsystemBase {
 
     public VisionSystem(Supplier<Pose2d> poseSupplier, Consumer<AddVisionParams> addVisionMeasurement) {
         super();
-        this.poseSupplier = poseSupplier;
+        VisionSystem.poseSupplier = poseSupplier;
         this.addVisionMeasurement = addVisionMeasurement;
         simInit = false;
         try {
@@ -129,6 +129,7 @@ public class VisionSystem extends SubsystemBase {
         for(var camera : cameras) {
             processCamera(camera);
         }
+        SmartDashboard.putNumber("Robot to Speaker", VisionSystem.getDistanceToTarget(FieldLocation.Speaker));
     }
 
     private class CameraData {
@@ -274,7 +275,7 @@ public class VisionSystem extends SubsystemBase {
     }
 
     public static double getDistanceToTarget(FieldLocation location) {
-        Pose2d pose = Odometry.getInstance().getPose();
+        Pose2d pose = poseSupplier.get();
         Pose2d target = VisionSystem.getLocation(location).get();
         return UtilFunctions.getDistance(pose, target);
     }
