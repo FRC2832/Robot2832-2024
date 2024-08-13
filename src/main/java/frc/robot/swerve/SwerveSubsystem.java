@@ -560,7 +560,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 double robotAngleRad = robotPose.getRotation().getRadians();
                 robotAngleRad = MathUtil.inputModulus(robotAngleRad, targetAngleRad - Math.PI, targetAngleRad + Math.PI);
 
-                double angleCommand = pid.calculate(robotAngleRad, targetAngleRad);
+                double angleCommand = Math.toDegrees(pid.calculate(robotAngleRad, targetAngleRad));
                 drive(new ChassisSpeeds(0, 0, angleCommand));
 
                 //check if we finished

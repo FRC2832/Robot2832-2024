@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.io.File;
+import java.util.function.BooleanSupplier;
 
 import org.livoniawarriors.Logger;
 import org.livoniawarriors.leds.LedSubsystem;
@@ -312,15 +313,24 @@ public class RobotContainer {
     }
 
     public Command autoShot() {
-        Trigger shotAimed = new Trigger(swerveDrive.aimedAtTarget()).and(shooter.atRpm());
-        
+        //Trigger shotAimed = new Trigger(swerveDrive.aimedAtTarget()).and(shooter.atRpm()).and(aimer.atAngle());
+        BooleanSupplier aimed = () -> {
+            return swerveDrive.aimedAtTarget().getAsBoolean() && shooter.atRpm().getAsBoolean() && aimer.atAngle().getAsBoolean();
+        };
+
         return new ParallelCommandGroup(
-            shooter.startShooter(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker)),
-            swerveDrive.aimAtTargetBackwards(VisionSystem.getLocation(FieldLocation.Speaker))
-        ).until(shotAimed)
-        .withTimeout(3)
-        .andThen(intake.drive(false).withTimeout(0.75))
-        .finallyDo(shooter::stopShooter)
+            swerveDrive.aimAtTargetBackwards(VisionSystem.getLocation(FieldLocation.Speaker)),
+            shooter.runShooter(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker)),
+            kick.runKicker(AutoShotLookup.getKickerSpeed(TargetLocation.Speaker)),
+            aimer.setAimer(AutoShotLookup.getShooterAngle(TargetLocation.Speaker))
+        ).until(aimed).withTimeout(2) 
+        .andThen(
+            new ParallelCommandGroup(
+                intake.drive(false),
+                shooter.runShooter(AutoShotLookup.getShooterSpeed(TargetLocation.Speaker)),
+                kick.runKicker(AutoShotLookup.getKickerSpeed(TargetLocation.Speaker))
+            ).withTimeout(0.75)
+        ).finallyDo((interrupt) -> {shooter.stopShooter(); aimer.goToSmooth(40.);})
         .withName("AutoShot");
     }
 }
