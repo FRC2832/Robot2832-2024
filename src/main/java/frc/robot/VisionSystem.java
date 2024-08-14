@@ -24,14 +24,18 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.proto.Pose3dProto;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.ProtobufPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -98,6 +102,7 @@ public class VisionSystem extends SubsystemBase {
         //get the estimator of it
         cameras[0].poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameras[0].camera, frontCamPos);
         cameras[0].poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        cameras[0].posePublisher = NetworkTableInstance.getDefault().getProtobufTopic("/Vision/"+cameras[0].camera.getName(), new Pose3dProto()).publish();
 
         cameras[1] = new CameraData();
         cameras[1].camera = new PhotonCamera("Left_Camera");
@@ -109,6 +114,7 @@ public class VisionSystem extends SubsystemBase {
         //get the estimator of it
         cameras[1].poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameras[1].camera, leftCamPos);
         cameras[1].poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        cameras[1].posePublisher = NetworkTableInstance.getDefault().getProtobufTopic("/Vision/"+cameras[1].camera.getName(), new Pose3dProto()).publish();
 
         visionStdDev = UtilFunctions.getSettingSub("/Odometry/VisionStdDev", 4);
         lastTargetTimestamp = 0;
@@ -152,6 +158,7 @@ public class VisionSystem extends SubsystemBase {
         PhotonCamera camera;
         PhotonPoseEstimator poseEstimator;
         double lastTimestamp;
+        ProtobufPublisher<Pose3d> posePublisher;
     }
 
     public void processCamera(CameraData data) {
@@ -188,9 +195,7 @@ public class VisionSystem extends SubsystemBase {
             // Make sure the measurement is on the field
             if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= Odometry.FIELD_LENGTH_METERS
                 && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= Odometry.FIELD_WIDTH_METERS) {
-                SmartDashboard.putNumber(name + " Pose Data X", estimatedPose.getX());
-                SmartDashboard.putNumber(name + " Pose Data Y", estimatedPose.getY());
-                SmartDashboard.putNumber(name + " Pose Data Z", estimatedPose.getZ());
+                data.posePublisher.set(estimatedPose.transformBy(data.poseEstimator.getRobotToCameraTransform()));
                 double stdDiv = visionStdDev.get();
                 Vector<N3> deviations = VecBuilder.fill(stdDiv, stdDiv, stdDiv);
                 var args = new AddVisionParams(estimatedPose.toPose2d(), pipelineResult.getTimestampSeconds(),deviations);
