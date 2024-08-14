@@ -2,7 +2,6 @@ package org.livoniawarriors;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import edu.wpi.first.math.MathUtil;
@@ -26,7 +25,6 @@ import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StringTopic;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -359,12 +357,13 @@ public class UtilFunctions {
         return newValue;
     }
 
+    /* TODO: Move this for next season, in VisionSystem for now */
+    private static Alliance alliance;
     public static Alliance getAlliance() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-            return Alliance.Red;
-        } else {
-            return Alliance.Blue;
-        }
+        return alliance;
+    }
+
+    public static void setAlliance(Alliance alliance) {
+        UtilFunctions.alliance = alliance;
     }
 }
