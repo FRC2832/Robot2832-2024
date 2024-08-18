@@ -201,6 +201,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("LightShot", new LightningFlash(leds, Color.kFirstRed));
         NamedCommands.registerCommand("StraightenWheels", swerveDrive.run(()->swerveDrive.setWheelStates(MoveWheels.WheelsStraight())));
         NamedCommands.registerCommand("StartShooter", shooter.startShooter());
+        NamedCommands.registerCommand("SetAimer", aimer.run(() -> aimer.goToSmooth(40)).withTimeout(0.5));
         //since simulation doesn't work with shooting yet, make this hack to timeout after 1.5 second of shooting
         if(Robot.isSimulation()) {
             NamedCommands.registerCommand("Shoot", autoShot().withTimeout(1.5));
