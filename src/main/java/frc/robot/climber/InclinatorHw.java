@@ -129,7 +129,7 @@ public class InclinatorHw implements IInclinatorHw {
         } else {
             leftLimit = false;
         }
-        leftHeight = 20.75 + (leftClimb.getSelectedSensorPosition() / COUNTS_PER_INCH);
+        leftHeight = 22.25 + (leftClimb.getSelectedSensorPosition() / COUNTS_PER_INCH);
         SmartDashboard.putNumber("Left Climber Height", leftHeight);
 
         if(rightSwitch.getVoltage() < 0.1) {

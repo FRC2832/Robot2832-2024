@@ -97,7 +97,7 @@ public class VisionSystem extends SubsystemBase {
         //get the offsets where the camera is mounted
         frontCamPos = new Transform3d(
             new Translation3d(-0.27, -0.3, 0.45), 
-            new Rotation3d(Math.PI+Math.toRadians(4),-Math.toRadians(17.5),Math.toRadians(180))
+            new Rotation3d(Math.PI+Math.toRadians(4),-Math.toRadians(27),Math.toRadians(180))
         );
         //get the estimator of it
         cameras[0].poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameras[0].camera, frontCamPos);
@@ -109,7 +109,7 @@ public class VisionSystem extends SubsystemBase {
         //get the offsets where the camera is mounted
         var leftCamPos = new Transform3d(
             new Translation3d(-0.27, 0.3, 0.45), 
-            new Rotation3d(Math.PI-Math.toRadians(5),-Math.toRadians(22),Math.toRadians(180))
+            new Rotation3d(Math.PI-Math.toRadians(5),-Math.toRadians(33),Math.toRadians(180))
         );
         //get the estimator of it
         cameras[1].poseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameras[1].camera, leftCamPos);
